@@ -89,11 +89,87 @@ def encode_categories(features):
 
 
 encode_categories(['HomePlanet', 'Destination'])
-df2.drop(df[df['Age']==0].index,axis=0,inplace=True)
-age_mean=df2['Age'].mean()
-age_median=df2['Age'].median()
-df2['Age'].fillna(age_mean,inplace=True)
+df2.drop(df[df['Age'] == 0].index, axis=0, inplace=True)
+age_mean = df2['Age'].mean()
+age_median = df2['Age'].median()
+df2['Age'].fillna(age_mean, inplace=True)
 
-df2.VIP.fillna(0,inplace=True)
-df2['CryoSleep'].value_counts()
-print(df2.corr())
+df2.VIP.fillna(0, inplace=True)
+df2['VIP'].fillna(0, inplace=True)
+df2.fillna(0, inplace=True)
+X_train = df2.drop('Transported', axis=1)
+y_train = df2['Transported']
+X_test = pd.read_csv('test.csv')
+X_test['Cabin'].value_counts()
+passenger = X_test['PassengerId']
+X_test = X_test.drop(['PassengerId', 'Name', 'Cabin'], axis=1)
+
+X_test['VIP'] = X_test['VIP'].replace({'False': 0, 'True': 1}).astype(np.float16)
+X_test['CryoSleep'] = X_test['CryoSleep'].replace({'False': 0, 'True': 1}).astype(np.float16)
+
+from sklearn import preprocessing
+
+
+def encode_categories(features):
+    le = preprocessing.LabelEncoder()
+    for i in range(len(features)):
+        X_test[features[i]] = le.fit_transform(X_test[features[i]])
+
+
+encode_categories(['HomePlanet', 'Destination'])
+age_mean = X_test['Age'].mean()
+age_median = X_test['Age'].median()
+X_test['Age'].fillna(age_mean, inplace=True)
+X_test.fillna(0, inplace=True)
+print(X_test.columns)
+
+# 40
+models = []
+models.append(('LogisticRegression', LogisticRegression()))
+models.append(('RandomForest', RandomForestClassifier()))
+models.append(('Decision Tree', DecisionTreeClassifier()))
+models.append(('KNN', KNeighborsClassifier(n_neighbors=5)))
+
+print('=' * 20)
+for name, model in models:
+    trained_model = model.fit(X_train, y_train)
+    predictions = trained_model.predict(X_test)
+    print(f"train score:{accuracy_score(y_train, trained_model.predict(X_train))}\n")
+
+n_estimators = [5, 20, 50, 100]  # number of trees in the random forest
+max_features = ['auto', 'sqrt']
+max_depth = [int(x) for x in np.linspace(10, 120, num=12)]
+min_samples_split = [2, 6, 10]
+min_samples_leaf = [1, 3, 4, 5, 6]
+bootstrap = [True, False]
+
+random_grid = {
+    'n_estimators': n_estimators,
+    'max_features': max_features,
+    'max_depth': max_depth,
+    'min_samples_split': min_samples_split,
+    'min_samples_leaf': min_samples_leaf,
+    'bootstrap': bootstrap
+}
+
+rf = RandomForestClassifier()
+rf_random = RandomizedSearchCV(estimator=rf, param_distributions=random_grid,
+                               n_iter=100, cv=5, verbose=2, random_state=35, n_jobs=-1)
+
+rf_random.fit(X_train, y_train)
+# print(f"train score :{accuracy_score(y_train, rf_random.predict(X_train))}\n")
+# print("Random grid:" ,random_grid,"\n")
+print("Best parameters: ", rf_random.best_params_, '\n')
+randmf = RandomForestClassifier(n_estimators=100, min_samples_split=2, min_samples_leaf=6,
+                                max_features='sqrt', max_depth=50, bootstrap=True)
+
+result = randmf.fit(X_train, y_train)
+print(f"train score:{accuracy_score(y_train, rf_random.predict(X_train))}\n")
+
+y_prediction = randmf.predict(X_test)
+data = {
+    'PassengerId': passenger,
+    'Transported': y_prediction
+}
+final = pd.DataFrame(data)
+final.to_csv("test1.csv", index=False)
