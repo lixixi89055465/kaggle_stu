@@ -16,11 +16,8 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.keras import models,layers,Sequential
 
-# import tensorflow as tf
-# from tensorflow.keras import models,layers,Sequential
-# import tensorflow as tf
-train_df = pd.read_csv('../data/train.csv')
-test_df = pd.read_csv('../data/test.csv')
+train_df = pd.read_csv('/home/nanji/workspace/kaggle_stu/Spaceship_Titanic/data/train.csv')
+test_df = pd.read_csv('/home/nanji/workspace/kaggle_stu/Spaceship_Titanic/data/test.csv')
 
 print(train_df.sample(3))
 print(train_df.columns)
@@ -132,3 +129,11 @@ y_test= y_test.to_numpy().reshape(-1, 1)
 
 
 
+
+
+model = models.Sequential([
+        layers.Dense(units=16, activation='relu', input_shape=[6,]),
+        layers.Dense(units=32, activation='relu'),
+        layers.Dense(units=8, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)),
+        layers.Dense(units=1, activation='sigmoid')
+])
