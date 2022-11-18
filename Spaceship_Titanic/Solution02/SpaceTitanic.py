@@ -1,3 +1,4 @@
+print("error!!!!!!")
 import numpy as np
 import pandas as pd
 import copy
@@ -14,10 +15,10 @@ from sklearn.impute import SimpleImputer, IterativeImputer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
-from tensorflow.keras import models,layers,Sequential
+from tensorflow.keras import models, layers, Sequential
 
-train_df = pd.read_csv('/home/nanji/workspace/kaggle_stu/Spaceship_Titanic/data/train.csv')
-test_df = pd.read_csv('/home/nanji/workspace/kaggle_stu/Spaceship_Titanic/data/test.csv')
+train_df = pd.read_csv('../data/train.csv')
+test_df = pd.read_csv('../data/test.csv')
 
 print(train_df.sample(3))
 print(train_df.columns)
@@ -116,24 +117,41 @@ def label_encoder(train_df, test_df, columns):
 
 train_df, test_df = label_encoder(train_df, test_df, label_cols)
 
-X = train_df.drop('PassengerId', axis=1, inplace=False)
-y = train_df['PassengerId']
+train_df.drop(['Cabin', 'Name', 'PassengerId'], axis=1, inplace=True)
+test_df.drop(['Cabin', 'Name', 'PassengerId'], axis=1, inplace=True)
+
+X = train_df.drop('Transported', axis=1)
+y = train_df['Transported']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 X_train = X_train.to_numpy()
-y_train = y_train.to_numpy().reshape(-1, 1)
-X_test=X_test.to_numpy()
-y_test= y_test.to_numpy().reshape(-1, 1)
-# train
+y_train = y_train.to_numpy()
+X_test = X_test.to_numpy()
+y_test = y_test.to_numpy()
 
-
-
-
-
-
+# model = models.Sequential([
+#     layers.Dense(units=16, activation='relu', input_shape=[6]),
+#     layers.Dense(units=32, activation='relu'),
+#     layers.Dense(units=8, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)),
+#     layers.Dense(units=1, activation='sigmoid')
+# ])
 model = models.Sequential([
-        layers.Dense(units=16, activation='relu', input_shape=[6,]),
-        layers.Dense(units=32, activation='relu'),
-        layers.Dense(units=8, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)),
-        layers.Dense(units=1, activation='sigmoid')
+    layers.Dense(units=16, activation='relu', input_shape=[6, ]),
+    layers.Dense(units=32, activation='relu', ),
+    layers.Dense(units=8, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)),
+    layers.Dense(units=1, activation='sigmoid')
 ])
+# model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])
+# history = model.fit(x=X_train, y=y_train, batch_size=64, epochs=50, validation_data=(X_test, y_test))
+model.compile(optimizer='Adam',loss='binary_crossentropy',metrics='acc')
+history=model.fit(x=X_train,y=y_train,batch_size=64,epochs=50,validation_data=(X_test,y_test))
+
+his_df = pd.DataFrame(history.history)
+hisfig = px.line(his_df, y=['acc', 'val_acc'], markers=True)
+hisfig.show()
+
+predictions = model.predict(test_df)
+sub = pd.read_csv('../data/sample_submission.csv')
+sub['Transported'] = predictions
+sub['Transported'] = sub['Transported'].map(lambda x: True if x > 0.5 else False)
+sub.to_csv('result.csv', index=True)
