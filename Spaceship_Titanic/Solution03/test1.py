@@ -3,7 +3,7 @@ from IPython.display import clear_output
 clear_output()
 import numpy as np
 import pandas as pd
-import seaborn as pd
+import seaborn as sns
 import plotly.express as px
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
@@ -14,7 +14,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
-from lightgdm import LGBMClassifier
+from lightgbm import LGBMClassifier
 import lazypredict
 from lazypredict.Supervised import LazyClassifier
 import time
@@ -24,8 +24,8 @@ warnings.filterwarnings('ignore')
 
 train = pd.read_csv('../data/train.csv')
 test = pd.read_csv('../data/test.csv')
-
 submission = pd.read_csv('../data/sample_submission.csv')
+
 RANDOM_STATE = 12
 FOLDS = 5
 STRATEGY = 'median'
@@ -48,3 +48,34 @@ STRATEGY = 'median'
     you are trying to predict.
 
 '''
+print(train.head())
+print(f'\033[94mNumber of rows in train data:{train.shape[0]}')
+print(f'\033[94mNumber of columns in train data:{train.shape[1]}')
+print(f'\033[94mnumber of values in train data:{train.count().sum()}')
+print(f'\033[94mnumber of missing values in train data:{sum(train.isna().sum())}')
+print(train.isna().sum().sort_values(ascending=False))
+print(train.describe())
+
+print(test.head())
+print(f'\033[94mNumber of rows in train data:{test.shape[0]}')
+print(f'\033[94mNumber of columns in train data:{test.shape[1]}')
+print(f'\033[94mnumber of values in train data:{test.count().sum()}')
+print(f'\033[94mnumber of missing values in train data:{sum(test.isna().sum())}')
+
+print(test.isna().sum().sort_values(ascending=False))
+
+print(test.describe())
+print(submission.head())
+
+train.drop(['PassengerId'], axis=1, inplace=True)
+test.drop(['PassengerId'], axis=1, inplace=True)
+TARGET = 'PassengerId'
+FEATURES = [col for col in train.columns if col != TARGET]
+RANGE_STATE = 12
+
+# train.iloc[:,:-1].describe().T.sort_values(by='std',ascending=False)\
+#     .style.background_gradient(cmap='GnBu')\
+#     .bar(subset=['max'],color='#BB0000')\
+#     .bar(subset=['mean'],color='green')
+test_null = pd.DataFrame(test.isna().sum())
+test_null=testf'd's'la'
