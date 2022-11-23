@@ -30,5 +30,19 @@ def make_mi_scores(X, y):
 df = pd.read_csv("./input/fe-course-data/ames.csv")
 
 features = ["YearBuilt", "MoSold", "ScreenPorch"]
-sns.relplot(x='value', y='SalePrice', col='variable', data=df.melt(id_vars='SalePrice', value_vars=features),
-            facet_kws=dict(sharex=False), )
+# sns.relplot(x='value', y='SalePrice', col='variable', data=df.melt(id_vars='SalePrice', value_vars=features),
+#             facet_kws=dict(sharex=False), )
+def make_mi_scores(X, y, discrete_features):
+    mi_scores = mutual_info_regression(X, y, discrete_features=discrete_features)
+    mi_scores = pd.Series(mi_scores, name='MI Scores', index=X.columns)
+    print(mi_scores)
+    mi_scores = mi_scores.sort_values(ascending=False)
+    return mi_scores
+
+X=df.copy()
+y=X.pop('SalePrice')
+for colname in X.select_dtypes("object"):
+    X[colname],_=X[colname].factorize()
+discrete_features= X.dtypes==int
+make_mi_scores(X,y,discrete_features)
+

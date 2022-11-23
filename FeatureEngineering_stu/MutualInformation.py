@@ -39,6 +39,7 @@ mis_scores = make_mi_scores(X, y, discrete_features)
 print(mis_scores[::3])
 
 
+
 def plot_mi_scores(scores):
     scores = scores.sort_values(ascending=True)
     width = np.arange(len(scores))
