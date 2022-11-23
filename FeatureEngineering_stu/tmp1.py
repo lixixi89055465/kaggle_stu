@@ -3,10 +3,16 @@
 # importing pandas as pd
 import pandas as pd
 
-# creating a dataframe
-df = pd.DataFrame({'Name': {0: 'John', 1: 'Bob', 2: 'Shiela'},
-                   'Course': {0: 'Masters', 1: 'Graduate', 2: 'Graduate'},
-                   'Age': {0: 27, 1: 23, 2: 21}})
+import pandas as pd
+
+df = pd.DataFrame({'A': {0: 'a', 1: 'b', 2: 'c'},
+                   'B': {0: 1, 1: 3, 2: 5},
+                   'C': {0: 2, 1: 4, 2: 6}})
 print(df)
-print('1'*100)
-print(pd.melt(df, id_vars=['Name'], value_vars=['Course']))
+print('1' * 100)
+df = pd.melt(df, id_vars='A', value_vars='C')
+print(df)
+
+print('2' * 100)
+df = pd.melt(df, id_vars='A')
+print(df)
