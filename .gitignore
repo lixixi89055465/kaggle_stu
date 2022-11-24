@@ -1,3 +1,4 @@
+*.zip
 *.csv
 .DS_Store
 .idea
