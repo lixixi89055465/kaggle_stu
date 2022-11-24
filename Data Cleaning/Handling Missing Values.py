@@ -22,7 +22,12 @@ percent_missing = (total_missings / total_cells) * 100
 columns_with_na_dropped = nfl_data.dropna(axis=1)
 # print(columns_with_na_dropped.head())
 subset_nfl_data = nfl_data.loc[:, 'EPA':'Season'].head()
-print(subset_nfl_data)
+# print(subset_nfl_data)
 
 # print("Columns in original dataset:%d \n" % nfl_data.shape[1])
 # print("Columns with na's dropeed :%d \n" % columns_with_na_dropped.shape[1])
+
+print('1'*100)
+# print(subset_nfl_data.fillna(0))
+print(subset_nfl_data.fillna(method='bfill', axis=0).fillna(0))
+
