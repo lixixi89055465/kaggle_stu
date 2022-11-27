@@ -8,7 +8,7 @@ from mlxtend.preprocessing import minmax_scaling
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-kickstarters_2017 = pd.read_csv("./input/kickstarter-projects/ks-projects-201801.csv")
+kickstarters_2017 = pd.read_csv("./data/kickstarter-projects/ks-projects-201801.csv")
 # set seed for reproducibility
 np.random.seed(0)
 

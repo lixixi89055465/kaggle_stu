@@ -27,7 +27,7 @@ def make_mi_scores(X, y):
 
 
 # Load data
-df = pd.read_csv("./input/fe-course-data/ames.csv")
+df = pd.read_csv("./data/fe-course-data/ames.csv")
 
 features = ["YearBuilt", "MoSold", "ScreenPorch"]
 

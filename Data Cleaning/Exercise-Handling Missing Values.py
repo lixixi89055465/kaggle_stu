@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 # read in all our data
-sf_permits = pd.read_csv("./input/Building_Permits.csv")
+sf_permits = pd.read_csv("./data/Building_Permits.csv")
 
 # set seed for reproducibility
 np.random.seed(0)
