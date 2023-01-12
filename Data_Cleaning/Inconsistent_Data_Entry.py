@@ -41,7 +41,7 @@ def replace_matcher_in_column(df, column, string_to_match, min_ratio=47):
     close_matches = [matches[0] for matches in matches if matches[1] >= min_ratio]
     # get the rows of all the close matches in our dataframe
     rows_with_matches = df[column].isin(close_matches)
-    # replace all rows with close matches with the input matches
+    # replace all rows with close matches with the data matches
     df.loc[rows_with_matches, column] = string_to_match
     print('All done!')
 
