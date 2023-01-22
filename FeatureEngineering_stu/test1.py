@@ -1,29 +1,54 @@
-import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+from sklearn import neighbors, datasets
+# from sklearn.neighbors.nearest_centroid import NearestCentroid
+from sklearn.neighbors._nearest_centroid import NearestCentroid
 
-df1 = pd.DataFrame({"key": list("abcd"), "data1": range(4)})
-print("1" * 100)
-print(df1)
+n_neighbors = 15
 
-df2 = pd.DataFrame({"key": ['a', 'b', 'b'], 'data2': range(3)})
-print("2" * 100)
-print(df2)
+# 加载数据
+iris = datasets.load_iris()
+# print(iris)
+# 二维可视化
+X = iris.data[:, :2]
+y = iris.target
 
-print("3" * 100)
-df3 = df1.merge(df2)
-print(df3)
-print("4" * 100)
-df4 = df1.merge(df2, left_on='key', right_on='key')
-print(df4)
-print("5" * 100)
-df5 = pd.merge(df1, df2, left_on='key', right_on='key')
-print(df5)
-print("5.5" * 100)
-df6 = pd.merge(df1, df2, how='outer')
-print(df6)
-print("7" * 100)
-df7 = pd.merge(df1, df2, how='left')
-print(df7)
-df8=pd.merge(df1, df2, left_on='data1', right_index=True, suffixes=('_df1', '_df2'))
-print("8" * 100)
-print(df8)
+cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
+
+plt.figure()
+
+plt.scatter(X[:, 0], X[:, 1], c=y, cmap=cmap_bold)
+plt.xlim(X.min(), 8)
+plt.ylim(y.min(), 6)
+plt.title("3-Class classification")
+plt.show()
+
+# 可视化分类器及数据
+h = .02
+
+cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
+
+clf = NearestCentroid()
+clf.fit(X, y)
+
+# 计算每个特征向量的最大值和最小值
+x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                     np.arange(y_min, y_max, h))
+Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+
+# 可视化分类器
+Z = Z.reshape(xx.shape)
+plt.figure()
+plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+
+# 可视化数据
+plt.scatter(X[:, 0], X[:, 1], c=y, cmap=cmap_bold)
+plt.xlim(xx.min(), xx.max())
+plt.ylim(yy.min(), yy.max())
+plt.title("3-Class classification")
+
+plt.show()
+
