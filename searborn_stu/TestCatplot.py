@@ -62,6 +62,11 @@ print("9" * 100)
 # 5、sns.plot还可直接计算categorical变量出现的次数：
 print("a" * 100)
 # sns.catplot(x='day',data=tips,kind='count')
-sns.countplot(x='day',data=tips)
+# sns.countplot(x='day',data=tips)
+
+# sns.distplot(tips['total_bill'],hist_kws={'cumulative':False},
+#          kde_kws={'cumulative':False}    )
+print("b" * 100)
+# sns.catplot(x='day',y='')
 
 plt.show()
