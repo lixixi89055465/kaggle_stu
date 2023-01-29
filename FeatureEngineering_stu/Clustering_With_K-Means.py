@@ -23,5 +23,13 @@ X['Cluster'] = X['Cluster'].astype('category')
 print(X.head())
 sns.relplot(
     x="Longitude", y="Latitude", hue="Cluster", data=X, height=6,
-);
+)
+print("1"*100)
+print(df.head())
+print(df.columns)
+X["MedHouseVal"] = df["MedHouseVal"]
+
+sns.catplot(x='MedHouseVal', y='Cluster', data=X,
+            kind='boxen', height=6)
+
 plt.show()
