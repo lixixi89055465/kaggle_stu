@@ -15,21 +15,23 @@ plt.rc(
 )
 
 df = pd.read_csv("./data/fe-course-data/housing.csv")
+print("1" * 100)
+print(df.head())
+print(df.columns)
 X = df.loc[:, ["MedInc", "Latitude", "Longitude"]]
-print(X.head())
 kmeans = KMeans(n_clusters=6)
 X['Cluster'] = kmeans.fit_predict(X)
 X['Cluster'] = X['Cluster'].astype('category')
-print(X.head())
+print(X[['Longitude', 'Latitude', 'Cluster']].head())
 sns.relplot(
     x="Longitude", y="Latitude", hue="Cluster", data=X, height=6,
 )
-print("1"*100)
-print(df.head())
-print(df.columns)
+
+print("1" * 100)
 X["MedHouseVal"] = df["MedHouseVal"]
 
+# sns.catplot(x='MedHouseVal', y='Cluster', data=X,
+#             kind='boxen', height=6)
 sns.catplot(x='MedHouseVal', y='Cluster', data=X,
-            kind='boxen', height=6)
-
+            kind='box', height=6)
 plt.show()
