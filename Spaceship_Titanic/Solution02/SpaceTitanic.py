@@ -17,8 +17,8 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.keras import models, layers, Sequential
 
-train_df = pd.read_csv('../data/train.csv')
-test_df = pd.read_csv('../data/test.csv')
+train_df = pd.read_csv('../input/train.csv')
+test_df = pd.read_csv('../input/test.csv')
 
 print(train_df.sample(3))
 print(train_df.columns)
@@ -151,7 +151,7 @@ hisfig = px.line(his_df, y=['acc', 'val_acc'], markers=True)
 hisfig.show()
 
 predictions = model.predict(test_df)
-sub = pd.read_csv('../data/sample_submission.csv')
+sub = pd.read_csv('../input/sample_submission.csv')
 sub['Transported'] = predictions
 sub['Transported'] = sub['Transported'].map(lambda x: True if x > 0.5 else False)
 sub.to_csv('result.csv', index=True)

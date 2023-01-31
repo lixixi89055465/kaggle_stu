@@ -17,7 +17,7 @@ plt.rc(
     titlepad=10,
 )
 
-df = pd.read_csv('./data/fe-course-data/ames.csv')
+df = pd.read_csv('./input/fe-course-input/ames.csv')
 print(df.head())
 print(df.columns)
 X = df.copy()

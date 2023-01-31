@@ -14,7 +14,7 @@ scaled_data = minmax_scaling(original_data, columns=[0])
 # sns.histplot(original_data, ax=ax[0], kde=True, legend=False)
 # ax[0].set_title("Original Data")
 # sns.histplot(scaled_data, ax=ax[1], kde=True, legend=False)
-# ax[1].set_title("Scaled data")
+# ax[1].set_title("Scaled input")
 # plt.show()
 
 normalized_data=stats.boxcox(original_data)

@@ -4,7 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import datetime
 
-landslides = pd.read_csv('./data/catalog.csv')
+landslides = pd.read_csv('./input/catalog.csv')
 np.random.seed(0)
 
 # print(landslides.head())

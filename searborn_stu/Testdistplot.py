@@ -12,7 +12,7 @@ print(tips.head())
 #              kde_kws={'cumulative':True},
 #              )
 print(help(sns.displot))
-# sns.displot(data=tips,x='total_bill',y='day')
+# sns.displot(input=tips,x='total_bill',y='day')
 sns.displot(data=tips,y='total_bill',x='day')
 plt.show()
 # displot

@@ -14,7 +14,7 @@ plt.rc(
     titlepad=10,
 )
 
-df = pd.read_csv("./data/fe-course-data/housing.csv")
+df = pd.read_csv("./input/fe-course-input/housing.csv")
 print("1" * 100)
 print(df.head())
 print(df.columns)
@@ -30,7 +30,7 @@ sns.relplot(
 print("1" * 100)
 X["MedHouseVal"] = df["MedHouseVal"]
 
-# sns.catplot(x='MedHouseVal', y='Cluster', data=X,
+# sns.catplot(x='MedHouseVal', y='Cluster', input=X,
 #             kind='boxen', height=6)
 sns.catplot(x='MedHouseVal', y='Cluster', data=X,
             kind='box', height=6)

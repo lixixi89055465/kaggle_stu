@@ -4,7 +4,7 @@ import pandas as pd
 import seaborn as sns
 
 plt.style.use('seaborn-whitegrid')
-df = pd.read_csv('./input/fe-course-data/autos.csv')
+df = pd.read_csv('./input/fe-course-input/autos.csv')
 print(df.head())
 
 X = df.copy()

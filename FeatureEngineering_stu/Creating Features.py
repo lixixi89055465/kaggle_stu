@@ -13,10 +13,10 @@ plt.rc(
     titlesize=14,
     titlepad=10,
 )
-accidents = pd.read_csv("./data/fe-course-data/accidents.csv")
-autos = pd.read_csv("./data/fe-course-data/autos.csv")
-concrete = pd.read_csv("./data/fe-course-data/concrete.csv")
-customer = pd.read_csv("./data/fe-course-data/customer.csv")
+accidents = pd.read_csv("./input/fe-course-input/accidents.csv")
+autos = pd.read_csv("./input/fe-course-input/autos.csv")
+concrete = pd.read_csv("./input/fe-course-input/concrete.csv")
+customer = pd.read_csv("./input/fe-course-input/customer.csv")
 
 # print(autos.columns)
 #

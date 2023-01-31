@@ -9,7 +9,7 @@ np.random.seed(0)
 
 # sample_entry=b'\xa7A\xa6n'
 # print(sample_entry)
-# print('data type:',type(sample_entry))
+# print('input type:',type(sample_entry))
 # new_entry=sample_entry.decode('big5-tw').encode('utf-8')
 # print(new_entry)
 

@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.model_selection import cross_val_score
 from xgboost import XGBRegressor
 
-df = pd.read_csv("./data/fe-course-data/ames.csv")
+df = pd.read_csv("./input/fe-course-input/ames.csv")
 
 model = XGBRegressor()
 

@@ -8,18 +8,18 @@ from mlxtend.preprocessing import minmax_scaling
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-kickstarters_2017 = pd.read_csv("./data/kickstarter-projects/ks-projects-201801.csv")
+kickstarters_2017 = pd.read_csv("./input/kickstarter-projects/ks-projects-201801.csv")
 # set seed for reproducibility
 np.random.seed(0)
 
 original_data = pd.DataFrame(kickstarters_2017.usd_goal_real)
 scaled_data = minmax_scaling(original_data, columns=['usd_goal_real'])
-# print('Original data \n Preview :\n', original_data.head())
+# print('Original input \n Preview :\n', original_data.head())
 # print(
 #     'Minimum value:', float(original_data.min()),
 #     '\nMaximum value:', float(original_data.max()) )
 # print('_'*30)
-# print('\n Scaled data \n Preview :\n',scaled_data.head())
+# print('\n Scaled input \n Preview :\n',scaled_data.head())
 # print('Minimum value:',float(scaled_data.min()),
 #       '\nMaximum value:', float(scaled_data.max()))
 
