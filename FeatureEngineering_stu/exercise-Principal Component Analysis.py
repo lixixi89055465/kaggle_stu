@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from sklearn.decomposition import PCA
+from xgboost import XGBRegressor
+from sklearn.model_selection import cross_val_score
 
 plt.style.use('seaborn-whitegrid')
 plt.rc('figure', autolayout=True)
@@ -33,6 +35,8 @@ def apply_pca(X, standardize=True):
     )
     return pca, X_pca, loadings
 
+
+def score_dataset(X, y, model=XGBRegressor()):
     pass
 
 
@@ -53,3 +57,14 @@ y = X.pop('SalePrice')
 X = X.loc[:, feature]
 pca, X_pca, loadings = apply_pca(X)
 print(loadings)
+X = X.join(X_pca)
+# score = score_dataset(X, y)
+# print(f"Your score :{score:.5f} RMSLE")
+
+# Label encoding for categoricals
+for colname in X.select_dtypes(['category','object']):
+    X[colname], = X[colname].factorize()
+model=XGBRegressor()
+score=cross_val_score(
+    model,X,y,cv=5,scoring='',
+)

@@ -1,0 +1,38 @@
+import pandas as pd
+import numpy as np
+
+codes, uniques = pd.factorize(['b', 'b', 'a', 'a', 'c'])
+print(codes)
+print(uniques)
+codes, uniques = pd.factorize(['b', 'b', 'a', 'a', 'c'])
+print(codes)
+print(uniques)
+codes, uniques = pd.factorize(['b', None, 'a', 'b', 'c'])
+print(codes)
+print(uniques)
+codes, uniques = pd.factorize(['b', None, 'a', 'b', 'c'])
+print(codes)
+print(uniques)
+
+print("2" * 100)
+cat = pd.Categorical(['a', 'a', 'c'], categories=['a', 'b', 'c'])
+print(cat)
+print("3" * 100)
+codes, uniques = pd.factorize(cat)
+print(codes)
+print(uniques)
+print("4" * 100)
+cat = pd.Series(['a', 'a', 'c', 'd', 'a'])
+codes, uniques = pd.factorize(cat)
+print(codes)
+print(uniques)
+print("5" * 100)
+values = np.array([1, 2, 1, np.nan])
+codes, uniques = pd.factorize(values)  # default :na_sentinel=-1
+print(codes)
+print(uniques)
+print("6" * 100)
+codes, uniques = pd.factorize(values, na_sentinel=None)  # default :na_sentinel=-1
+print(codes)
+print(uniques)
+print("7" * 100)
