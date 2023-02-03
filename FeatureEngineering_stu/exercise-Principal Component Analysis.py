@@ -62,9 +62,13 @@ X = X.join(X_pca)
 # print(f"Your score :{score:.5f} RMSLE")
 
 # Label encoding for categoricals
-for colname in X.select_dtypes(['category','object']):
+for colname in X.select_dtypes(['category', 'object']):
     X[colname], = X[colname].factorize()
-model=XGBRegressor()
-score=cross_val_score(
-    model,X,y,cv=5,scoring='',
+model = XGBRegressor()
+score = cross_val_score(
+    model, X, y, cv=5, scoring='neg_mean_squared_log_error',
 )
+score = -1 * score.mean()
+score = np.sqrt(score)
+print('1'*100)
+print(score)
