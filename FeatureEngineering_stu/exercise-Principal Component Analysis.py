@@ -24,20 +24,27 @@ def apply_pca(X, standardize=True):
     # Create principal components
     pca = PCA()
     X_pca = pca.fit_transform(X)
-    # convert to dataframe
     component_names = [f"PC{i + 1}" for i in range(X_pca.shape[1])]
     X_pca = pd.DataFrame(X_pca, columns=component_names)
-    # Create loadings
     loadings = pd.DataFrame(
-        pca.components_.T,  # transpose the matrix of loadings
-        columns=component_names,  # so the columns are the  principal components
+        pca.components_.T,
+        columns=component_names,
         index=X.columns,
     )
     return pca, X_pca, loadings
 
 
 def score_dataset(X, y, model=XGBRegressor()):
-    pass
+    # Label encoding for categoricals
+    for colname in X.select_dtypes(['category', 'object']):
+        X[colname], = X[colname].factorize()
+    model = XGBRegressor()
+    score = cross_val_score(
+        model, X, y, cv=5, scoring='neg_mean_squared_log_error',
+    )
+    score = -1 * score.mean()
+    score = np.sqrt(score)
+    return score
 
 
 df = pd.read_csv('./input/fe-course-data/ames.csv')
@@ -58,17 +65,5 @@ X = X.loc[:, feature]
 pca, X_pca, loadings = apply_pca(X)
 print(loadings)
 X = X.join(X_pca)
-# score = score_dataset(X, y)
-# print(f"Your score :{score:.5f} RMSLE")
-
-# Label encoding for categoricals
-for colname in X.select_dtypes(['category', 'object']):
-    X[colname], = X[colname].factorize()
-model = XGBRegressor()
-score = cross_val_score(
-    model, X, y, cv=5, scoring='neg_mean_squared_log_error',
-)
-score = -1 * score.mean()
-score = np.sqrt(score)
-print('1'*100)
-print(score)
+score = score_dataset(X, y)
+print(f"Your score :{score:.5f} RMSLE")
