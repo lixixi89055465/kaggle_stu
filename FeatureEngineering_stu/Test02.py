@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*
 from sklearn import datasets, linear_model
 from sklearn.model_selection import cross_val_score
+import pandas as pd
 
-diabetes = datasets.load_diabetes()
-X = diabetes.data[:150]
-y = diabetes.target[:150]
-print(X.shape)
-print(y.shape)
+df = pd.DataFrame({'A': [1, 2, 3], 'B': [1, 1, 1]})
+print(df)
 print('1'*100)
-lasso = linear_model.Lasso()
-print(cross_val_score(lasso, X, y, cv=3))
+print(df.nunique())
