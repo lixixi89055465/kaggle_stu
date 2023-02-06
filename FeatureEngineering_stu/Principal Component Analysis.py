@@ -36,7 +36,7 @@ def apply_pca(X, standardize=True):
     pass
 
 
-df = pd.read_csv('./input/fe-course-data/ames.csv')
+df = pd.read_csv('./input/fe-course-input/ames.csv')
 feature = [
     "GarageArea",
     "YearRemodAdd",

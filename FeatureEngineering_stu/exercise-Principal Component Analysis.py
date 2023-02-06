@@ -101,7 +101,7 @@ def score_dataset(X, y, model=XGBRegressor()):
     return score
 
 
-df = pd.read_csv("./input/fe-course-data/ames.csv")
+df = pd.read_csv("./input/fe-course-input/ames.csv")
 
 features = [
     "GarageArea",
