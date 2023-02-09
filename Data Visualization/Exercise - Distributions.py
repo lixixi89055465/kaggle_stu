@@ -18,14 +18,17 @@ print(cancer_data.columns)
 # Fill in the line below: In the first five rows of the data, what is the
 # largest value for 'Perimeter (mean)'?
 # max_perim = ____
-print(cancer_data['Perimeter (mean)'].max())
+print('1' * 100)
+print(cancer_data.iloc[0:5]['Perimeter (mean)'].max())
 # Fill in the line below: What is the value for 'Radius (mean)' for the tumor with Id 8510824?
 # mean_radius = ____
 # print(cancer_data['Radius (mean)'].max())
 # print(cancer_data.loc[8510824])
-print('2'*100)
-print(cancer_data[0:2])
-print('3'*100)
-# print(cancer_data.iloc[:2])
-print(cancer_data.loc[8510653])
-
+print('2' * 100)
+print(cancer_data.loc[8510824, 'Radius (mean)'])
+# ['Radius (mean)']
+print('3' * 100)
+# sns.histplot(data=cancer_data, x='Area (mean)', hue='Diagnosis')
+print('4' * 100)
+sns.kdeplot(data=cancer_data, x='Radius (worst)', hue='Diagnosis', fill=True)
+plt.show()
