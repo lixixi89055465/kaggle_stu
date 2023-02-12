@@ -34,3 +34,13 @@ print("2" * 100)
 
 print(score_dataset(reduced_x_train, reduced_x_valid, y_train, y_valid))
 from sklearn.impute import SimpleImputer
+
+my_imuter = SimpleImputer()
+imputed_X_train = pd.DataFrame(my_imuter.fit_transform(X_train))
+imputed_X_valid = pd.DataFrame(my_imuter.fit_transform(X_valid))
+
+imputed_X_train.columns = X_train.columns
+imputed_X_valid.columns = X_valid.columns
+print("3"*100)
+print(score_dataset(imputed_X_train, imputed_X_valid, y_train, y_valid))
+
