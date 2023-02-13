@@ -46,4 +46,4 @@ cols_with_missing = [col for col in X_train.columns
 reduced_X_train = X_train.drop(cols_with_missing, axis=1)
 reduced_X_valid = X_valid.drop(cols_with_missing, axis=1)
 from sklearn.impute import SimpleImputer
-SimpleImputer()
+
