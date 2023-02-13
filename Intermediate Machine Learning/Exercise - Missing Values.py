@@ -47,3 +47,31 @@ reduced_X_train = X_train.drop(cols_with_missing, axis=1)
 reduced_X_valid = X_valid.drop(cols_with_missing, axis=1)
 from sklearn.impute import SimpleImputer
 
+myImputer = SimpleImputer()
+imputed_X_train = pd.DataFrame(myImputer.fit_transform(X_train))
+imputed_X_valid = pd.DataFrame(myImputer.transform(X_valid))
+
+imputed_X_train.columns = X_train.columns
+imputed_X_valid.columns = X_valid.columns
+print("1" * 100)
+print(imputed_X_train.head())
+# final_imputer = SimpleImputer(strategy='mean')
+# final_imputer = SimpleImputer(strategy='constant')
+# final_imputer = SimpleImputer(strategy='most_frequent')
+final_imputer = SimpleImputer(strategy='median')
+final_X_train = pd.DataFrame(final_imputer.fit_transform(X_train))
+final_X_valid = pd.DataFrame(final_imputer.transform(X_valid))
+#
+final_X_train.columns = X_train.columns
+final_X_valid.columns = X_valid.columns
+model = RandomForestRegressor(n_estimators=100, random_state=0)
+model.fit(final_X_train, y_train)
+preds_valid = model.predict(final_X_valid)
+print('mae:')
+print(mean_absolute_error(y_valid, y_pred=preds_valid))
+# Fill in the line below: preprocess test data
+final_X_test = pd.DataFrame(final_imputer.transform(X_test))
+
+# Fill in the line below: get test predictions
+preds_test = model.predict(final_X_test)
+
