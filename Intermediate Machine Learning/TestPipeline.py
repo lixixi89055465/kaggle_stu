@@ -41,15 +41,24 @@ pipe.fit(X_train_s, y_train)
 print("3" * 100)
 print(pipe.score(X_test_s, y_test))
 print("4" * 100)
-pipe = Pipeline([
-    ('scaler', StandardScaler()),
-    ('model', model)
-])
+# pipe = Pipeline([
+#     ('scaler', StandardScaler()),
+#     ('model', model)
+# ])
 
 print("5" * 100)
-print(pipe.fit(X_train, y_train))
+# print(pipe.fit(X_train, y_train))
 print("6" * 100)
-print(pipe.score(X_test, y_test))
+# print(pipe.score(X_test, y_test))
 print("7" * 100)
-print(pipe.best_params_)
-#
+# print(pipe.named_steps['model'].best_params_)
+# print("8" * 100)
+# print(pipe.named_steps['model'])
+print("9" * 100)
+print(pipe.steps)
+print("0" * 100)
+pipe_short = make_pipeline(StandardScaler(), SVC())
+print(pipe_short.steps)
+
+print("1" * 100)
+print(pipe_short.named_steps['svc'].support_vectors_)
