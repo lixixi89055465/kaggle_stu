@@ -54,4 +54,5 @@ num_x_train = X_train.drop(object_cols, axis=1)
 num_x_valid = X_valid.drop(object_cols, axis=1)
 OH_X_train = pd.concat([num_x_train, OH_cols_train], axis=1)
 OH_X_valid = pd.concat([num_x_valid, OH_cols_valid], axis=1)
-
+print("3" * 100)
+print(score_dataset(OH_X_train, OH_X_valid, y_train, y_valid))
