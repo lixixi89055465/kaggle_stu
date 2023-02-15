@@ -113,4 +113,83 @@ print("1" * 100)
 print(pd.DataFrame(preprocessor.transform(X_train), columns=columns))
 print(pd.DataFrame(preprocessor.transform(X_test), columns=columns))
 print('2' * 100)
+print("a" * 100)
+cat_pipe = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+    ('encoder', OneHotEncoder(handle_unknown='ignore', sparse=True))
+])
+num_pipe = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler', MinMaxScaler())
+])
+preprocessor = ColumnTransformer(transformers=[
+    ('cat', cat_pipe, categorical),
+    ('num', num_pipe, numerical)
+])
+preprocessor.fit(X_train)
+cat_columns = preprocessor.named_transformers_['cat']['encoder'].get_feature_names(categorical)
+preprocessor.fit(X_train, y_train)
+y_train_p = preprocessor.transform(X_train)
+columns = np.append(cat_columns, numerical)
+print("0" * 100)
+print(pd.DataFrame(y_train_p, columns=columns))
+print("b" * 100)
 
+cat_pipe = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+    ('encoder', OneHotEncoder(handle_unknown='ignore', sparse=True))
+])
+num_pipe = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler', MinMaxScaler())
+])
+preprocessor = ColumnTransformer(transformers=[
+    ('cat', cat_pipe, categorical),
+    ('num', num_pipe, numerical)
+])
+
+pipe = Pipeline(steps=[
+    ('preprocessor', preprocessor),
+    ('model', LinearRegression())
+])
+pipe.fit(X_train, y_train)
+y_train_pred = pipe.predict(X_train)
+print("0" * 100)
+print(y_train_pred)
+y_test_pred = pipe.predict(X_test)
+print("1" * 100)
+print(y_test_pred)
+
+print("b" * 100)
+
+
+class ColumnSelector(BaseEstimator, TransformerMixin):
+    def __init__(self, columns):
+        self.columns = columns
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        return X[self.columns]
+
+
+cat_pipe = Pipeline([
+    ('selector', ColumnSelector(categorical)),
+    ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+    ('encoder', OneHotEncoder(handle_unknown='ignore', sparse=False))
+])
+num_pipe = Pipeline([
+    ('selector', ColumnSelector(numerical)),
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler', MinMaxScaler())
+])
+preprocessor = FeatureUnion(transformer_list=[
+    ('cat', cat_pipe),
+    ('num', num_pipe)
+])
+preprocessor.fit(X_train)
+cat_columns = preprocessor.transformer_list[0][1][2].get_feature_names(categorical)
+columns = np.append(cat_columns, numerical)
+print("0" * 100)
+print(pd.DataFrame(preprocessor.transform(X_train), columns=columns))
