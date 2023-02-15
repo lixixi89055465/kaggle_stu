@@ -34,13 +34,52 @@ numerical_transformer = SimpleImputer(strategy='constant')
 #
 categorical_transformer = Pipeline(
     steps=[
-        ('imputer', SimpleImputer(strategy='most_frequent')),
+        ('imputer', SimpleImputer(strategy='constant')),
         ('onehot', OneHotEncoder(handle_unknown='ignore'))
     ]
 )
 preprocessor = ColumnTransformer(
     transformers=[
-        ('num', numerical_transformer),
-        ('cat', categorical_transformer)
+        ('num', numerical_transformer, numerical_cols),
+        ('cat', categorical_transformer, categorical_cols)
     ]
 )
+model = RandomForestRegressor(n_estimators=100, random_state=0)
+clf = Pipeline(steps=[
+    ('preprocess', preprocessor),
+    ('model', model)
+])
+clf.fit(X_train, y_train)
+preds = clf.predict(X_valid)
+print('mae')
+print(mean_absolute_error(y_valid, y_pred=preds))
+
+numerical_transformer = SimpleImputer(strategy='mean')
+categorical_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='constant')),
+    ('onehot', OneHotEncoder(handle_unknown='ignore'))
+])
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numerical_transformer, numerical_cols),
+        ('cat', categorical_transformer, categorical_cols)
+    ])
+model = RandomForestRegressor(random_state=0)
+
+# Bundle preprocessing and modeling code in a pipeline
+my_pipeline = Pipeline(steps=[('preprocessor', preprocessor),
+                              ('model', model)
+                              ])
+
+# Preprocessing of training data, fit model
+my_pipeline.fit(X_train, y_train)
+
+# Preprocessing of validation data, get predictions
+preds = my_pipeline.predict(X_valid)
+
+# Evaluate the model
+score = mean_absolute_error(y_valid, preds)
+print('MAE:', score)
+
+
