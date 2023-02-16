@@ -4,8 +4,8 @@ import numpy as np
 import seaborn as sns
 import datetime
 
-# read in our data
-earthquakes = pd.read_csv("./data/earthquake-database/database.csv")
+# read in our input
+earthquakes = pd.read_csv("./input/earthquake-database/database.csv")
 
 # set seed for reproducibility
 np.random.seed(0)

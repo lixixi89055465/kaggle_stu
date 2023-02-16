@@ -22,9 +22,9 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-train = pd.read_csv('../data/train.csv')
-test = pd.read_csv('../data/test.csv')
-submission = pd.read_csv('../data/sample_submission.csv')
+train = pd.read_csv('../input/train.csv')
+test = pd.read_csv('../input/test.csv')
+submission = pd.read_csv('../input/sample_submission.csv')
 
 RANDOM_STATE = 12
 FOLDS = 5
@@ -49,18 +49,18 @@ STRATEGY = 'median'
 
 '''
 # print(train.head())
-# print(f'\033[94mNumber of rows in train data:{train.shape[0]}')
-# print(f'\033[94mNumber of columns in train data:{train.shape[1]}')
-# print(f'\033[94mnumber of values in train data:{train.count().sum()}')
-# print(f'\033[94mnumber of missing values in train data:{sum(train.isna().sum())}')
+# print(f'\033[94mNumber of rows in train input:{train.shape[0]}')
+# print(f'\033[94mNumber of columns in train input:{train.shape[1]}')
+# print(f'\033[94mnumber of values in train input:{train.count().sum()}')
+# print(f'\033[94mnumber of missing values in train input:{sum(train.isna().sum())}')
 # print(train.isna().sum().sort_values(ascending=False))
 # print(train.describe())
 #
 # print(test.head())
-# print(f'\033[94mNumber of rows in train data:{test.shape[0]}')
-# print(f'\033[94mNumber of columns in train data:{test.shape[1]}')
-# print(f'\033[94mnumber of values in train data:{test.count().sum()}')
-# print(f'\033[94mnumber of missing values in train data:{sum(test.isna().sum())}')
+# print(f'\033[94mNumber of rows in train input:{test.shape[0]}')
+# print(f'\033[94mNumber of columns in train input:{test.shape[1]}')
+# print(f'\033[94mnumber of values in train input:{test.count().sum()}')
+# print(f'\033[94mnumber of missing values in train input:{sum(test.isna().sum())}')
 #
 # print(test.isna().sum().sort_values(ascending=False))
 #
