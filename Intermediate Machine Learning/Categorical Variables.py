@@ -40,5 +40,5 @@ def score_dataset(X_train, X_valid, y_train, y_valid):
 
 
 drop_X_train = X_train.drop()
-drop_X_valid = ____
+# drop_X_valid = ____
 

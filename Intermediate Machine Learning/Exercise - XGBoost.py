@@ -2,8 +2,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 # Read the data
-X = pd.read_csv('../input/train.csv', index_col='Id')
-X_test_full = pd.read_csv('../input/test.csv', index_col='Id')
+X = pd.read_csv('../input/melbourne-housing-snapshot/train.csv', index_col='Id')
+X_test_full = pd.read_csv('../input/melbourne-housing-snapshot/test.csv', index_col='Id')
 
 X.dropna(axis=0, subset=['SalePrice'], inplace=True)
 y = X.SalePrice
@@ -23,3 +23,34 @@ X_test = X_test_full[my_cols].copy()
 X_train = pd.get_dummies(X_train)
 X_valid = pd.get_dummies(X_valid)
 X_test = pd.get_dummies(X_test)
+print("0" * 100)
+X_train, X_valid = X_train.align(X_valid, join='left', axis=1)
+print(X_train.head())
+X_train, X_test = X_train.align(X_test, join='left', axis=1)
+
+from xgboost import XGBRegressor
+
+# Define the model
+my_model_1 = XGBRegressor(random_state=0)
+# Fit the model
+my_model_1.fit(X_train, y_train)  # Your code here
+
+from sklearn.metrics import mean_absolute_error
+
+# Get predictions
+predictions_1 = my_model_1.predict(X_valid)  # Your code here
+# Calculate MAE
+mae_1 = mean_absolute_error(y_valid, predictions_1)  # Your code here
+
+# Uncomment to print MAE
+# print("Mean Absolute Error:" , mae_1)
+my_model_2 = XGBRegressor(n_estimators=10, learning_rate=0.1)
+my_model_2.fit(X_train, y_train)
+predictions_2 = my_model_2.predict(X_valid)
+mae_2 = mean_absolute_error(y_valid, predictions_2)
+print("1" * 100)
+print(mae_1)
+print(mae_2)
+
+
+
