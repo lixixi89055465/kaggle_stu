@@ -31,6 +31,54 @@ store_sales = pd.read_csv(
     parse_dates=['date'],
     infer_datetime_format=True,
 )
-store_sales = store_sales.set_index('date').to_period('D')
-print("1" * 100)
+print("0" * 100)
 print(store_sales.head())
+print("1" * 100)
+store_sales = store_sales.set_index('date').to_period('D')
+print(store_sales.head())
+store_sales = store_sales.set_index(['store_nbr', 'family'], append=True)
+print("2" * 100)
+print(store_sales.head())
+print("3" * 100)
+average_sales = store_sales.groupby('date').mean()['sales']
+print(average_sales.head())
+# fig, ax = plt.subplots()
+# ax.plot('Time', 'HardCover', data=book_sales, color='0.75')
+# ax.plot('Time', 'Hardcover', data=book_sales, color='0.75')
+# ax = sns.regplot(x='Time', y='Hardcover', data=book_sales, ci=None,
+#                  scatter_kws=dict(color='0.25'))
+# ax.set_title('Time plot of hardcover sales')
+# plt.show()
+# fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, 5.5), sharex=True)
+# ax1.plot(ar['ar1'])
+# ax1.set_title('Series 1')
+# ax2.plot(ar['ar2'])
+# ax2.set_title('Series 2')
+print("4" * 100)
+from sklearn.linear_model import LinearRegression
+
+df = average_sales.to_frame()
+print(df.head())
+time = np.arange(len(df.index))
+df['time'] = time
+X = df.loc[:, ['time']]
+y = df.loc[:, 'sales']
+model = LinearRegression()
+model.fit(X, y)
+y_pred = pd.Series(model.predict(X), index=X.index)
+# ax = y.plot(**plot_params, alpha=0.5)
+# ax = y_pred.plot(ax=ax, linewidth=3)
+# ax.set_title('Time Plot of Total Store Sales');
+# plt.show()
+print("6" * 100)
+df = average_sales.to_frame()
+lag_1 = df['sales'].shift(1)
+df['lag_1'] = lag_1
+X = df.loc[:, ['lag_1']]
+X.dropna(inplace=True)
+y = df.loc[:, 'sales']
+
+y, X = y.align(X, join='inner')
+model = LinearRegression()
+model.fit(X, y)
+y_pred = pd.Series(model.predict(X), index=X.index)
