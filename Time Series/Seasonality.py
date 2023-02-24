@@ -77,11 +77,35 @@ def seasonal_plot(X, y, period, freq, ax=None):
 def plot_periodogram(ts, detrend='linear', ax=None):
     from scipy.signal import periodogram
     fs = pd.Timedelta('1Y') / pd.Timedelta('1D')
-    frequence, spectrum = periodogram(
+    freqencies, spectrum = periodogram(
         ts,
         fs=fs,
-        detrend=detrend
+        detrend=detrend,
+        window='boxcar',
+        scaling='spectrum'
     )
+    if ax is None:
+        _, ax = plt.subplots()
+    ax.step(freqencies, spectrum, color="purple")
+    ax.set_xscale("log")
+    ax.set_xticks([1, 2, 4, 6, 12, 26, 52, 104])
+    ax.set_xticklabels(
+        [
+            "Annual (1)",
+            "Semiannual (2)",
+            "Quarterly (4)",
+            "Bimonthly (6)",
+            "Monthly (12)",
+            "Biweekly (26)",
+            "Weekly (52)",
+            "Semiweekly (104)",
+        ],
+        rotation=30,
+    )
+    ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+    ax.set_ylabel("Variance")
+    ax.set_title("Periodogram")
+    return ax
 
 
 data_dir = Path("../input/ts-course-data")
@@ -92,10 +116,26 @@ print(tunnel.head())
 X = tunnel.copy()
 X['day'] = X.index.dayofweek
 X['week'] = X.index.week
-X['dayofyear']=X.index.dayofyear
-X['year']=X.index.year
+X['dayofyear'] = X.index.dayofyear
+X['year'] = X.index.year
 
 fig, (ax0, ax1) = plt.subplots(2, 1, figsize=(11, 6))
 seasonal_plot(X, y="NumVehicles", period="week", freq="day", ax=ax0)
 seasonal_plot(X, y="NumVehicles", period="year", freq="dayofyear", ax=ax1);
 plt.show()
+plot_periodogram(tunnel.NumVehicles)
+
+from statsmodels.tsa.deterministic import CalendarFourier, DeterministicProcess
+
+fourier = CalendarFourier(freq='A', order=10)
+dp = DeterministicProcess(
+    index=tunnel.index,
+    constant=True,
+    order=1,
+    seasonal=True,
+    additional_terms=[fourier],
+    drop=True,
+)
+X = dp.in_sample()
+print("0"*100)
+print(X.head())
