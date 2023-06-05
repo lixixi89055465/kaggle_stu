@@ -19,7 +19,6 @@ result = my_model.predict_proba(data_for_prediction_array)
 print(result)
 
 import shap
-
 explainer = shap.TreeExplainer(my_model)
 shap_values = explainer.shap_values(data_for_prediction)
 
