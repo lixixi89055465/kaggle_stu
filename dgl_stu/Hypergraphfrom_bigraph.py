@@ -1,0 +1,17 @@
+import dhg
+
+g = dhg.BiGraph(4, 3, [(0, 1), (1, 1), (2, 1), (3, 0), (1, 2)])
+print(g)
+print(g.e)
+print(g.A)
+print("0" * 100)
+print(g.B.data)
+print("5"*100)
+print(g.B.to_dense())
+print("1" * 100)
+hg = dhg.Hypergraph.from_bigraph(g, U_as_vertex=False)
+print(hg)
+print("2" * 100)
+print(hg.e)
+print("3" * 100)
+print(hg.H.to_dense())
