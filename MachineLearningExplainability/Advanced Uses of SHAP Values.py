@@ -17,3 +17,14 @@ import shap
 explainer = shap.TreeExplainer(my_model)
 shap_values = explainer.shap_values(val_X)
 shap.summary_plot(shap_values[1], val_X)
+print("1" * 100)
+
+import shap
+
+explainer = shap.TreeExplainer(my_model)
+shap_values = explainer.shap_values(X)
+
+shap.dependence_plot('Ball Possession %', shap_values[1], X, interaction_index='Goal Scored')
+import matplotlib.pyplot as plt
+
+
