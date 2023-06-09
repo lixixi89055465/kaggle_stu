@@ -11,8 +11,6 @@ X = data[feature_names]
 train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
 my_model = RandomForestClassifier(random_state=0).fit(train_X, train_y)
 print(len(X.columns))
-print('1' * 100)
-print('2' * 100)
 
 row_to_show = 5
 data_for_prediction = val_X.iloc[row_to_show]
