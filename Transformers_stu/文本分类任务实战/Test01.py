@@ -63,7 +63,7 @@ args = TrainingArguments(
 from transformers import Trainer
 from transformers import DataCollatorWithPadding
 
-trainner = Trainer(
+trainer = Trainer(
     model,
     args=args,
     train_dataset=tokenizer_datasets['train'],
@@ -72,3 +72,5 @@ trainner = Trainer(
     compute_metrics=compute_metrics,
     data_collator=DataCollatorWithPadding(tokenizer=tokenizer)
 )
+trainer.train()
+trainer.evaluate()
