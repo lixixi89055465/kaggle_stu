@@ -74,8 +74,9 @@ dataset_df.head(5)
 
 
 def split_dataset(dataset, test_ratio=0.20):
-  test_indices = np.random.rand(len(dataset)) < test_ratio
-  return dataset[~test_indices], dataset[test_indices]
+    test_indices = np.random.rand(len(dataset)) < test_ratio
+    return dataset[~test_indices], dataset[test_indices]
+
 
 train_ds_pd, valid_ds_pd = split_dataset(dataset_df)
 print("{} examples in training, {} examples in testing.".format(
@@ -115,7 +116,7 @@ Read more here.'''
 # Note: you may see a warning about Autograph. You can safely ignore this, it will be fixed in the next release.
 
 rf = tfdf.keras.RandomForestModel()
-rf.compile(metrics=["accuracy"]) # Optional, you can use this to include a list of eval metrics
+rf.compile(metrics=["accuracy"])  # Optional, you can use this to include a list of eval metrics
 rf.fit(x=train_ds)
 
 # Visualize the model¶
@@ -125,13 +126,26 @@ tfdf.model_plotter.plot_model_in_colab(rf, tree_idx=0, max_depth=3)
 Evaluate the model on the Out of bag (OOB) data and the validation dataset¶
 Before training the dataset we have manually seperated 20% of the dataset for validation named as valid_ds.
 
-We can also use Out of bag (OOB) score to validate our RandomForestModel. To train a Random Forest Model, a set of random samples from training set are choosen by the algorithm and the rest of the samples are used to finetune the model.The subset of data that is not chosen is known as Out of bag data (OOB). OOB score is computed on the OOB data.
+We can also use Out of bag (OOB) score to validate our RandomForestModel. 
+To train a Random Forest Model, a set of random samples from training set are choosen by the algorithm 
+and the rest of the samples are used to finetune the model.
+The subset of data that is not chosen is known as Out of bag data (OOB). 
+OOB score is computed on the OOB data.
 
 Read more about OOB data here.
 
-The training logs show the accuracy evaluated on the out-of-bag dataset according to the number of trees in the model. Let us plot this.
+The training logs show the accuracy evaluated on the out-of-bag dataset according to the number of trees in the model.
+ Let us plot this.
 
 Note: Larger values are better for this hyperparameter.
 '''
 import matplotlib.pyplot as plt
-logs=rf.make_inspector().train_logs()
+
+logs = rf.make_inspector().training_logs()
+plt.plot([log.num_trees for log in logs], [log.evaluation.accuracy for log in logs])
+plt.xlabel('Number of trees')
+plt.ylabel('Accuracy ( out-of-bag)')
+plt.show()
+print("1" * 100)
+inspector=rf.make_inspector()
+inspector.evaluation()
