@@ -121,7 +121,7 @@ rf.fit(x=train_ds)
 
 # Visualize the model¶
 # One benefit of tree-based models is that we can easily visualize them. The default number of trees used in the Random Forests is 300. We can select a tree to display below.
-tfdf.model_plotter.plot_model_in_colab(rf, tree_idx=0, max_depth=3)
+# tfdf.model_plotter.plot_model_in_colab(rf, tree_idx=0, max_depth=3)
 '''
 Evaluate the model on the Out of bag (OOB) data and the validation dataset¶
 Before training the dataset we have manually seperated 20% of the dataset for validation named as valid_ds.
@@ -147,5 +147,41 @@ plt.xlabel('Number of trees')
 plt.ylabel('Accuracy ( out-of-bag)')
 plt.show()
 print("1" * 100)
-inspector=rf.make_inspector()
+inspector = rf.make_inspector()
 inspector.evaluation()
+evaluation = rf.evaluate(x=valid_ds, return_dict=True)
+for name, value in evaluation.items():
+    print(f"{name}:{value:.4f}")
+# Variable importances¶
+# Variable importances generally indicate how much a feature contributes to the model predictions or quality. There are several ways to identify important features using TensorFlow Decision Forests. Let us list the available Variable Importances for Decision Trees:
+print(f"Available variable importance")
+for importance in inspector.variable_importances().keys():
+    print('\t', importance)
+
+# As an example, let us display the important features for the Variable Importance NUM_AS_ROOT.
+# The larger the importance score for NUM_AS_ROOT, the more impact it has on the outcome of the model.
+# By default, the list is sorted from the most important to the least. From the output you can infer that the feature at the top of the list is used as the root node in most number of trees in the random forest than any other feature.
+print("5" * 100)
+print(inspector.variable_importances()['NUM_AS_ROOT'])
+
+# Submission
+test_df = pd.read_csv('../data/test.csv')
+submission_id = test_df.PassengerId
+test_df[['VIP', 'CryoSleep']] = test_df[['VIP', 'CryoSleep']].fillna(value=0)
+test_df[["Deck", "Cabin_num", "Side"]] = test_df['Cabin'].str.split('/', expand=True)
+test_df = test_df.drop('Cabin', axis=1)
+test_df['VIP'] = test_df['VIP'].astype(int)
+test_df['CryoSleep'] = test_df['CryoSleep'].astype(int)
+
+test_ds = tfdf.keras.pd_dataframe_to_tf_dataset(test_df)
+n_predictions = rf.predict(test_ds)
+output = pd.DataFrame({'PassengerId': submission_id,
+                       'Transported': n_predictions.squeeze()})
+print("6" * 100)
+print(output.head())
+
+sample_submission_df = pd.read_csv('../data/sample_submission.csv')
+sample_submission_df['Transported'] = n_predictions
+sample_submission_df.to_csv('../data/sample_submission_01.csv', index=False)
+print("7" * 100)
+print(sample_submission_df.head())
