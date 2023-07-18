@@ -7,12 +7,13 @@ import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
 import seaborn as sns
 from pandas.plotting import scatter_matrix
-#Configure Visualization Defaults
-#%matplotlib inline = show plots in Jupyter Notebook browser
+
+# Configure Visualization Defaults
+# %matplotlib inline = show plots in Jupyter Notebook browser
 # %matplotlib inline
 mpl.style.use('ggplot')
 sns.set_style('white')
-pylab.rcParams['figure.figsize'] = 12,8
+pylab.rcParams['figure.figsize'] = 12, 8
 print('Python version:{}'.format(sys.version))
 import pandas as pd
 
@@ -89,50 +90,59 @@ cat_feats = ['HomePlanet', 'CryoSleep', 'Destination', 'VIP']
 qual_feats = ['PassengerId', 'Cabin', 'Name']
 
 for dataset in data_cleaner:
-    dataset['Age_group']=np.nan
-    dataset.loc[dataset['Age']<=12,'Age_group']='Age_0-12'
-    dataset.loc[(dataset['Age']>12) & (dataset['Age']<18),'Age_group']='Age_13-17'
-    dataset.loc[(dataset['Age']>=18) & (dataset['Age']<=25),'Age_group']='Age_18-25'
-    dataset.loc[(dataset['Age']>25) & (dataset['Age']<=30),'Age_group']='Age_26-30'
-    dataset.loc[(dataset['Age']>30) & (dataset['Age']<=50),'Age_group']='Age_31-50'
-    dataset.loc[dataset['Age']>50,'Age_group']='Age_51+'
+    dataset['Age_group'] = np.nan
+    dataset.loc[dataset['Age'] <= 12, 'Age_group'] = 'Age_0-12'
+    dataset.loc[(dataset['Age'] > 12) & (dataset['Age'] < 18), 'Age_group'] = 'Age_13-17'
+    dataset.loc[(dataset['Age'] >= 18) & (dataset['Age'] <= 25), 'Age_group'] = 'Age_18-25'
+    dataset.loc[(dataset['Age'] > 25) & (dataset['Age'] <= 30), 'Age_group'] = 'Age_26-30'
+    dataset.loc[(dataset['Age'] > 30) & (dataset['Age'] <= 50), 'Age_group'] = 'Age_31-50'
+    dataset.loc[dataset['Age'] > 50, 'Age_group'] = 'Age_51+'
 
 # Plot distribution of new features
-plt.figure(figsize=(10,4))
-g=sns.countplot(data=data1, x='Age_group', hue='Transported', order=['Age_0-12','Age_13-17','Age_18-25','Age_26-30','Age_31-50','Age_51+'])
-plt.title('Age group distribution')
-plt.show()
+# plt.figure(figsize=(10, 4))
+# g = sns.countplot(data=data1, x='Age_group', hue='Transported',
+#                   order=['Age_0-12', 'Age_13-17', 'Age_18-25', 'Age_26-30', 'Age_31-50', 'Age_51+'])
+# plt.title('Age group distribution')
+# plt.show()
 
-# for dataset in data_cleaner:
-#     dataset['Expenditure'] = dataset[exp_feats].sum(axis=1)
-#     dataset['No_spending'] = (dataset['Expenditure'] == 0).astype(int)
+for dataset in data_cleaner:
+    dataset['Expenditure'] = dataset[exp_feats].sum(axis=1)
+    dataset['No_spending'] = (dataset['Expenditure'] == 0).astype(int)
+fig = plt.figure(figsize=(12, 4))
+plt.subplot(1, 2, 1)
+sns.histplot(data=data1, x='Expenditure', hue='Transported', bins=200)
+plt.title('Total expenditure (truncated) ')
+plt.ylim([0, 200])
+plt.xlim([0, 20000])
+plt.subplot(1, 2, 2)
+sns.countplot(data=data1, x='No_spending', hue='Transported')
+plt.title('No spending indicator')
+fig.tight_layout()
+for dataset in data_cleaner:
+    dataset['Expenditure'] = dataset[exp_feats].sum(axis=1)
+    dataset['No_spending'] = (dataset['Expenditure'] == 0).astype(int)
+
+# Plot distribution of new features
 # fig = plt.figure(figsize=(12, 4))
 # plt.subplot(1, 2, 1)
 # sns.histplot(data=data1, x='Expenditure', hue='Transported', bins=200)
-# plt.title('Total expenditure (truncated) ')
+# plt.title('Total expenditure (truncated)')
 # plt.ylim([0, 200])
 # plt.xlim([0, 20000])
+#
 # plt.subplot(1, 2, 2)
 # sns.countplot(data=data1, x='No_spending', hue='Transported')
 # plt.title('No spending indicator')
 # fig.tight_layout()
 for dataset in data_cleaner:
-    dataset['Expenditure']=dataset[exp_feats].sum(axis=1)
-    dataset['No_spending']=(dataset['Expenditure']==0).astype(int)
-
-# Plot distribution of new features
-fig=plt.figure(figsize=(12,4))
+    dataset['Group'] = dataset['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
+    dataset['Group_size'] = dataset['Group'].map(lambda x: dataset['Group'].value_counts()[x])
+plt.figure(figsize=(20,4))
 plt.subplot(1,2,1)
-sns.histplot(data=data1, x='Expenditure', hue='Transported', bins=200)
-plt.title('Total expenditure (truncated)')
-plt.ylim([0,200])
-plt.xlim([0,20000])
-
+sns.histplot(data=data1,x='Group',hue='PassengerId',binwidth=1)
+plt.title('Group')
 plt.subplot(1,2,2)
-sns.countplot(data=data1, x='No_spending', hue='Transported')
-plt.title('No spending indicator')
+sns.countplot(data=data1,x='Group_size',hue='Transported')
+plt.title('Group_size')
 fig.tight_layout()
-
-
 plt.show()
-print("1" * 100)
