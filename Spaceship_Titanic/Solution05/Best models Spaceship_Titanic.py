@@ -61,27 +61,27 @@ data_val = pd.read_csv('../data/test.csv')
 # #remember python assignment or equal passes by reference vs values, so we use the copy function: https://stackoverflow.com/questions/46327494/python-pandas-dataframe-copydeep-false-vs-copydeep-true-vs
 data1 = data_raw.copy(deep=True)
 data_cleaner = [data1, data_val]
-print("2" * 100)
-print(data_raw.info())
-print(data_raw.head())
-print(data_raw.sample(9))
+# print("2" * 100)
+# print(data_raw.info())
+# print(data_raw.head())
+# print(data_raw.sample(9))
 # Duplicates
 import numpy as np
 
-print("3" * 100)
-print(
-    f'Duplicates in train set :{data_raw.duplicated().sum()},'
-    f'{np.round(100 * data_raw.duplicated().sum() / len(data_raw), 1)})')
-print(
-    f'Duplicates in test set :{data_raw.duplicated().sum()},'
-    f'{np.round(100 * data_val.duplicated().sum() / len(data_raw), 1)})')
-
-print('Train columns with null value:\n', data1.isnull().sum())
-print("-" * 100)
-print('Test/Validation columns with null value :\n', data_val.isnull().sum())
-print("- " * 100)
-print(data_raw.nunique())
-print(data_raw.dtypes)
+# print("3" * 100)
+# print(
+#     f'Duplicates in train set :{data_raw.duplicated().sum()},'
+#     f'{np.round(100 * data_raw.duplicated().sum() / len(data_raw), 1)})')
+# print(
+#     f'Duplicates in test set :{data_raw.duplicated().sum()},'
+#     f'{np.round(100 * data_val.duplicated().sum() / len(data_raw), 1)})')
+#
+# print('Train columns with null value:\n', data1.isnull().sum())
+# print("-" * 100)
+# print('Test/Validation columns with null value :\n', data_val.isnull().sum())
+# print("- " * 100)
+# print(data_raw.nunique())
+# print(data_raw.dtypes)
 # Expenditure features
 exp_feats = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
 # Categorical feature
@@ -108,16 +108,16 @@ for dataset in data_cleaner:
 for dataset in data_cleaner:
     dataset['Expenditure'] = dataset[exp_feats].sum(axis=1)
     dataset['No_spending'] = (dataset['Expenditure'] == 0).astype(int)
-fig = plt.figure(figsize=(12, 4))
-plt.subplot(1, 2, 1)
-sns.histplot(data=data1, x='Expenditure', hue='Transported', bins=200)
-plt.title('Total expenditure (truncated) ')
-plt.ylim([0, 200])
-plt.xlim([0, 20000])
-plt.subplot(1, 2, 2)
-sns.countplot(data=data1, x='No_spending', hue='Transported')
-plt.title('No spending indicator')
-fig.tight_layout()
+# fig = plt.figure(figsize=(12, 4))
+# plt.subplot(1, 2, 1)
+# sns.histplot(data=data1, x='Expenditure', hue='Transported', bins=200)
+# plt.title('Total expenditure (truncated) ')
+# plt.ylim([0, 200])
+# plt.xlim([0, 20000])
+# plt.subplot(1, 2, 2)
+# sns.countplot(data=data1, x='No_spending', hue='Transported')
+# plt.title('No spending indicator')
+# fig.tight_layout()
 for dataset in data_cleaner:
     dataset['Expenditure'] = dataset[exp_feats].sum(axis=1)
     dataset['No_spending'] = (dataset['Expenditure'] == 0).astype(int)
@@ -137,12 +137,57 @@ for dataset in data_cleaner:
 for dataset in data_cleaner:
     dataset['Group'] = dataset['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
     dataset['Group_size'] = dataset['Group'].map(lambda x: dataset['Group'].value_counts()[x])
-plt.figure(figsize=(20,4))
-plt.subplot(1,2,1)
-sns.histplot(data=data1,x='Group',hue='PassengerId',binwidth=1)
-plt.title('Group')
-plt.subplot(1,2,2)
-sns.countplot(data=data1,x='Group_size',hue='Transported')
-plt.title('Group_size')
+
+# plt.figure(figsize=(20, 4))
+# plt.subplot(1, 2, 1)
+# sns.histplot(data=data1, x='Group', hue='Transported', binwidth=1)
+# plt.title('Group')
+#
+# plt.subplot(1,2,2)
+# sns.countplot(data=data1,x='Group_size',hue='Transported')
+# plt.title('Group size')
+# fig.tight_layout()
+# plt.show()
+
+print("0" * 100)
+# print(dataset['Group'].value_counts())
+## New features
+# data_raw['Solo'] = (data_raw['Group_size'] == 1).astype(int)
+# data_val['Solo'] = (data_val['Group_size'] == 1).astype(int)
+for dataset in data_cleaner:
+    dataset['Solo'] = (dataset['Group_size'] == 1).astype(int)
+# New feature distribution
+# plt.figure(figsize=(10,4))
+# sns.countplot(data=data1,x='Solo',hue='Transported')
+# plt.title('Passenger travelling sole  or not ')
+# plt.ylim([0,3000])
+# plt.show()
+
+for dataset in data_cleaner:
+    dataset['Cabin'].fillna('Z/9999/Z', inplace=True)
+    dataset[['Cabin_deck', 'Cabin_number', 'Cabin_side']] = dataset['Cabin'].str.split('/', expand=True)
+    dataset.loc[dataset['Cabin_deck'] == 'Z', 'Cabin_deck'] = np.nan
+    dataset.loc[dataset['Cabin_number'] == '9999', 'Cabin_number'] = np.nan
+    dataset.loc[dataset['Cabin_side'] == 'Z', 'Cabin_side'] = np.nan
+    dataset.drop('Cabin', axis=1, inplace=True)
+#plot distribution of new features
+fig=plt.figure(figsize=(20,4))
+plt.subplot(3,1,1)
+sns.countplot(data=data1,x='Cabin_deck',hue='Transported', order=['A','B','C','D','E','F','G','T'])
+plt.title('Cabin-deck')
+
+plt.subplot(3,1,2)
+sns.histplot(data=data1,x='Cabin_number',hue='Transported',binwidth=20)
+plt.vlines(300, ymin=0, ymax=200, color='black')
+plt.vlines(600, ymin=0, ymax=200, color='black')
+plt.vlines(900, ymin=0, ymax=200, color='black')
+plt.vlines(1200, ymin=0, ymax=200, color='black')
+plt.vlines(1500, ymin=0, ymax=200, color='black')
+plt.vlines(1800, ymin=0, ymax=200, color='black')
+plt.title('Cabin number')
+plt.xlim([0,2000])
+
+plt.subplot(3,1,3)
+sns.countplot(data=data1,x='Cabin_side',hue='Transported' )
+plt.title('cabin side')
 fig.tight_layout()
-plt.show()
