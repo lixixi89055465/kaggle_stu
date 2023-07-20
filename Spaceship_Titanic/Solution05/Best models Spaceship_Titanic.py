@@ -166,18 +166,19 @@ for dataset in data_cleaner:
 for dataset in data_cleaner:
     dataset['Cabin'].fillna('Z/9999/Z', inplace=True)
     dataset[['Cabin_deck', 'Cabin_number', 'Cabin_side']] = dataset['Cabin'].str.split('/', expand=True)
+    dataset['Cabin_number'] = dataset['Cabin_number'].astype(int)
     dataset.loc[dataset['Cabin_deck'] == 'Z', 'Cabin_deck'] = np.nan
     dataset.loc[dataset['Cabin_number'] == '9999', 'Cabin_number'] = np.nan
     dataset.loc[dataset['Cabin_side'] == 'Z', 'Cabin_side'] = np.nan
     dataset.drop('Cabin', axis=1, inplace=True)
-#plot distribution of new features
-fig=plt.figure(figsize=(20,4))
-plt.subplot(3,1,1)
-sns.countplot(data=data1,x='Cabin_deck',hue='Transported', order=['A','B','C','D','E','F','G','T'])
+# plot distribution of new features
+fig = plt.figure(figsize=(20, 4))
+plt.subplot(3, 1, 1)
+sns.countplot(data=data1, x='Cabin_deck', hue='Transported', order=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'T'])
 plt.title('Cabin-deck')
 
-plt.subplot(3,1,2)
-sns.histplot(data=data1,x='Cabin_number',hue='Transported',binwidth=20)
+plt.subplot(3, 1, 2)
+sns.histplot(data=data1, x='Cabin_number', hue='Transported', binwidth=20)
 plt.vlines(300, ymin=0, ymax=200, color='black')
 plt.vlines(600, ymin=0, ymax=200, color='black')
 plt.vlines(900, ymin=0, ymax=200, color='black')
@@ -185,9 +186,53 @@ plt.vlines(1200, ymin=0, ymax=200, color='black')
 plt.vlines(1500, ymin=0, ymax=200, color='black')
 plt.vlines(1800, ymin=0, ymax=200, color='black')
 plt.title('Cabin number')
-plt.xlim([0,2000])
+plt.xlim([0, 2000])
 
-plt.subplot(3,1,3)
-sns.countplot(data=data1,x='Cabin_side',hue='Transported' )
+plt.subplot(3, 1, 3)
+sns.countplot(data=data1, x='Cabin_side', hue='Transported')
 plt.title('cabin side')
 fig.tight_layout()
+print("5" * 100)
+for dataset in data_cleaner:
+    # New feature - training set
+    dataset['Cabin_region1'] = (dataset['Cabin_number'] < 300).astype(int)
+    dataset['Cabin_region2'] = ((dataset['Cabin_number'] >= 300) & (dataset['Cabin_number'] < 600)).astype(int)
+    dataset['Cabin_region3'] = ((dataset['Cabin_number'] >= 600) & (dataset['Cabin_number'] < 900)).astype(int)
+    dataset['Cabin_region4'] = ((dataset['Cabin_number'] >= 900) & (dataset['Cabin_number'] < 1200)).astype(int)
+    dataset['Cabin_region5'] = ((dataset['Cabin_number'] >= 1200) & (dataset['Cabin_number'] < 1500)).astype(int)
+    dataset['Cabin_region6'] = ((dataset['Cabin_number'] >= 1500) & (dataset['Cabin_number'] < 1500)).astype(int)
+    dataset['Cabin_region7'] = (dataset['Cabin_number'] >= 1800).astype(int)
+
+plt.figure(figsize=(10, 4))
+data1['Cabin_region_plot'] = (
+        data1['Cabin_region1'] + 2 * data1['Cabin_region2'] + 3 * data1['Cabin_region3'] + 4 * data1[
+    'Cabin_region4'] + 5 * data1['Cabin_region5'] + 6 * data1['Cabin_region6'] + 7 * data1['Cabin_region7']).astype(
+    int)
+sns.countplot(data=data1, x='Cabin_region_plot', hue='Transported')
+plt.title('Cabin region ')
+data1.drop('Cabin_region_plot', axis=1, inplace=True)
+
+for dataset in data_cleaner:
+    dataset['Name'].fillna('Unknown Unknown', inplace=True)
+    dataset['Surname'] = dataset['Name'].str.split().str[-1]
+    dataset['Family_size'] = dataset['Surname'].map(lambda x: dataset['Surname'].value_counts()[x])
+    dataset.loc[dataset['Surname'] == 'Unknow Unknow'] = np.nan
+    dataset.loc[dataset['Family_size'] > 100, 'Family_size'] = np.nan
+    dataset.drop('Name', axis=1, inplace=True)
+
+# New  feature distribution
+
+plt.figure(figsize=(12, 4))
+sns.countplot(data=data1, x='Family_size', hue='Transported')
+plt.title('Family_size ')
+# Missing values¶
+
+data1['Transported'].astype(int)
+for dataset in data_cleaner:
+    # Columns with missing values
+    na_cols = dataset.columns[dataset.isna().any()].tolist()
+    mv = pd.DataFrame(dataset[na_cols].isna().sum(), columns=['Number_missing'])
+    mv['Percentage_missing'] = np.round(100 * mv['Number_missing'] / len(dataset), 2)
+    print(mv,'\n')
+
+
