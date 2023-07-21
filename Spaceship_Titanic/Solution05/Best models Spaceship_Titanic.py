@@ -233,6 +233,11 @@ for dataset in data_cleaner:
     na_cols = dataset.columns[dataset.isna().any()].tolist()
     mv = pd.DataFrame(dataset[na_cols].isna().sum(), columns=['Number_missing'])
     mv['Percentage_missing'] = np.round(100 * mv['Number_missing'] / len(dataset), 2)
-    print(mv,'\n')
+    print(mv, '\n')
 
+# Countplot of number of missing values by passenger
+data1['na_count'] = data1.isna().sum(axis=1)
+plt.figure(figsize=(10, 4))
+sns.countplot(data=data1, x='na_count', hue='Transported')
+plt.title("number of missing entries by pasenger")
 
