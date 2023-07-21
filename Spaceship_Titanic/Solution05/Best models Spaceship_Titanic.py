@@ -172,27 +172,27 @@ for dataset in data_cleaner:
     dataset.loc[dataset['Cabin_side'] == 'Z', 'Cabin_side'] = np.nan
     dataset.drop('Cabin', axis=1, inplace=True)
 # plot distribution of new features
-fig = plt.figure(figsize=(20, 4))
-plt.subplot(3, 1, 1)
-sns.countplot(data=data1, x='Cabin_deck', hue='Transported', order=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'T'])
-plt.title('Cabin-deck')
+# fig = plt.figure(figsize=(20, 4))
+# plt.subplot(3, 1, 1)
+# sns.countplot(data=data1, x='Cabin_deck', hue='Transported', order=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'T'])
+# plt.title('Cabin-deck')
 
-plt.subplot(3, 1, 2)
-sns.histplot(data=data1, x='Cabin_number', hue='Transported', binwidth=20)
-plt.vlines(300, ymin=0, ymax=200, color='black')
-plt.vlines(600, ymin=0, ymax=200, color='black')
-plt.vlines(900, ymin=0, ymax=200, color='black')
-plt.vlines(1200, ymin=0, ymax=200, color='black')
-plt.vlines(1500, ymin=0, ymax=200, color='black')
-plt.vlines(1800, ymin=0, ymax=200, color='black')
-plt.title('Cabin number')
-plt.xlim([0, 2000])
+# plt.subplot(3, 1, 2)
+# sns.histplot(data=data1, x='Cabin_number', hue='Transported', binwidth=20)
+# plt.vlines(300, ymin=0, ymax=200, color='black')
+# plt.vlines(600, ymin=0, ymax=200, color='black')
+# plt.vlines(900, ymin=0, ymax=200, color='black')
+# plt.vlines(1200, ymin=0, ymax=200, color='black')
+# plt.vlines(1500, ymin=0, ymax=200, color='black')
+# plt.vlines(1800, ymin=0, ymax=200, color='black')
+# plt.title('Cabin number')
+# plt.xlim([0, 2000])
 
-plt.subplot(3, 1, 3)
-sns.countplot(data=data1, x='Cabin_side', hue='Transported')
-plt.title('cabin side')
-fig.tight_layout()
-print("5" * 100)
+# plt.subplot(3, 1, 3)
+# sns.countplot(data=data1, x='Cabin_side', hue='Transported')
+# plt.title('cabin side')
+# fig.tight_layout()
+# print("5" * 100)
 for dataset in data_cleaner:
     # New feature - training set
     dataset['Cabin_region1'] = (dataset['Cabin_number'] < 300).astype(int)
@@ -203,13 +203,13 @@ for dataset in data_cleaner:
     dataset['Cabin_region6'] = ((dataset['Cabin_number'] >= 1500) & (dataset['Cabin_number'] < 1500)).astype(int)
     dataset['Cabin_region7'] = (dataset['Cabin_number'] >= 1800).astype(int)
 
-plt.figure(figsize=(10, 4))
+# plt.figure(figsize=(10, 4))
 data1['Cabin_region_plot'] = (
         data1['Cabin_region1'] + 2 * data1['Cabin_region2'] + 3 * data1['Cabin_region3'] + 4 * data1[
     'Cabin_region4'] + 5 * data1['Cabin_region5'] + 6 * data1['Cabin_region6'] + 7 * data1['Cabin_region7']).astype(
     int)
-sns.countplot(data=data1, x='Cabin_region_plot', hue='Transported')
-plt.title('Cabin region ')
+# sns.countplot(data=data1, x='Cabin_region_plot', hue='Transported')
+# plt.title('Cabin region ')
 data1.drop('Cabin_region_plot', axis=1, inplace=True)
 
 for dataset in data_cleaner:
@@ -221,10 +221,10 @@ for dataset in data_cleaner:
     dataset.drop('Name', axis=1, inplace=True)
 
 # New  feature distribution
-
-plt.figure(figsize=(12, 4))
-sns.countplot(data=data1, x='Family_size', hue='Transported')
-plt.title('Family_size ')
+#
+# plt.figure(figsize=(12, 4))
+# sns.countplot(data=data1, x='Family_size', hue='Transported')
+# plt.title('Family_size ')
 # Missing values¶
 
 data1['Transported'].astype(int)
@@ -237,7 +237,22 @@ for dataset in data_cleaner:
 
 # Countplot of number of missing values by passenger
 data1['na_count'] = data1.isna().sum(axis=1)
-plt.figure(figsize=(10, 4))
-sns.countplot(data=data1, x='na_count', hue='Transported')
-plt.title("number of missing entries by pasenger")
-
+# plt.figure(figsize=(10, 4))
+# sns.countplot(data=data1, x='na_count', hue='Transported')
+# plt.title("number of missing entries by pasenger")
+data1.drop('na_count', axis=1, inplace=True)
+# for dataset in data_cleaner:
+#     GHP_gb = dataset.groupby(['Group', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
+#     # Missing values before
+#     HP_bef = dataset['HomePlanet'].isna().sum()
+#     # Passengers with missing HomePlanet and in a group with known HomePlanet
+#     GHP_index = dataset[dataset['HomePlanet'].isna()][
+#         (dataset[dataset['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
+# Fill corresponding missing value
+print('4' * 100)
+print(data_cleaner[0].head())
+print('5' * 100)
+dataset = data_cleaner[1]
+print(dataset.columns)
+# dataset.groupby(['Group'])
+dataset.groupby(['Group', 'HomePlanet'])
