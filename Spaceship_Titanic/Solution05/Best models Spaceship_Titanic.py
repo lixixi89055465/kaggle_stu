@@ -243,9 +243,19 @@ data1['na_count'] = data1.isna().sum(axis=1)
 data1.drop('na_count', axis=1, inplace=True)
 for dataset in data_cleaner:
     GHP_gb = dataset.groupby(['Group', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
-    # Missing values before
+    #     # Missing values before
     HP_bef = dataset['HomePlanet'].isna().sum()
-    # Passengers with missing HomePlanet and in a group with known HomePlanet
+    #     # Passengers with missing HomePlanet and in a group with known HomePlanet
     GHP_index = dataset[dataset['HomePlanet'].isna()][
         (dataset[dataset['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
+    # Fill corresponding missing values
+    dataset.loc[GHP_index, 'HomePlanet'] = dataset.iloc[GHP_index, :]['Group'].map(lambda x: GHP_gb.idxmax(axis=1)[x])
+    # Print number of missing values left
+    print('#HomePlanet missing values before :', HP_bef)
+    print('#HomePlanet missing values after:', dataset['HomePlanet'].isna().sum())
 
+# We managed to fill 131 values with 100% confidence but we are nott finished yet.
+print(dataset[dataset['HomePlanet'].isna()])
+
+# (dataset[dataset['HomePlanet'].isna()]['Group']).isin()
+GHP_gb

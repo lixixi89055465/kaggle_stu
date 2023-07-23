@@ -1,8 +1,29 @@
 import pandas as pd
 
-s = "a,b,c,d\n1,2,3,4\n5,6,7,8\n9,10,11,12"
-lst = []
-for sep in s.split('\n'):
-    lst.append(sep.split(','))
-df = pd.DataFrame(lst[1:], columns=lst[0])
-print(df)
+df = pd.DataFrame({'A': [1, 2, 3],
+                   'B': ['a', 'b', 'c']})
+print(df.isin([1, 3, 12, 'a']))
+print('0' * 100)
+print(df.isin({
+    'A': [1, 3],
+    'B': ['a', 7, 12]
+}))
+print('1' * 100)
+print(df.isin({
+    'A': [1, 3],
+    'C': [4, 7, 12]
+}))
+df = pd.DataFrame({
+
+    'A': [1, 2, 3],
+
+    'B': ['a', 'b', 'f']
+
+})
+
+other = pd.DataFrame({
+    'A': [1, 3, 3, 2],
+    'B': ['e', 'f', 'f', 'e']
+})
+print('2'*100)
+print(df.isin(other))
