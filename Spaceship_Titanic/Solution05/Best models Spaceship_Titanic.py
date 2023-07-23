@@ -241,18 +241,11 @@ data1['na_count'] = data1.isna().sum(axis=1)
 # sns.countplot(data=data1, x='na_count', hue='Transported')
 # plt.title("number of missing entries by pasenger")
 data1.drop('na_count', axis=1, inplace=True)
-# for dataset in data_cleaner:
-#     GHP_gb = dataset.groupby(['Group', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
-#     # Missing values before
-#     HP_bef = dataset['HomePlanet'].isna().sum()
-#     # Passengers with missing HomePlanet and in a group with known HomePlanet
-#     GHP_index = dataset[dataset['HomePlanet'].isna()][
-#         (dataset[dataset['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
-# Fill corresponding missing value
-print('4' * 100)
-print(data_cleaner[0].head())
-print('5' * 100)
-dataset = data_cleaner[1]
-print(dataset.columns)
-# dataset.groupby(['Group'])
-dataset.groupby(['Group', 'HomePlanet'])
+for dataset in data_cleaner:
+    GHP_gb = dataset.groupby(['Group', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
+    # Missing values before
+    HP_bef = dataset['HomePlanet'].isna().sum()
+    # Passengers with missing HomePlanet and in a group with known HomePlanet
+    GHP_index = dataset[dataset['HomePlanet'].isna()][
+        (dataset[dataset['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
+
