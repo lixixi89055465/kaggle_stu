@@ -268,40 +268,7 @@ for data in data_cleaner:
     print('#HomePlanet missing values before:', HP_bef)
     print('#HomePlanet missing values after:', dataset['HomePlanet'].isna().sum())
 
-for data in data_cleaner:
-    #     SHP_gb = data.groupby(['Surname', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
-    #     HP_bef = data['HomePlanet'].isna().sum()
-    #     SHP_index = data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Surname']).isin(SHP_gb.index)].index
-    #     # Fill corresponding values left
-    #     data.loc[SHP_index, 'HomePlanet'] = data.iloc[SHP_index, :]['Surname'].map(lambda x: SHP_gb.idxmax(axis=1)[x])
-    #     # Print number of missing values left
-    #     print('#HomePlanet missing values before:', HP_bef)
-    #     print('#HomePlanet missing values after:', data['HomePlanet'].isna().sum())
-    print('0' * 100)
-    SHP_gb = data.groupby(['Surname', 'HomePlanet']).size().unstack().fillna(0)
-    HP_bef = data['HomePlanet'].isna().sum()
-    SHP_index = data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]).isin(SHP_gb.index)].index
-    data.loc[SHP_index, 'HomePlanet'] = data.iloc[SHP_index, :]['Surname'].map(lambda x: SHP_gb.idxmax(axis=1)[x])
-    print('#HomePlanet missing values before:', HP_bef)
-    print('#HomePlanet missing value afeter:', data['HomePlanet'].isna().sum())
-
-
-
-# for data in data_cleaner:
-#     # Missing value before
-#     HP_bef = data['HomePlanet'].isna().sum()
-#     # Fill remaining HomePlanet missing values with Earch (if not on deck D) or Mars (if on Deck D)
-#     data.loc[(data['HomePlanet'].isna()) & ~(data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Earth'
-#     data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Mars'
-#     # Print number of missing values left
-#     print("#Home Planet missing values before:'", HP_bef)
-#     print('#HOme Planet missing values afeter :', data['HomePlanet'])
-
-# for data in data_cleaner:
-#     # Missing values before
-#     D_bef = data['Destination'].isna().sum()
-#     # Fill mising Destination values with mode
-#     data.loc[(data['Destination'].isna()), 'Destination'] = 'TRAPPIST-1e'
-#     #Print number of missing values left
-#     print('#Destination missing values before :',D_bef)
-#     print('#Destination missing values after :',D_bef)
+for dataset in data_cleaner:
+    GHP_gb = dataset[dataset['HomePlanet'].isna()]
+    HP_bef = dataset.isna().sum()
+    GHP_index=dataset[dataset['HomePlanet'].isna()][(dataset[dataset['HomePlanet'].isna()])['Group'].isin()]
