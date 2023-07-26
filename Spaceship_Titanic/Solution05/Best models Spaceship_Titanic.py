@@ -233,7 +233,7 @@ for dataset in data_cleaner:
     na_cols = dataset.columns[dataset.isna().any()].tolist()
     mv = pd.DataFrame(dataset[na_cols].isna().sum(), columns=['Number_missing'])
     mv['Percentage_missing'] = np.round(100 * mv['Number_missing'] / len(dataset), 2)
-    print(mv, '\n')
+    # print(mv, '\n')
 
 # Countplot of number of missing values by passenger
 data1['na_count'] = data1.isna().sum(axis=1)
@@ -241,34 +241,40 @@ data1['na_count'] = data1.isna().sum(axis=1)
 # sns.countplot(data=data1, x='na_count', hue='Transported')
 # plt.title("number of missing entries by pasenger")
 data1.drop('na_count', axis=1, inplace=True)
-for dataset in data_cleaner:
-    SHP_gb = dataset.groupby(['Group', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
-    #     # Missing values before
-    HP_bef = dataset['HomePlanet'].isna().sum()
-    #     # Passengers with missing HomePlanet and in a group with known HomePlanet
-    SHP_index = dataset[dataset['HomePlanet'].isna()][
-        (dataset[dataset['HomePlanet'].isna()]['Group']).isin(SHP_gb.index)].index
-    # Fill corresponding missing values
-    dataset.loc[SHP_index, 'HomePlanet'] = dataset.iloc[SHP_index, :]['Group'].map(lambda x: SHP_gb.idxmax(axis=1)[x])
-    # Print number of missing values left
-    print('#HomePlanet missing values before:', HP_bef)
-    print('#HomePlanet missing values after:', dataset['HomePlanet'].isna().sum())
-    print(dataset[['HomePlanet', 'Cabin_deck']].value_counts())
 
 # We managed to fill 131 values with 100% confidence but we are nott finished yet.
 
-for data in data_cleaner:
-    HP_bef = dataset['HomePlanet'].isna().sum()
-    # Decks A,B,C or T came from Europe
-    dataset.loc[
-        (dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Europa'
-    # Deck G came from Earth
-    dataset.loc[(dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'] == 'G'), 'HomePlanet'] = 'Earth'
-    # Print number of missing values left
-    print('#HomePlanet missing values before:', HP_bef)
-    print('#HomePlanet missing values after:', dataset['HomePlanet'].isna().sum())
 
 for dataset in data_cleaner:
-    GHP_gb = dataset[dataset['HomePlanet'].isna()]
-    HP_bef = dataset.isna().sum()
-    GHP_index=dataset[dataset['HomePlanet'].isna()][(dataset[dataset['HomePlanet'].isna()])['Group'].isin()]
+    GHP_gb = dataset.groupby(['Group', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
+    # Missing values before
+    HP_bef = dataset['HomePlanet'].isna().sum()
+    GHP_index = dataset[dataset['HomePlanet'].isna()][
+        (dataset[dataset['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
+    dataset.loc[GHP_index, 'HomePlanet'] = dataset.iloc[GHP_index, :]['Group'].map(
+        lambda x: GHP_gb.idxmax(axis=1)[x])
+    print("#Missing values before:", HP_bef)
+    print("#Missing values afeter:", dataset['HomePlanet'].isna().sum())
+
+print('5' * 100)
+for dataset in data_cleaner:
+    # HP_bef = dataset['HomePlanet'].isna().sum()
+    # dataset.loc[
+    #     (dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Eurepo'
+    # dataset.loc[(dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'] == 'G'), 'HomePlanet'] = 'Earth'
+    # print("#HomePlanet missing values before:", HP_bef)
+    # print("#HomePlanet missing values afeter:", dataset['HomePlanet'].isna().sum())
+    HP_bef = dataset['HomePlanet'].isna().sum()
+    dataset.loc[
+        (dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Europe'
+    print(((dataset['HomePlanet'].isna())&(dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T']))).sum())
+    # print(dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T']).sum())
+# for data in data_cleaner:
+#     SHP_gb = data.groupby(['Surname', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
+#     # Missing values before
+#     HP_bef = data['HomePlanet'].isna().sum()
+#     SHP_index = data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Surname']).isin(SHP_gb.index)].index
+#     data.loc[SHP_index, 'HomePlanet'] = data.iloc[SHP_index, :]['Surname'].map(lambda x: SHP_gb.idxmax(axis=1)[x])
+#     # Print number of missing values left
+#     print('#HomePlanet missing values before:', HP_bef)
+#     print('@HomePlanet missing values before:', data['HomePlanet'].isna().sum())
