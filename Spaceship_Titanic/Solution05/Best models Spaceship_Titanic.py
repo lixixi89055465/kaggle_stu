@@ -89,14 +89,14 @@ cat_feats = ['HomePlanet', 'CryoSleep', 'Destination', 'VIP']
 # Qualitative features
 qual_feats = ['PassengerId', 'Cabin', 'Name']
 
-for dataset in data_cleaner:
-    dataset['Age_group'] = np.nan
-    dataset.loc[dataset['Age'] <= 12, 'Age_group'] = 'Age_0-12'
-    dataset.loc[(dataset['Age'] > 12) & (dataset['Age'] < 18), 'Age_group'] = 'Age_13-17'
-    dataset.loc[(dataset['Age'] >= 18) & (dataset['Age'] <= 25), 'Age_group'] = 'Age_18-25'
-    dataset.loc[(dataset['Age'] > 25) & (dataset['Age'] <= 30), 'Age_group'] = 'Age_26-30'
-    dataset.loc[(dataset['Age'] > 30) & (dataset['Age'] <= 50), 'Age_group'] = 'Age_31-50'
-    dataset.loc[dataset['Age'] > 50, 'Age_group'] = 'Age_51+'
+# for dataset in data_cleaner:
+#     dataset['Age_group'] = np.nan
+#     dataset.loc[dataset['Age'] <= 12, 'Age_group'] = 'Age_0-12'
+#     dataset.loc[(dataset['Age'] > 12) & (dataset['Age'] < 18), 'Age_group'] = 'Age_13-17'
+#     dataset.loc[(dataset['Age'] >= 18) & (dataset['Age'] <= 25), 'Age_group'] = 'Age_18-25'
+#     dataset.loc[(dataset['Age'] > 25) & (dataset['Age'] <= 30), 'Age_group'] = 'Age_26-30'
+#     dataset.loc[(dataset['Age'] > 30) & (dataset['Age'] <= 50), 'Age_group'] = 'Age_31-50'
+#     dataset.loc[dataset['Age'] > 50, 'Age_group'] = 'Age_51+'
 
 # Plot distribution of new features
 # plt.figure(figsize=(10, 4))
@@ -105,9 +105,9 @@ for dataset in data_cleaner:
 # plt.title('Age group distribution')
 # plt.show()
 
-for dataset in data_cleaner:
-    dataset['Expenditure'] = dataset[exp_feats].sum(axis=1)
-    dataset['No_spending'] = (dataset['Expenditure'] == 0).astype(int)
+# for dataset in data_cleaner:
+#     dataset['Expenditure'] = dataset[exp_feats].sum(axis=1)
+#     dataset['No_spending'] = (dataset['Expenditure'] == 0).astype(int)
 # fig = plt.figure(figsize=(12, 4))
 # plt.subplot(1, 2, 1)
 # sns.histplot(data=data1, x='Expenditure', hue='Transported', bins=200)
@@ -118,9 +118,9 @@ for dataset in data_cleaner:
 # sns.countplot(data=data1, x='No_spending', hue='Transported')
 # plt.title('No spending indicator')
 # fig.tight_layout()
-for dataset in data_cleaner:
-    dataset['Expenditure'] = dataset[exp_feats].sum(axis=1)
-    dataset['No_spending'] = (dataset['Expenditure'] == 0).astype(int)
+# for dataset in data_cleaner:
+#     dataset['Expenditure'] = dataset[exp_feats].sum(axis=1)
+#     dataset['No_spending'] = (dataset['Expenditure'] == 0).astype(int)
 
 # Plot distribution of new features
 # fig = plt.figure(figsize=(12, 4))
@@ -154,7 +154,10 @@ print("0" * 100)
 ## New features
 # data_raw['Solo'] = (data_raw['Group_size'] == 1).astype(int)
 # data_val['Solo'] = (data_val['Group_size'] == 1).astype(int)
+
+print('1' * 100)
 for dataset in data_cleaner:
+    print(dataset.columns)
     dataset['Solo'] = (dataset['Group_size'] == 1).astype(int)
 # New feature distribution
 # plt.figure(figsize=(10,4))
@@ -163,14 +166,14 @@ for dataset in data_cleaner:
 # plt.ylim([0,3000])
 # plt.show()
 
-for dataset in data_cleaner:
-    dataset['Cabin'].fillna('Z/9999/Z', inplace=True)
-    dataset[['Cabin_deck', 'Cabin_number', 'Cabin_side']] = dataset['Cabin'].str.split('/', expand=True)
-    dataset['Cabin_number'] = dataset['Cabin_number'].astype(int)
-    dataset.loc[dataset['Cabin_deck'] == 'Z', 'Cabin_deck'] = np.nan
-    dataset.loc[dataset['Cabin_number'] == '9999', 'Cabin_number'] = np.nan
-    dataset.loc[dataset['Cabin_side'] == 'Z', 'Cabin_side'] = np.nan
-    dataset.drop('Cabin', axis=1, inplace=True)
+# for dataset in data_cleaner:
+#     dataset['Cabin'].fillna('Z/9999/Z', inplace=True)
+#     dataset[['Cabin_deck', 'Cabin_number', 'Cabin_side']] = dataset['Cabin'].str.split('/', expand=True)
+#     dataset['Cabin_number'] = dataset['Cabin_number'].astype(int)
+#     dataset.loc[dataset['Cabin_deck'] == 'Z', 'Cabin_deck'] = np.nan
+#     dataset.loc[dataset['Cabin_number'] == '9999', 'Cabin_number'] = np.nan
+#     dataset.loc[dataset['Cabin_side'] == 'Z', 'Cabin_side'] = np.nan
+#     dataset.drop('Cabin', axis=1, inplace=True)
 # plot distribution of new features
 # fig = plt.figure(figsize=(20, 4))
 # plt.subplot(3, 1, 1)
@@ -193,25 +196,25 @@ for dataset in data_cleaner:
 # plt.title('cabin side')
 # fig.tight_layout()
 # print("5" * 100)
-for dataset in data_cleaner:
-    # New feature - training set
-    dataset['Cabin_region1'] = (dataset['Cabin_number'] < 300).astype(int)
-    dataset['Cabin_region2'] = ((dataset['Cabin_number'] >= 300) & (dataset['Cabin_number'] < 600)).astype(int)
-    dataset['Cabin_region3'] = ((dataset['Cabin_number'] >= 600) & (dataset['Cabin_number'] < 900)).astype(int)
-    dataset['Cabin_region4'] = ((dataset['Cabin_number'] >= 900) & (dataset['Cabin_number'] < 1200)).astype(int)
-    dataset['Cabin_region5'] = ((dataset['Cabin_number'] >= 1200) & (dataset['Cabin_number'] < 1500)).astype(int)
-    dataset['Cabin_region6'] = ((dataset['Cabin_number'] >= 1500) & (dataset['Cabin_number'] < 1500)).astype(int)
-    dataset['Cabin_region7'] = (dataset['Cabin_number'] >= 1800).astype(int)
+# for dataset in data_cleaner:
+#     # New feature - training set
+#     dataset['Cabin_region1'] = (dataset['Cabin_number'] < 300).astype(int)
+#     dataset['Cabin_region2'] = ((dataset['Cabin_number'] >= 300) & (dataset['Cabin_number'] < 600)).astype(int)
+#     dataset['Cabin_region3'] = ((dataset['Cabin_number'] >= 600) & (dataset['Cabin_number'] < 900)).astype(int)
+#     dataset['Cabin_region4'] = ((dataset['Cabin_number'] >= 900) & (dataset['Cabin_number'] < 1200)).astype(int)
+#     dataset['Cabin_region5'] = ((dataset['Cabin_number'] >= 1200) & (dataset['Cabin_number'] < 1500)).astype(int)
+#     dataset['Cabin_region6'] = ((dataset['Cabin_number'] >= 1500) & (dataset['Cabin_number'] < 1500)).astype(int)
+#     dataset['Cabin_region7'] = (dataset['Cabin_number'] >= 1800).astype(int)
 
 # plt.figure(figsize=(10, 4))
-data1['Cabin_region_plot'] = (
-        data1['Cabin_region1'] + 2 * data1['Cabin_region2'] + 3 * data1['Cabin_region3'] + 4 * data1[
-    'Cabin_region4'] + 5 * data1['Cabin_region5'] + 6 * data1['Cabin_region6'] + 7 * data1['Cabin_region7']).astype(
-    int)
+# data1['Cabin_region_plot'] = (
+#         data1['Cabin_region1'] + 2 * data1['Cabin_region2'] + 3 * data1['Cabin_region3'] + 4 * data1[
+#     'Cabin_region4'] + 5 * data1['Cabin_region5'] + 6 * data1['Cabin_region6'] + 7 * data1['Cabin_region7']).astype(
+#     int)
 # sns.countplot(data=data1, x='Cabin_region_plot', hue='Transported')
 # plt.title('Cabin region ')
-data1.drop('Cabin_region_plot', axis=1, inplace=True)
-
+# data1.drop('Cabin_region_plot', axis=1, inplace=True)
+#
 for dataset in data_cleaner:
     dataset['Name'].fillna('Unknown Unknown', inplace=True)
     dataset['Surname'] = dataset['Name'].str.split().str[-1]
@@ -227,20 +230,20 @@ for dataset in data_cleaner:
 # plt.title('Family_size ')
 # Missing values¶
 
-data1['Transported'].astype(int)
-for dataset in data_cleaner:
-    # Columns with missing values
-    na_cols = dataset.columns[dataset.isna().any()].tolist()
-    mv = pd.DataFrame(dataset[na_cols].isna().sum(), columns=['Number_missing'])
-    mv['Percentage_missing'] = np.round(100 * mv['Number_missing'] / len(dataset), 2)
-    # print(mv, '\n')
+# data1['Transported'].astype(int)
+# for dataset in data_cleaner:
+#     # Columns with missing values
+#     na_cols = dataset.columns[dataset.isna().any()].tolist()
+#     mv = pd.DataFrame(dataset[na_cols].isna().sum(), columns=['Number_missing'])
+#     mv['Percentage_missing'] = np.round(100 * mv['Number_missing'] / len(dataset), 2)
+# print(mv, '\n')
 
 # Countplot of number of missing values by passenger
-data1['na_count'] = data1.isna().sum(axis=1)
+# data1['na_count'] = data1.isna().sum(axis=1)
 # plt.figure(figsize=(10, 4))
 # sns.countplot(data=data1, x='na_count', hue='Transported')
 # plt.title("number of missing entries by pasenger")
-data1.drop('na_count', axis=1, inplace=True)
+# data1.drop('na_count', axis=1, inplace=True)
 
 # We managed to fill 131 values with 100% confidence but we are nott finished yet.
 
@@ -257,24 +260,43 @@ for dataset in data_cleaner:
     print("#Missing values afeter:", dataset['HomePlanet'].isna().sum())
 
 print('5' * 100)
-for dataset in data_cleaner:
-    # HP_bef = dataset['HomePlanet'].isna().sum()
-    # dataset.loc[
-    #     (dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Eurepo'
-    # dataset.loc[(dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'] == 'G'), 'HomePlanet'] = 'Earth'
-    # print("#HomePlanet missing values before:", HP_bef)
-    # print("#HomePlanet missing values afeter:", dataset['HomePlanet'].isna().sum())
-    HP_bef = dataset['HomePlanet'].isna().sum()
-    dataset.loc[
-        (dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Europe'
-    print(((dataset['HomePlanet'].isna())&(dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T']))).sum())
-    # print(dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T']).sum())
+# for dataset in data_cleaner:
+#     HP_bef = dataset['HomePlanet'].isna().sum()
+#     dataset.loc[
+#         (dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Europe'
+#     dataset.loc[
+#         (dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'] == 'G'), 'HomePlanet'] = 'Earth'
+# print('#HomePlanet missing values before:', HP_bef)
+# print('#HomePlanet missing values after:', dataset['HomePlanet'].isna().sum())
+
+print('6' * 100)
+for data in data_cleaner:
+    SHP_gb = data.groupby(['Surname', 'HomePlanet']).size().unstack().fillna(0)
+    HP_bef = data['HomePlanet'].isna().sum()
+    SHP_index = data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Surname']).isin(SHP_gb.index)].index
+    data.loc[SHP_index, 'HomePlanet'] = data.iloc[SHP_index, :]['Surname'].map(lambda x: SHP_gb.idxmax(axis=1)[x])
+    # Print number of missing values left
+    print('#HomePlanet missing values before:', HP_bef)
+    print('#HomePlanet missing values before:', data['HomePlanet'].isna().sum())
+
+print('7' * 100)
 # for data in data_cleaner:
-#     SHP_gb = data.groupby(['Surname', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
-#     # Missing values before
 #     HP_bef = data['HomePlanet'].isna().sum()
-#     SHP_index = data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Surname']).isin(SHP_gb.index)].index
-#     data.loc[SHP_index, 'HomePlanet'] = data.iloc[SHP_index, :]['Surname'].map(lambda x: SHP_gb.idxmax(axis=1)[x])
-#     # Print number of missing values left
-#     print('#HomePlanet missing values before:', HP_bef)
-#     print('@HomePlanet missing values before:', data['HomePlanet'].isna().sum())
+#     data.loc[(data['HomePlanet'].isna()) & ~(data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Earth'
+#     data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Mars'
+# print('#HomePlanet missing values before:', HP_bef)
+# print('#HomePlanet missing values after:', data['HomePlanet'].isna().sum())
+# We're done with HomePlanet.
+print('8' * 100)
+# for data in data_cleaner:
+#     D_bef = data['Destination'].isna().sum()
+#     data.loc[data['Destination'].isna(), 'Destination'] = 'TRAPPIST-1e'
+print('9' * 100)
+for data in data_cleaner:
+    # Join distribution of Group and Surname
+    SN_bef = data['Surname'].isna().sum()
+    GSN_gb = data[data['Group_size'] > 1].groupby(['Group', 'Surname'])['Surname'].size().unstack().fillna(0)
+    GSN_index = data[data['Surname'].isna()][(data[data['Surname'].isna()]['Surname']).isin(GSN_gb.index)].index
+    data.loc[GSN_index, 'Surname'] = data.iloc[GSN_index, :]['Group'].map(lambda x: GSN_gb.idxmax(axis=1)[x])
+    print('Surname missing values before:', SN_bef)
+    print('Surname missing values after:', data['Surname'].isna().sum())
