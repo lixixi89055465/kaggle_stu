@@ -293,10 +293,16 @@ print('8' * 100)
 #     data.loc[data['Destination'].isna(), 'Destination'] = 'TRAPPIST-1e'
 print('9' * 100)
 for data in data_cleaner:
-    # Join distribution of Group and Surname
-    SN_bef = data['Surname'].isna().sum()
     GSN_gb = data[data['Group_size'] > 1].groupby(['Group', 'Surname'])['Surname'].size().unstack().fillna(0)
-    GSN_index = data[data['Surname'].isna()][(data[data['Surname'].isna()]['Surname']).isin(GSN_gb.index)].index
+    SN_bef = data['Surname'].isna().sum()
+    GSN_index = data[data['Surname'].isna()][(data[data['Surname'].isna()]['Group']).isin(GSN_gb.index)]
+    # Fill corresponding missing values
     data.loc[GSN_index, 'Surname'] = data.iloc[GSN_index, :]['Group'].map(lambda x: GSN_gb.idxmax(axis=1)[x])
-    print('Surname missing values before:', SN_bef)
-    print('Surname missing values after:', data['Surname'].isna().sum())
+    # Print number of missing values left
+    print('#Surname missing values before:', SN_bef)
+    print('#Surname missing values after:', data['Surname'].isna().sum())
+    data['Surname'].fillna('Unknown', inplace=True)
+    data['Family_size'] = data['Surname'].map(lambda x: data['Surname'].value_counts()[x])
+    data.loc[data['Surname'] == 'Unknow', 'Surname'] = np.nan
+    data.loc[data['Family_size'] > 100, 'Family_size'] = 0
+
