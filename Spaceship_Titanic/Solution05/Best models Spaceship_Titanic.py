@@ -260,12 +260,12 @@ for dataset in data_cleaner:
     # print("#Missing values afeter:", dataset['HomePlanet'].isna().sum())
 
 print('5' * 100)
-# for dataset in data_cleaner:
-#     HP_bef = dataset['HomePlanet'].isna().sum()
-#     dataset.loc[
-#         (dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Europe'
-#     dataset.loc[
-#         (dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'] == 'G'), 'HomePlanet'] = 'Earth'
+for dataset in data_cleaner:
+    HP_bef = dataset['HomePlanet'].isna().sum()
+    dataset.loc[
+        (dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Europe'
+    dataset.loc[
+        (dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'] == 'G'), 'HomePlanet'] = 'Earth'
 # print('#HomePlanet missing values before:', HP_bef)
 # print('#HomePlanet missing values after:', dataset['HomePlanet'].isna().sum())
 
@@ -315,18 +315,18 @@ for data in data_cleaner:
     GCS_index = data[data['Cabin_side'].isna()][(data[data['Cabin_side'].isna()]['Group']).isin(GCS_gb.index)].index
     data.loc[GCS_index, 'Cabin_side'] = data.iloc[GCS_index, :]['Group'].map(lambda x: GCS_gb.idxmax(axis=1)[x])
     # Print number of missing values left
-    print('#Cabin_side missing values before:', CS_bef)
-    print('#Cabin_side missing values after:', data['Cabin_side'].isna().sum())
-print('1'*100)
+    # print('#Cabin_side missing values before:', CS_bef)
+    # print('#Cabin_side missing values after:', data['Cabin_side'].isna().sum())
+print('1' * 100)
 for data in data_cleaner:
     # Joint distribution of Surname and Cabin side
-    SCS_gb=data[data['Group_size']>1].groupby(['Surname','Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
-
-    # Ratio of sides
+    SCS_gb = data[data['Group_size'] > 1].groupby(['Surname', 'Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
     # SCS_gb['Ratio']=SCS_gb[data]/(SCS_gb['P']+SCS_gb['S'])
-    print(SCS_gb['P'])
-
+    print(SCS_gb.head())
+    break
     # Histogram of ratio
-    plt.figure(figsize=(10,4))
-    sns.histplot(SCS_gb['Ratio'], kde=True, binwidth=0.05)
-    plt.title('Ratio of cabin side by surname')
+    # plt.figure(figsize=(10, 4))
+    # sns.histplot(SCS_gb['Ratio'], kde=True, binwidth=0.05)
+    # plt.title('Ratio of cabin side by surname')
+
+# plt.show()
