@@ -337,6 +337,8 @@ for data in data_cleaner:
     print("6"*100)
     print(SCS_gb[data.head()].shape)
     print("7"*100)
+    print(SCS_gb[data.head(1)].shape)
+    print("9"*100)
     print(SCS_gb[data].shape)
     print("8"*100)
     print(SCS_gb.shape)
