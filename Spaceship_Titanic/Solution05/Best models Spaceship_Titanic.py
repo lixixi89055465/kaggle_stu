@@ -320,9 +320,29 @@ for data in data_cleaner:
 print('1' * 100)
 for data in data_cleaner:
     # Joint distribution of Surname and Cabin side
-    SCS_gb = data[data['Group_size'] > 1].groupby(['Surname', 'Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
-    # SCS_gb['Ratio']=SCS_gb[data]/(SCS_gb['P']+SCS_gb['S'])
+    SCS_gb = data[data['Group_size'] > 1].groupby(['Surname', 'Cabin_side'])['Cabin_side']. \
+        size().unstack().fillna(0)
+    print(type(data))
+    print(data.head())
+    print(type(SCS_gb))
     print(SCS_gb.head())
+    print("2" * 100)
+    print(SCS_gb.columns)
+    print("3" * 100)
+    print(SCS_gb.iloc[:10])
+    print("4" * 100)
+    print(SCS_gb.index)
+    print("5" * 100)
+    print(SCS_gb[data].head())
+    print("6"*100)
+    print(SCS_gb[data.head()].shape)
+    print("7"*100)
+    print(SCS_gb[data].shape)
+    print("8"*100)
+    print(SCS_gb.shape)
+    print("9"*100)
+    print(data.shape)
+
     break
     # Histogram of ratio
     # plt.figure(figsize=(10, 4))
