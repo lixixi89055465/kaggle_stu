@@ -364,9 +364,13 @@ print("4" * 100)
 for data in data_cleaner:
     print(data['Cabin_deck'].value_counts())
     CD_bef = data['Cabin_deck'].isna().sum()
+    CD_bef = data['Cabin_deck'].isna().sum()
     GCD_index = data[data['Cabin_deck'].isna()][(data[data['Cabin_deck'].isna()]['Group']).isin(GCD_gb.index)].index
-    # Fill corresponding missing values
     data.loc[GCD_index, 'Cabin_deck'] = data.iloc[GCD_index, :]['Group'].map(lambda x: GCD_gb.idxmax(axis=1)[x])
-    # Print number of missing values left
     print('#Cabin_deck missing values before:', CD_bef)
     print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
+
+print('5' * 100)
+for data in data_cleaner:
+    print(data[['Cabin_number', 'Group']].head())
+    break
