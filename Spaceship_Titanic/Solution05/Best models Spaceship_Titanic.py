@@ -38,6 +38,7 @@ print("Ipython version :{} ".format(IPython.__version__))
 import sklearn
 
 print('Sklear version: {}'.format(sklearn.__version__))
+from sklearn.preprocessing import LabelEncoder
 from sklearn import metrics
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -51,7 +52,7 @@ warnings.filterwarnings('ignore')
 print('-' * 25)
 from subprocess import check_output
 
-print(check_output(['ls', '../data/']))
+# print(check_output(['ls', '../data/']))
 
 import pandas as pd
 
@@ -370,3 +371,51 @@ for data in data_cleaner:
     # Print number of missing values left
     print('#Cabin_deck missing values before:', CD_bef)
     print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
+for data in data_cleaner:
+    CD_bef = data['Cabin_deck'].isna().sum()
+    GCD_index = data[data['Cabin_deck'].isna()][(data[data['Cabin_deck'].isna()]['Group']).isin(GCD_gb.index)].index
+    data.loc[GCD_index, 'Cabin_deck'] = data.iloc[GCD_index, :]['Group'].map(lambda x: GCD_gb.idxmax(axis=1)[x])
+    print('#Cabin deck missing values before:', CD_bef)
+    print('#Cabin deck missing values after:', data['Cabin_deck'].isna().sum())
+
+# print("6" * 100)
+# for data in data_cleaner:
+#     print(data.groupby(['HomePlanet', 'Destination', 'Solo', 'Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0))
+#     CD_bef = data['Cabin_deck'].isna().sum()
+#     na_rows_CD = data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'].index
+#     data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'] = \
+#         data.groupby(['HomePlanet', 'Destination', 'Solo'])['Cabin_deck'].transform(
+#             lambda x: x.fillna(pd.Series.mode(x)[0]))[na_rows_CD]
+#     # Print number of missing values left
+#     print('#Cabin deck missing values before:', CD_bef)
+#     print('#Cabin deck missing values after:', data['Cabin_deck'].isna().sum())
+print("7" * 100)
+for data in data_cleaner:
+    print(data[['HomePlanet', 'Destination', 'Solo', 'Cabin_deck']].value_counts())
+    break
+
+# print("7" * 100)
+# for data in data_cleaner:
+#     plt.figure(figsize=(10, 4))
+#     sns.scatterplot(x=data['Cabin_number'], y=data['Group'],
+#                     c=LabelEncoder().fit_transform(data.loc[~data['Cabin_number'].isna(), 'Cabin_deck'], cmap='tab10'))
+#     plt.title('Cabin_number vs group colored by group')
+# plt.show()
+
+# for data in data_cleaner:
+#     CN_bef = data['Cabin_number'].isna().sum()
+#     print('#Cabin number missing values before:', CN_bef)
+#     for deck in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
+#         X_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
+#         y_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
+#         X_test_CN = data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
+#         if not X_test_CN.empty:
+#             model_CN = sklearn.linear_model.LinearRegression()
+#             model_CN.fit(X_CN.values.reshape(-1, 1), y_CN)
+#             preds_CN = model_CN.predict(X_test_CN.values.reshape(-1, 1))
+#             # Fillmissing values with predictions
+#             data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number'] = preds_CN.astype(
+#                 int)
+#
+#     print('#Cabin number missing values before;', CN_bef)
+#     print('#Cabin number missing values after;', data['Cabin_number'].isna().sum())
