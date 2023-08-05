@@ -385,19 +385,28 @@ for data in data_cleaner:
 print("7" * 100)
 for data in data_cleaner:
     print(data[['HomePlanet', 'Destination', 'Solo', 'Cabin_deck']].value_counts())
-    break
+    print(data.groupby(['HomePlanet', 'Destination', 'Solo', 'Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0))
+    CD_bef = data['Cabin_deck'].isna().sum()
+    na_rows_CD = data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'].index
+    # data.loc[data['Cabin_deck'].isna(),'Cabin_deck']=data.groupby(['HomePlanet','Destination','Solo'])['Cabin_deck']
+    test01 = data.groupby(['HomePlanet', 'Destination', 'Solo'])['Cabin_deck']
+    data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'] = test01.transform(lambda x: x.fillna(pd.Series.mode(x)[0]))[
+        na_rows_CD]
+    print('#Cabin_deck missing values before:', CD_bef)
+    print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
 
-# print("7" * 100)
-# for data in data_cleaner:
-#     plt.figure(figsize=(10, 4))
-#     sns.scatterplot(x=data['Cabin_number'], y=data['Group'],
-#                     c=LabelEncoder().fit_transform(data.loc[~data['Cabin_number'].isna(), 'Cabin_deck'], cmap='tab10'))
-#     plt.title('Cabin_number vs group colored by group')
-# plt.show()
+print("8" * 100)
+for data in data_cleaner:
+    plt.figure(figsize=(10, 4))
+    sns.scatterplot(x=data['Cabin_number'], y=data['Group'],
+                    c=LabelEncoder().fit_transform(data.loc[~data['Cabin_number'].isna(), 'Cabin_deck']), cmap='tab10')
+    plt.title('Cabin_number vs group colored by group')
+plt.show()
+print('9' * 100)
 
-# for data in data_cleaner:
-#     CN_bef = data['Cabin_number'].isna().sum()
-#     print('#Cabin number missing values before:', CN_bef)
+for data in data_cleaner:
+    CN_bef = data['Cabin_number'].isna().sum()
+    print('#Cabin number missing values before:', CN_bef)
 #     for deck in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
 #         X_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
 #         y_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
