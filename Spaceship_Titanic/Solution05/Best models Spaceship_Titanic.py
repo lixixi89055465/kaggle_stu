@@ -396,17 +396,17 @@ for data in data_cleaner:
     print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
 
 print("8" * 100)
-for data in data_cleaner:
-    plt.figure(figsize=(10, 4))
-    sns.scatterplot(x=data['Cabin_number'], y=data['Group'],
-                    c=LabelEncoder().fit_transform(data.loc[~data['Cabin_number'].isna(), 'Cabin_deck']), cmap='tab10')
-    plt.title('Cabin_number vs group colored by group')
-plt.show()
+# for data in data_cleaner:
+#     plt.figure(figsize=(10, 4))
+#     sns.scatterplot(x=data['Cabin_number'], y=data['Group'],
+#                     c=LabelEncoder().fit_transform(data.loc[~data['Cabin_number'].isna(), 'Cabin_deck']), cmap='tab10')
+#     plt.title('Cabin_number vs group colored by group')
+# plt.show()
 print('9' * 100)
 
-for data in data_cleaner:
-    CN_bef = data['Cabin_number'].isna().sum()
-    print('#Cabin number missing values before:', CN_bef)
+# for data in data_cleaner:
+#     CN_bef = data['Cabin_number'].isna().sum()
+#     print('#Cabin number missing values before:', CN_bef)
 #     for deck in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
 #         X_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
 #         y_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
@@ -421,3 +421,21 @@ for data in data_cleaner:
 #
 #     print('#Cabin number missing values before;', CN_bef)
 #     print('#Cabin number missing values after;', data['Cabin_number'].isna().sum())
+for data in data_cleaner:
+    CN_bef = data['Cabin_number'].isna().sum()
+    print('#Cabin number missing values before:', CN_bef)
+    for deck in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
+        X_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
+        y_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
+        X_test_CN = data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
+        if not X_test_CN.empty:
+            # Linear regression
+            model_CN = sklearn.linear_model.LinearRegression()
+            model_CN.fit(X_CN.values.reshape(-1, 1), y_CN)
+            preds_CN = model_CN.predict(X_test_CN.values.reshape(-1, 1))
+            # Fill missing values with prediction
+            data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number'] = preds_CN.astype(
+                int)
+        # Print number of missing values left
+        print('#Cabin number missing values before:', CN_bef)
+        print('#Cabin number missing values after:', data['Cabin_number'].isna().sum())
