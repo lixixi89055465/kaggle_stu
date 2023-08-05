@@ -371,13 +371,6 @@ for data in data_cleaner:
     # Print number of missing values left
     print('#Cabin_deck missing values before:', CD_bef)
     print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
-for data in data_cleaner:
-    CD_bef = data['Cabin_deck'].isna().sum()
-    GCD_index = data[data['Cabin_deck'].isna()][(data[data['Cabin_deck'].isna()]['Group']).isin(GCD_gb.index)].index
-    data.loc[GCD_index, 'Cabin_deck'] = data.iloc[GCD_index, :]['Group'].map(lambda x: GCD_gb.idxmax(axis=1)[x])
-    print('#Cabin deck missing values before:', CD_bef)
-    print('#Cabin deck missing values after:', data['Cabin_deck'].isna().sum())
-
 # print("6" * 100)
 # for data in data_cleaner:
 #     print(data.groupby(['HomePlanet', 'Destination', 'Solo', 'Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0))
