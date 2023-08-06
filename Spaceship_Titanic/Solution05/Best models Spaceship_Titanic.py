@@ -439,3 +439,35 @@ for data in data_cleaner:
         # Print number of missing values left
         print('#Cabin number missing values before:', CN_bef)
         print('#Cabin number missing values after:', data['Cabin_number'].isna().sum())
+        # One-hot encode cabin regions
+        data['Cabin_region1'] = (data['Cabin_number'] < 300).astype(int)
+        data['Cabin_region2'] = ((data['Cabin_number'] >= 300) & (data['Cabin_number'] < 600)).astype(int)
+        data['Cabin_region3'] = ((data['Cabin_number'] >= 600) & (data['Cabin_number'] < 900)).astype(int)
+        data['Cabin_region4'] = ((data['Cabin_number'] >= 900) & (data['Cabin_number'] < 1200)).astype(int)
+        data['Cabin_region5'] = ((data['Cabin_number'] >= 1200) & (data['Cabin_number'] < 1500)).astype(int)
+        data['Cabin_region6'] = ((data['Cabin_number'] >= 1500) & (data['Cabin_number'] < 1800)).astype(int)
+        data['Cabin_region7'] = (data['Cabin_number'] >= 1800).astype(int)
+
+print('0' * 100)
+for data in data_cleaner:
+    # Missing values before
+    V_bef = data['VIP'].isna().sum()
+    # # Fill missing values with mode
+    # data.loc[data['VIP'].isna(), 'VIP'] = False
+    # print('#VIP missing values before:', V_bef)
+    # print('#VIP missing values after:', data['VIP'].isna().sum())
+for data in data_cleaner:
+    # data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].median().unstack().fillna(0)
+    # # Missing values before
+    # A_bef = data[exp_feats].isna().sum().sum()
+    # # Fill missing values using the median
+    # na_rows_A = data.loc[data['Age'].isna(), 'Age'].index
+    # data.loc[data['Age'].isna(), 'Age'] = \
+    #     data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['No_spendingAge'].transform(
+    #         lambda x: x.fillna(x.median()))[
+    #         na_rows_A]
+    # # Print number of missing values left
+    # print('#Age missing values before:', A_bef)
+    dga = data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age']
+    print(dga.head())
+    break
