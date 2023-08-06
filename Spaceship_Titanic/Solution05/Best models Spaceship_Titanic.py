@@ -106,9 +106,9 @@ for dataset in data_cleaner:
 # plt.title('Age group distribution')
 # plt.show()
 
-# for dataset in data_cleaner:
-#     dataset['Expenditure'] = dataset[exp_feats].sum(axis=1)
-#     dataset['No_spending'] = (dataset['Expenditure'] == 0).astype(int)
+for dataset in data_cleaner:
+    dataset['Expenditure'] = dataset[exp_feats].sum(axis=1)
+    dataset['No_spending'] = (dataset['Expenditure'] == 0).astype(int)
 # fig = plt.figure(figsize=(12, 4))
 # plt.subplot(1, 2, 1)
 # sns.histplot(data=data1, x='Expenditure', hue='Transported', bins=200)
@@ -371,17 +371,7 @@ for data in data_cleaner:
     # Print number of missing values left
     print('#Cabin_deck missing values before:', CD_bef)
     print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
-# print("6" * 100)
-# for data in data_cleaner:
-#     print(data.groupby(['HomePlanet', 'Destination', 'Solo', 'Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0))
-#     CD_bef = data['Cabin_deck'].isna().sum()
-#     na_rows_CD = data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'].index
-#     data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'] = \
-#         data.groupby(['HomePlanet', 'Destination', 'Solo'])['Cabin_deck'].transform(
-#             lambda x: x.fillna(pd.Series.mode(x)[0]))[na_rows_CD]
-#     # Print number of missing values left
-#     print('#Cabin deck missing values before:', CD_bef)
-#     print('#Cabin deck missing values after:', data['Cabin_deck'].isna().sum())
+
 print("7" * 100)
 for data in data_cleaner:
     print(data[['HomePlanet', 'Destination', 'Solo', 'Cabin_deck']].value_counts())
@@ -457,17 +447,16 @@ for data in data_cleaner:
     # print('#VIP missing values before:', V_bef)
     # print('#VIP missing values after:', data['VIP'].isna().sum())
 for data in data_cleaner:
-    # data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].median().unstack().fillna(0)
-    # # Missing values before
-    # A_bef = data[exp_feats].isna().sum().sum()
+    data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].median().unstack().fillna(0)
+    # Missing values before
+    A_bef = data[exp_feats].isna().sum().sum()
     # # Fill missing values using the median
-    # na_rows_A = data.loc[data['Age'].isna(), 'Age'].index
-    # data.loc[data['Age'].isna(), 'Age'] = \
-    #     data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['No_spendingAge'].transform(
-    #         lambda x: x.fillna(x.median()))[
-    #         na_rows_A]
+    na_rows_A = data.loc[data['Age'].isna(), 'Age'].index
+    data.loc[data['Age'].isna(), 'Age'] = \
+        data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['No_spendingAge'].transform(
+            lambda x: x.fillna(x.median()))[na_rows_A]
     # # Print number of missing values left
     # print('#Age missing values before:', A_bef)
-    dga = data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age']
-    print(dga.head())
-    break
+    # dga = data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age']
+    # print(dga.head())
+    # break
