@@ -446,6 +446,7 @@ for data in data_cleaner:
     # data.loc[data['VIP'].isna(), 'VIP'] = False
     # print('#VIP missing values before:', V_bef)
     # print('#VIP missing values after:', data['VIP'].isna().sum())
+print('1' * 100)
 for data in data_cleaner:
     data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].median().unstack().fillna(0)
     # Missing values before
@@ -453,10 +454,45 @@ for data in data_cleaner:
     # # Fill missing values using the median
     na_rows_A = data.loc[data['Age'].isna(), 'Age'].index
     data.loc[data['Age'].isna(), 'Age'] = \
-        data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['No_spendingAge'].transform(
+        data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(
             lambda x: x.fillna(x.median()))[na_rows_A]
     # # Print number of missing values left
-    # print('#Age missing values before:', A_bef)
-    # dga = data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age']
-    # print(dga.head())
-    # break
+    print('#Age missing values before:', A_bef)
+    dga = data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age']
+    print(dga.head())
+    break
+
+print('2' * 100)
+for data in data_cleaner:
+    data.loc[data['Age'] <= 12, 'Age_group'] = 'Age_0-12'
+    data.loc[(data['Age'] > 12) & (data['Age'] < 18), 'Age_group'] = 'Age_13_17'
+    data.loc[(data['Age'] >= 18) & (data['Age'] <= 25), 'Age_group'] = 'Age_18-25'
+    data.loc[(data['Age'] > 25) & (data['Age'] <= 30), 'Age_group'] = 'Age_26-30'
+    data.loc[(data['Age'] > 30) & (data['Age'] <= 50), 'Age_group'] = 'Age_31-50'
+    data.loc[data['Age'] > 50, 'Age_group'] = 'Age_51+'
+    print(data['Age_group'].value_counts())
+    break
+
+print('3' * 100)
+for data in data_cleaner:
+    # Join distribution
+    data.groupby(['No_spending', 'CryoSleep'])['CryoSleep'].size().unstack().fillna(0)
+    CSL_bef = data['CryoSleep'].isna().sum()
+    # Fill missing values using the mode
+    na_rows_CSL = data.loc[data['CryoSleep'].isna(), 'CryoSleep'].index
+    # data.loc[data['CryoSleep'].isna(), 'CryoSleep'] = data.groupby(['No_spending'])['CryoSleep'].transform(
+    #     lambda x: x.fillna(pd.Series.mode(x)[0]))
+    test02 = data.groupby(['No_spending'])['CryoSleep']
+
+    print('#CryoSleep missing values before:', CSL_bef)
+    test01 = data.groupby(['No_spending'])['CryoSleep'].transform(lambda x: x.fillna(pd.Series.mode(x)[0]))
+    print(test01[na_rows_CSL].head())
+    print('#CryoSleep missing values after:', data['CryoSleep'].isna().sum())
+    break
+
+for data in data_cleaner:
+    data.groupby(['No_spending', 'CryoSleep'])['CryoSleep'].size().unstack().fillna(0)
+    # Missing values before
+    CSL_bef = data['CryoSleep'].isna().sum()
+    # Fill missing values using the mode
+    # na_rows_CSL=data.loc[data['']]
