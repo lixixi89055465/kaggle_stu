@@ -109,6 +109,7 @@ for dataset in data_cleaner:
 for dataset in data_cleaner:
     dataset['Expenditure'] = dataset[exp_feats].sum(axis=1)
     dataset['No_spending'] = (dataset['Expenditure'] == 0).astype(int)
+
 # fig = plt.figure(figsize=(12, 4))
 # plt.subplot(1, 2, 1)
 # sns.histplot(data=data1, x='Expenditure', hue='Transported', bins=200)
@@ -119,12 +120,11 @@ for dataset in data_cleaner:
 # sns.countplot(data=data1, x='No_spending', hue='Transported')
 # plt.title('No spending indicator')
 # fig.tight_layout()
-# for dataset in data_cleaner:
-#     dataset['Expenditure'] = dataset[exp_feats].sum(axis=1)
-#     dataset['No_spending'] = (dataset['Expenditure'] == 0).astype(int)
+# plt.show()
+# print('0'*100)
 
 # Plot distribution of new features
-# fig = plt.figure(figsize=(12, 4))
+fig = plt.figure(figsize=(12, 4))
 # plt.subplot(1, 2, 1)
 # sns.histplot(data=data1, x='Expenditure', hue='Transported', bins=200)
 # plt.title('Total expenditure (truncated)')
@@ -137,32 +137,34 @@ for dataset in data_cleaner:
 # fig.tight_layout()
 for dataset in data_cleaner:
     dataset['Group'] = dataset['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
-    dataset['Group_size'] = dataset['Group'].map(lambda x: dataset['Group'].value_counts()[x])
+    dvc = dataset['Group'].value_counts()
+    dataset['Group_size'] = dataset['Group'].map(lambda x: dvc[x])
+    # dataset['Solo'] = (dataset['Group_size'] == 1).astype(int)
 
 # plt.figure(figsize=(20, 4))
 # plt.subplot(1, 2, 1)
 # sns.histplot(data=data1, x='Group', hue='Transported', binwidth=1)
 # plt.title('Group')
 #
-# plt.subplot(1,2,2)
-# sns.countplot(data=data1,x='Group_size',hue='Transported')
+# plt.subplot(1, 2, 2)
+# sns.countplot(data=data1, x='Group_size', hue='Transported')
 # plt.title('Group size')
 # fig.tight_layout()
 # plt.show()
 
-print("0" * 100)
-# print(dataset['Group'].value_counts())
+# print("0" * 100)
 ## New features
 # data_raw['Solo'] = (data_raw['Group_size'] == 1).astype(int)
 # data_val['Solo'] = (data_val['Group_size'] == 1).astype(int)
 
+# print('1' * 100)
 for dataset in data_cleaner:
     dataset['Solo'] = (dataset['Group_size'] == 1).astype(int)
 # New feature distribution
-# plt.figure(figsize=(10,4))
-# sns.countplot(data=data1,x='Solo',hue='Transported')
+# plt.figure(figsize=(10, 4))
+# sns.countplot(data=data1, x='Solo', hue='Transported')
 # plt.title('Passenger travelling sole  or not ')
-# plt.ylim([0,3000])
+# plt.ylim([0, 3000])
 # plt.show()
 
 for dataset in data_cleaner:
@@ -477,22 +479,21 @@ print('3' * 100)
 for data in data_cleaner:
     # Join distribution
     data.groupby(['No_spending', 'CryoSleep'])['CryoSleep'].size().unstack().fillna(0)
-    CSL_bef = data['CryoSleep'].isna().sum()
-    # Fill missing values using the mode
-    na_rows_CSL = data.loc[data['CryoSleep'].isna(), 'CryoSleep'].index
+    # CSL_bef = data['CryoSleep'].isna().sum()
+    # # Fill missing values using the mode
+    # na_rows_CSL = data.loc[data['CryoSleep'].isna(), 'CryoSleep'].index
     # data.loc[data['CryoSleep'].isna(), 'CryoSleep'] = data.groupby(['No_spending'])['CryoSleep'].transform(
-    #     lambda x: x.fillna(pd.Series.mode(x)[0]))
-    test02 = data.groupby(['No_spending'])['CryoSleep']
-
-    print('#CryoSleep missing values before:', CSL_bef)
-    test01 = data.groupby(['No_spending'])['CryoSleep'].transform(lambda x: x.fillna(pd.Series.mode(x)[0]))
-    print(test01[na_rows_CSL].head())
-    print('#CryoSleep missing values after:', data['CryoSleep'].isna().sum())
+    #     lambda x: x.fillna(pd.Series.mode(x)[0]))[na_rows_CSL]
+    # print("#CryoSleep misisng values before:", CSL_bef)
+    # print('#CryoSleep missing values after:', data['CryoSleep'].isna().sum())
+    print(data[['No_spending', 'CryoSleep']].value_counts())
     break
 
-for data in data_cleaner:
-    data.groupby(['No_spending', 'CryoSleep'])['CryoSleep'].size().unstack().fillna(0)
-    # Missing values before
-    CSL_bef = data['CryoSleep'].isna().sum()
-    # Fill missing values using the mode
-    # na_rows_CSL=data.loc[data['']]
+# for data in data_cleaner:
+#     # Missing value before
+#     E_bef = data[exp_feats].isna().sum().sum()
+#     for col in exp_feats:
+#         data.loc[(data[col].isna()) & (data['CryoSleep'] == True), col] = 0
+#     print("#Expenditure missing values before", E_bef)
+#     print("#Expenditure missing values after", data[exp_feats].isna().sum().sum())
+#     break
