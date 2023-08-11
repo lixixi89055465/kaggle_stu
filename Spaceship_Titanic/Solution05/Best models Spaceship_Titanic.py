@@ -241,12 +241,19 @@ for dataset in data_cleaner:
 #     mv = pd.DataFrame(dataset[na_cols].isna().sum(), columns=['Number_missing'])
 #     mv['Percentage_missing'] = np.round(100 * mv['Number_missing'] / len(dataset), 2)
 # print(mv, '\n')
-
+data1['Transported'].astype(int)
+for dataset in data_cleaner:
+    # Columns with missing values
+    na_cols = dataset.columns[dataset.isna().any()].tolist()
+    mv = pd.DataFrame(dataset[na_cols].isna().sum(), columns=['Number_missing'])
+    mv['Percentage_missing'] = np.round(100 * mv['Number_missing'] / len(dataset), 2)
+    print("mv:", mv)
 # Countplot of number of missing values by passenger
 # data1['na_count'] = data1.isna().sum(axis=1)
 # plt.figure(figsize=(10, 4))
 # sns.countplot(data=data1, x='na_count', hue='Transported')
 # plt.title("number of missing entries by pasenger")
+# plt.show()
 # data1.drop('na_count', axis=1, inplace=True)
 
 # We managed to fill 131 values with 100% confidence but we are nott finished yet.
@@ -258,18 +265,18 @@ for dataset in data_cleaner:
     HP_bef = dataset['HomePlanet'].isna().sum()
     GHP_index = dataset[dataset['HomePlanet'].isna()][
         (dataset[dataset['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
-    dataset.loc[GHP_index, 'HomePlanet'] = dataset.iloc[GHP_index, :]['Group'].map(
-        lambda x: GHP_gb.idxmax(axis=1)[x])
-    # print("#Missing values before:", HP_bef)
-    # print("#Missing values afeter:", dataset['HomePlanet'].isna().sum())
+    print('#Missing values before:', HP_bef)
+    print("#Missing values after:", dataset['HomePlanet'].isna().sum())
 
 print('5' * 100)
 for dataset in data_cleaner:
     HP_bef = dataset['HomePlanet'].isna().sum()
     dataset.loc[
         (dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Europe'
-    dataset.loc[
-        (dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'] == 'G'), 'HomePlanet'] = 'Earth'
+    dataset.loc[(dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'] == 'G'), 'HomePlanet'] = 'Earth'
+# g1 = \
+# dataset[(~dataset['HomePlanet'].isna()) & (~dataset['Cabin_deck'].isna())].groupby(['Cabin_deck', 'HomePlanet'])[
+#     'HomePlanet'].size().unstack().fillna(0)
 # print('#HomePlanet missing values before:', HP_bef)
 # print('#HomePlanet missing values after:', dataset['HomePlanet'].isna().sum())
 
@@ -278,14 +285,18 @@ for data in data_cleaner:
     SHP_gb = data.groupby(['Surname', 'HomePlanet']).size().unstack().fillna(0)
     HP_bef = data['HomePlanet'].isna().sum()
     SHP_index = data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Surname']).isin(SHP_gb.index)].index
-    data.loc[SHP_index, 'HomePlanet'] = data.iloc[SHP_index, :]['Surname'].map(lambda x: SHP_gb.idxmax(axis=1)[x])
-    # Print number of missing values left
-    # print('#HomePlanet missing values before:', HP_bef)
-    # print('#HomePlanet missing values before:', data['HomePlanet'].isna().sum())
+    SHP_gb_idxmax = SHP_gb.idxmax(axis=1)
+    data.loc[SHP_index, 'HomePlanet'] = data.iloc[SHP_index, :]['Surname'].map(lambda x: SHP_gb_idxmax[x])
+
+# Print number of missing values left
+# print('#HomePlanet missing values before:', HP_bef)
+# print('#HomePlanet missing values after:', data['HomePlanet'].isna().sum())
 
 print('7' * 100)
 for data in data_cleaner:
     HP_bef = data['HomePlanet'].isna().sum()
+    # g1 = data[(~data['HomePlanet'].isna())&(~data['Cabin_deck'].isin(['A','B','C','T','G']))].groupby(['Cabin_deck', 'HomePlanet'])[
+    #     'Cabin_deck'].size().unstack().fillna(0)
     data.loc[(data['HomePlanet'].isna()) & ~(data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Earth'
     data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Mars'
 # print('#HomePlanet missing values before:', HP_bef)
@@ -294,10 +305,14 @@ for data in data_cleaner:
 print('8' * 100)
 for data in data_cleaner:
     D_bef = data['Destination'].isna().sum()
+    g1 = data.groupby(['Destination'], dropna=False).size()
     data.loc[data['Destination'].isna(), 'Destination'] = 'TRAPPIST-1e'
+    # print(g1)
+
 print('9' * 100)
 for data in data_cleaner:
     GSN_gb = data[data['Group_size'] > 1].groupby(['Group', 'Surname'])['Surname'].size().unstack().fillna(0)
+    # GSN_gb.sum(axis=1)
     SN_bef = data['Surname'].isna().sum()
     GSN_index = data[data['Surname'].isna()][(data[data['Surname'].isna()]['Group']).isin(GSN_gb.index)].index
     # Fill corresponding missing values
@@ -307,7 +322,7 @@ for data in data_cleaner:
     # print('#Surname missing values after:', data['Surname'].isna().sum())
     data['Surname'].fillna('Unknown', inplace=True)
     data['Family_size'] = data['Surname'].map(lambda x: data['Surname'].value_counts()[x])
-    data.loc[data['Surname'] == 'Unknow', 'Surname'] = np.nan
+    data.loc[data['Surname'] == 'Unknown', 'Surname'] = np.nan
     data.loc[data['Family_size'] > 100, 'Family_size'] = 0
 
 print('0' * 100)
@@ -315,9 +330,9 @@ for data in data_cleaner:
     GCD_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0)
     GCN_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_number'])['Cabin_number'].size().unstack().fillna(0)
     GCS_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
-
+    # Everyone in the same group is also on the same cabin side. For cabin deck and cabin number there is also a fairly good (but not perfect) correlation with group.
+    # Missing values before
     CS_bef = data['Cabin_side'].isna().sum()
-
     GCS_index = data[data['Cabin_side'].isna()][(data[data['Cabin_side'].isna()]['Group']).isin(GCS_gb.index)].index
     data.loc[GCS_index, 'Cabin_side'] = data.iloc[GCS_index, :]['Group'].map(lambda x: GCS_gb.idxmax(axis=1)[x])
     # Print number of missing values left
@@ -329,7 +344,6 @@ for data in data_cleaner:
     SCS_gb = data[data['Group_size'] > 1].groupby(['Surname', 'Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
     # Ratio of sides
     SCS_gb['Ratio'] = SCS_gb['P'] / (SCS_gb['P'] + SCS_gb['S'])
-
     # Histograme of ratio
 #     plt.figure(figsize=(10, 4))
 #     sns.histplot(SCS_gb['Ratio'], kde=True, binwidth=0.05)
@@ -352,7 +366,6 @@ for data in data_cleaner:
     data.drop('Surname', axis=1, inplace=True)
     print('#Cabin side missing before:', CS_bef)
     print('#Cabin side missing after:', data['Cabin_side'].isna().sum())
-
 print("3" * 100)
 for data in data_cleaner:
     # Value counts
@@ -360,19 +373,19 @@ for data in data_cleaner:
     # Missing values before
     CS_bef = data['Cabin_side'].isna().sum()
     data.loc[data['Cabin_side'].isna(), 'Cabin_deck'] = 'Z'
-    print('#Cabin side missing values before:', CS_bef)
-    print('#Cabin side missing value after:', data['Cabin_side'].isna().sum())
+    # print('#Cabin side missing values before:', CS_bef)
+    # print('#Cabin side missing value after:', data['Cabin_side'].isna().sum())
 
 print("4" * 100)
 for data in data_cleaner:
-    print(data['Cabin_deck'].value_counts())
+    # print(data['Cabin_deck'].value_counts())
     CD_bef = data['Cabin_deck'].isna().sum()
     GCD_index = data[data['Cabin_deck'].isna()][(data[data['Cabin_deck'].isna()]['Group']).isin(GCD_gb.index)].index
     # Fill corresponding missing values
     data.loc[GCD_index, 'Cabin_deck'] = data.iloc[GCD_index, :]['Group'].map(lambda x: GCD_gb.idxmax(axis=1)[x])
     # Print number of missing values left
-    print('#Cabin_deck missing values before:', CD_bef)
-    print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
+    # print('#Cabin_deck missing values before:', CD_bef)
+    # print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
 
 print("7" * 100)
 for data in data_cleaner:
@@ -383,6 +396,8 @@ for data in data_cleaner:
     # data.loc[data['Cabin_deck'].isna(),'Cabin_deck']=data.groupby(['HomePlanet','Destination','Solo'])['Cabin_deck']
     test01 = data.groupby(['HomePlanet', 'Destination', 'Solo'])['Cabin_deck']
     data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'] = test01.transform(lambda x: x.fillna(pd.Series.mode(x)[0]))[
+        na_rows_CD]
+    data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'] = test01.transform(lambda x: x.fillna(pd.Series.mode(x)))[
         na_rows_CD]
     print('#Cabin_deck missing values before:', CD_bef)
     print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
@@ -415,39 +430,39 @@ print('9' * 100)
 #     print('#Cabin number missing values after;', data['Cabin_number'].isna().sum())
 for data in data_cleaner:
     CN_bef = data['Cabin_number'].isna().sum()
-    print('#Cabin number missing values before:', CN_bef)
-    for deck in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
-        X_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
-        y_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
-        X_test_CN = data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
-        if not X_test_CN.empty:
-            # Linear regression
-            model_CN = sklearn.linear_model.LinearRegression()
-            model_CN.fit(X_CN.values.reshape(-1, 1), y_CN)
-            preds_CN = model_CN.predict(X_test_CN.values.reshape(-1, 1))
-            # Fill missing values with prediction
-            data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number'] = preds_CN.astype(
-                int)
-        # Print number of missing values left
-        print('#Cabin number missing values before:', CN_bef)
-        print('#Cabin number missing values after:', data['Cabin_number'].isna().sum())
-        # One-hot encode cabin regions
-        data['Cabin_region1'] = (data['Cabin_number'] < 300).astype(int)
-        data['Cabin_region2'] = ((data['Cabin_number'] >= 300) & (data['Cabin_number'] < 600)).astype(int)
-        data['Cabin_region3'] = ((data['Cabin_number'] >= 600) & (data['Cabin_number'] < 900)).astype(int)
-        data['Cabin_region4'] = ((data['Cabin_number'] >= 900) & (data['Cabin_number'] < 1200)).astype(int)
-        data['Cabin_region5'] = ((data['Cabin_number'] >= 1200) & (data['Cabin_number'] < 1500)).astype(int)
-        data['Cabin_region6'] = ((data['Cabin_number'] >= 1500) & (data['Cabin_number'] < 1800)).astype(int)
-        data['Cabin_region7'] = (data['Cabin_number'] >= 1800).astype(int)
+print('#Cabin number missing values before:', CN_bef)
+for deck in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
+    X_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
+y_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
+X_test_CN = data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
+if not X_test_CN.empty:
+    # Linear regression
+    model_CN = sklearn.linear_model.LinearRegression()
+model_CN.fit(X_CN.values.reshape(-1, 1), y_CN)
+preds_CN = model_CN.predict(X_test_CN.values.reshape(-1, 1))
+# Fill missing values with prediction
+data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number'] = preds_CN.astype(
+    int)
+# Print number of missing values left
+print('#Cabin number missing values before:', CN_bef)
+print('#Cabin number missing values after:', data['Cabin_number'].isna().sum())
+# One-hot encode cabin regions
+data['Cabin_region1'] = (data['Cabin_number'] < 300).astype(int)
+data['Cabin_region2'] = ((data['Cabin_number'] >= 300) & (data['Cabin_number'] < 600)).astype(int)
+data['Cabin_region3'] = ((data['Cabin_number'] >= 600) & (data['Cabin_number'] < 900)).astype(int)
+data['Cabin_region4'] = ((data['Cabin_number'] >= 900) & (data['Cabin_number'] < 1200)).astype(int)
+data['Cabin_region5'] = ((data['Cabin_number'] >= 1200) & (data['Cabin_number'] < 1500)).astype(int)
+data['Cabin_region6'] = ((data['Cabin_number'] >= 1500) & (data['Cabin_number'] < 1800)).astype(int)
+data['Cabin_region7'] = (data['Cabin_number'] >= 1800).astype(int)
 
 print('0' * 100)
 for data in data_cleaner:
     # Missing values before
     V_bef = data['VIP'].isna().sum()
-    # # Fill missing values with mode
-    # data.loc[data['VIP'].isna(), 'VIP'] = False
-    # print('#VIP missing values before:', V_bef)
-    # print('#VIP missing values after:', data['VIP'].isna().sum())
+# # Fill missing values with mode
+# data.loc[data['VIP'].isna(), 'VIP'] = False
+# print('#VIP missing values before:', V_bef)
+# print('#VIP missing values after:', data['VIP'].isna().sum())
 print('1' * 100)
 for data in data_cleaner:
     data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].median().unstack().fillna(0)
@@ -461,8 +476,7 @@ for data in data_cleaner:
     # # Print number of missing values left
     print('#Age missing values before:', A_bef)
     dga = data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age']
-    print(dga.head())
-    break
+    # print(dga.head())
 
 print('2' * 100)
 for data in data_cleaner:
