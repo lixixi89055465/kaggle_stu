@@ -344,7 +344,7 @@ for data in data_cleaner:
     # plt.figure(figsize=(10, 4))
     # sns.histplot(SCS_gb['Ratio'], kde=True, binwidth=0.05)
     # plt.title('Ratio of cabin side by surname')
-plt.show()
+# plt.show()
 # Print proportion
 print("Percentage of families all on the same cabin side:", 100 * np.round(SCS_gb['Ratio'] / len(SCS_gb), 3), '%')
 print("2" * 100)
