@@ -243,7 +243,7 @@ for dataset in data_cleaner:
     mv = pd.DataFrame(dataset[na_cols].isna().sum(), columns=['Number_missing'])
     mv['Percentage_missing'] = np.round(100 * mv['Number_missing'] / len(dataset), 2)
     print(mv, '\n')
-data1['na_count']=data1.isna().sum(axis=1)
+data1['na_count'] = data1.isna().sum(axis=1)
 
 # Countplot of number of missing values by passenger
 # plt.figure(figsize=(10, 4))
@@ -261,7 +261,7 @@ for dataset in data_cleaner:
     HP_bef = dataset['HomePlanet'].isna().sum()
     GHP_index = dataset[dataset['HomePlanet'].isna()][
         (dataset[dataset['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
-    dataset.loc[GHP_index,'HomePlanet']=dataset.iloc[GHP_index,:]['Group'].map(lambda x:GHP_gb.idxmax(axis=1)[x])
+    dataset.loc[GHP_index, 'HomePlanet'] = dataset.iloc[GHP_index, :]['Group'].map(lambda x: GHP_gb.idxmax(axis=1)[x])
     print('#Missing values before:', HP_bef)
     print("#Missing values after:", dataset['HomePlanet'].isna().sum())
 
@@ -393,55 +393,45 @@ for data in data_cleaner:
     test01 = data.groupby(['HomePlanet', 'Destination', 'Solo'])['Cabin_deck']
     data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'] = test01.transform(lambda x: x.fillna(pd.Series.mode(x)[0]))[
         na_rows_CD]
-    data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'] = test01.transform(lambda x: x.fillna(pd.Series.mode(x)))[
-        na_rows_CD]
-    print('#Cabin_deck missing values before:', CD_bef)
-    print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
+    # print('#Cabin_deck missing values before:', CD_bef)
+    # print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
 
 print("8" * 100)
-for data in data_cleaner:
-    plt.figure(figsize=(10, 4))
-    sns.scatterplot(x=data['Cabin_number'], y=data['Group'],
-                    c=LabelEncoder().fit_transform(data.loc[~data['Cabin_number'].isna(), 'Cabin_deck']), cmap='tab10')
-    plt.title('Cabin_number vs group colored by group')
-plt.show()
+# for data in data_cleaner:
+#     plt.figure(figsize=(10, 4))
+#     sns.scatterplot(x=data['Cabin_number'], y=data['Group'],
+#                     c=LabelEncoder().fit_transform(data.loc[~data['Cabin_number'].isna(), 'Cabin_deck']), cmap='tab10')
+#     plt.title('Cabin_number vs group colored by group')
+# plt.show()
 print('9' * 100)
 
 for data in data_cleaner:
     CN_bef = data['Cabin_number'].isna().sum()
     print('#Cabin number missing values before:', CN_bef)
     for deck in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
-        X_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
-        y_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
+        # X_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
+        # y_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
+        # X_test_CN = data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
+        # if not X_test_CN.empty:
+        #     model_CN = sklearn.linear_model.LinearRegression()
+        #     model_CN.fit(X_CN.values.reshape(-1, 1), y_CN)
+        #     preds_CN = model_CN.predict(X_test_CN.values.reshape(-1, 1))
+        #     # Fillmissing values with predictions
+        #     data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number'] = preds_CN.astype(
+        #         int)
+        X_CN = data.loc[(~data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
+        y_CN = data.loc[(~data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
         X_test_CN = data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
         if not X_test_CN.empty:
             model_CN = sklearn.linear_model.LinearRegression()
             model_CN.fit(X_CN.values.reshape(-1, 1), y_CN)
             preds_CN = model_CN.predict(X_test_CN.values.reshape(-1, 1))
-            # Fillmissing values with predictions
-            data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number'] = preds_CN.astype(
-                int)
+            # Fill missing values with predictions
+            data.loc[(data['Cabin_number'].isna() & (data['Cabin_deck'] == deck)), 'Group'] = preds_CN
 
-    print('#Cabin number missing values before;', CN_bef)
-    print('#Cabin number missing values after;', data['Cabin_number'].isna().sum())
-for data in data_cleaner:
-    CN_bef = data['Cabin_number'].isna().sum()
-print('#Cabin number missing values before:', CN_bef)
-for deck in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
-    X_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
-y_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
-X_test_CN = data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
-if not X_test_CN.empty:
-    # Linear regression
-    model_CN = sklearn.linear_model.LinearRegression()
-model_CN.fit(X_CN.values.reshape(-1, 1), y_CN)
-preds_CN = model_CN.predict(X_test_CN.values.reshape(-1, 1))
-# Fill missing values with prediction
-data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number'] = preds_CN.astype(
-    int)
-# Print number of missing values left
-print('#Cabin number missing values before:', CN_bef)
-print('#Cabin number missing values after:', data['Cabin_number'].isna().sum())
+    # print('#Cabin number missing values before;', CN_bef)
+    # print('#Cabin number missing values after;', data['Cabin_number'].isna().sum())
+
 # One-hot encode cabin regions
 data['Cabin_region1'] = (data['Cabin_number'] < 300).astype(int)
 data['Cabin_region2'] = ((data['Cabin_number'] >= 300) & (data['Cabin_number'] < 600)).astype(int)
@@ -455,24 +445,29 @@ print('0' * 100)
 for data in data_cleaner:
     # Missing values before
     V_bef = data['VIP'].isna().sum()
-# # Fill missing values with mode
-data.loc[data['VIP'].isna(), 'VIP'] = False
-print('#VIP missing values before:', V_bef)
-print('#VIP missing values after:', data['VIP'].isna().sum())
-print('1' * 100)
+    # # Fill missing values with mode
+    data.loc[data['VIP'].isna(), 'VIP'] = False
+    # print('#VIP missing values before:', V_bef)
+    # print('#VIP missing values after:', data['VIP'].isna().sum())
+    # print('1' * 100)
 for data in data_cleaner:
-    data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].median().unstack().fillna(0)
+    # data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].median().unstack().fillna(0)
     # Missing values before
     A_bef = data[exp_feats].isna().sum().sum()
     # # Fill missing values using the median
+    # na_rows_A = data.loc[data['Age'].isna(), 'Age'].index
+    # data.loc[data['Age'].isna(), 'Age'] = \
+    #     data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(
+    #         lambda x: x.fillna(x.median()))[na_rows_A]
     na_rows_A = data.loc[data['Age'].isna(), 'Age'].index
     data.loc[data['Age'].isna(), 'Age'] = \
         data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(
-            lambda x: x.fillna(x.median()))[na_rows_A]
+            lambda x: x.fillna(x.median()))[
+            na_rows_A]
     # # Print number of missing values left
-    print('#Age missing values before:', A_bef)
-    dga = data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age']
-    # print(dga.head())
+    # print('#Age missing values before:', A_bef)
+    # data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(lambda x: x.fillna(x.median()))[
+    #     na_rows_A]
 
 print('2' * 100)
 for data in data_cleaner:
@@ -482,28 +477,182 @@ for data in data_cleaner:
     data.loc[(data['Age'] > 25) & (data['Age'] <= 30), 'Age_group'] = 'Age_26-30'
     data.loc[(data['Age'] > 30) & (data['Age'] <= 50), 'Age_group'] = 'Age_31-50'
     data.loc[data['Age'] > 50, 'Age_group'] = 'Age_51+'
-    print(data['Age_group'].value_counts())
-    break
 
-print('3' * 100)
 for data in data_cleaner:
     # Join distribution
     data.groupby(['No_spending', 'CryoSleep'])['CryoSleep'].size().unstack().fillna(0)
-    # CSL_bef = data['CryoSleep'].isna().sum()
+    CSL_bef = data['CryoSleep'].isna().sum()
     # # Fill missing values using the mode
-    # na_rows_CSL = data.loc[data['CryoSleep'].isna(), 'CryoSleep'].index
-    # data.loc[data['CryoSleep'].isna(), 'CryoSleep'] = data.groupby(['No_spending'])['CryoSleep'].transform(
-    #     lambda x: x.fillna(pd.Series.mode(x)[0]))[na_rows_CSL]
+    na_rows_CSL = data.loc[data['CryoSleep'].isna(), 'CryoSleep'].index
+    data.loc[data['CryoSleep'].isna(), 'CryoSleep'] = \
+        data.groupby(['No_spending'])['CryoSleep'].transform(lambda x: x.fillna(pd.Series.mode(x)[0]))[na_rows_CSL]
     # print("#CryoSleep misisng values before:", CSL_bef)
     # print('#CryoSleep missing values after:', data['CryoSleep'].isna().sum())
-    print(data[['No_spending', 'CryoSleep']].value_counts())
-    break
 
-# for data in data_cleaner:
-#     # Missing value before
-#     E_bef = data[exp_feats].isna().sum().sum()
-#     for col in exp_feats:
-#         data.loc[(data[col].isna()) & (data['CryoSleep'] == True), col] = 0
-#     print("#Expenditure missing values before", E_bef)
-#     print("#Expenditure missing values after", data[exp_feats].isna().sum().sum())
-#     break
+for data in data_cleaner:
+    # Missing value before
+    E_bef = data[exp_feats].isna().sum().sum()
+    for col in exp_feats:
+        data.loc[(data[col].isna()) & (data['CryoSleep'] == True), col] = 0
+    # print("#Expenditure missing values before", E_bef)
+    # print("#Expenditure missing values after", data[exp_feats].isna().sum().sum())
+print('-' * 100)
+
+for data in data_cleaner:
+    data.groupby(['HomePlanet', 'Solo', 'Age_group'])['Expenditure'].mean().unstack().fillna(0)
+    E_bef = data[exp_feats].isna().sum().sum()
+    for col in exp_feats:
+        na_rows = data.loc[data[col].isna(), col].index
+        data.loc[data[col].isna(), col] = \
+            data.groupby(['HomePlanet', 'Solo', 'Age_group'])[col].transform(lambda x: x.fillna(x.mean()))[na_rows]
+        print('#Expenditure missing values before:', E_bef)
+        print('#Expendigure missing values after:', data[exp_feats].isna().sum().sum())
+
+for data in data_cleaner:
+    data['Expenditure'] = data[exp_feats].sum(axis=1)
+    data['No_spending'] = (data['Expenditure'] == 0).astype(int)
+    # data.isna().sum()
+    for col in ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Expenditure']:
+        data[col] = np.log(1 + data[col])
+
+## 3.23 Convert Formats
+'''
+## 3.23 Convert Formats
+
+We will convert categorical data to dummy variables for mathematical analysis. There are multiple ways to encode categorical variables; we will use the sklearn and pandas functions.
+
+In this step, we will also define our x (independent/features/explanatory/predictor/etc.) and y (dependent/target/outcome/response/etc.) variables for data modeling.
+
+** Developer Documentation: **
+* [Categorical Encoding](http://pbpython.com/categorical-encoding.html)
+* [Sklearn LabelEncoder](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html)
+* [Sklearn OneHotEncoder](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html)
+* [Pandas Categorical dtype](https://pandas.pydata.org/pandas-docs/stable/categorical.html)
+* [pandas.get_dummies](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.get_dummies.html)
+'''
+label = LabelEncoder()
+for data in data_cleaner:
+    data['HomePlanet_Code'] = label.fit_transform(data['HomePlanet'])
+    data['CryoSleep_Code'] = label.fit_transform(data['CryoSleep'])
+    data['Destination_Code'] = label.fit_transform(data['Destination'])
+    data['VIP_Code'] = label.fit_transform(data['VIP'])
+    data['Age_group_Code'] = label.fit_transform(data['Age_group'])
+    data['Cabin_deck_Code'] = label.fit_transform(data['Cabin_deck'])
+    data['Cabin_side_Code'] = label.fit_transform(data['Cabin_side'])
+
+Target = ['Transported']
+data1_x = ['HomePlanet', 'CryoSleep', 'Destination', 'Age', 'VIP', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa',
+           'VRDeck']  # Original data
+data1_x_calc = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Expenditure', 'No_spending',
+                'Group', 'Group_size', 'Solo', 'Cabin_number', 'Cabin_region1', 'Cabin_region2', 'Cabin_region3',
+                'Cabin_region4', 'Cabin_region5', 'Cabin_region6', 'Cabin_region7', 'Family_size', 'HomePlanet_Code',
+                'CryoSleep_Code', 'Destination_Code', 'VIP_Code', 'Age_group_Code', 'Cabin_deck_Code',
+                'Cabin_side_Code']  # coded for algorithm calculation
+data1_xy = Target + data1_x
+print('Original X Y:', data1_xy, '\n')
+# defina x variables for original w/bin features to remove continuous variables
+data1_x_bin = ['Age', 'No_spending', 'Group_size', 'Solo', 'Cabin_region1', 'Cabin_region2', 'Cabin_region3',
+               'Cabin_region4', 'Cabin_region5', 'Cabin_region6', 'Cabin_region7', 'Family_size', 'HomePlanet_Code',
+               'CryoSleep_Code', 'Destination_Code', 'VIP_Code', 'Age_group_Code', 'Cabin_deck_Code', 'Cabin_side_Code']
+data1_xy_bin = Target + data1_x_bin
+print('Bin X Y: ', data1_xy_bin, '\n')
+# define x and y variables for dummy features original
+data1_dummy = pd.get_dummies(data1[data1_x])
+data1_x_dummy = data1_dummy.columns.to_list()
+data1_xy_dummy = Target + data1_x_dummy
+print("Dummy X Y:", data1_xy_dummy, '\n')
+print(data1_dummy.head())
+
+# 3.24 Da-Double Check Cleaned Data
+print('Train columns with null values: \n', data1.isnull().sum())
+print("-" * 10)
+print(data1.info())
+print("-" * 10)
+
+print('Test/Validation columns with null values: \n', data_val.isnull().sum())
+print("-" * 10)
+print(data_val.info())
+print("-" * 10)
+from sklearn import model_selection
+
+print(data_raw.describe(include='all'))
+train_x, test1_x, train1_y, test1_y = model_selection.train_test_split(data1[data1_x_calc], data1[Target],
+                                                                       random_state=0)
+
+train_x_bin, test1_x_bin, train1_y_bin, test1_y_bin = model_selection.train_test_split(data1[data1_x_bin],
+                                                                                       data1[Target], random_state=0)
+
+train1_x_dummy, test1_x_dummy, train1_y_dummy, test1_y_dummy = model_selection.train_test_split(
+    data1_dummy[data1_x_dummy], data1[Target], random_state=0)
+
+# print("Data1 Shape: {}".format(data1.shape))
+# print("Train1 Shape: {}".format(train1_x.shape))
+# print("Test1 Shape: {}".format(test1_x.shape))
+print(train1_x_dummy.head())
+
+for x in data1_x:
+    if data1[x].dtype != 'float64':
+        print('Transported Correlation by :', x)
+        print(data1[[x, Target[0]]].groupby(x, as_index=False).mean())
+        print('-' * 10, '\n')
+
+
+# correlation heatmap of dataset
+def correlation_heatmap(df):
+    _, ax = plt.subplots(figsize=(14, 12))
+    colormap = sns.diverging_palette(220, 10, as_cmap=True)
+    _ = sns.heatmap(
+        df.corr(),
+        cmap=colormap,
+        square=True,
+        ax=ax,
+        annot=True,
+        linewidths=0.1, vmax=1.0, linecolor='white',
+        annot_kws={'fontsize': 5}
+    )
+    plt.title('Pearson correlation of features', y=1.05, size=15)
+
+
+correlation_heatmap(data1)
+
+print('6'*100)
+#pair plots of entire dataset
+pp = sns.pairplot(data1, hue = 'Transported', palette = 'deep', size=1.2, diag_kind = 'kde', diag_kws=dict(shade=True), plot_kws=dict(s=10) )
+pp.set(xticklabels=[])
+plt.show()
+'''
+<a id="ch7"></a>
+# Step 5: Model Data
+Data Science is a multi-disciplinary field between mathematics (i.e. statistics, linear algebra, etc.), computer science (i.e. programming languages, computer systems, etc.) and business management (i.e. communication, subject-matter knowledge, etc.). Most data scientist come from one of the three fields, so they tend to lean towards that discipline. However, data science is like a three-legged stool, with no one leg being more important than the other. So, this step will require advanced knowledge in mathematics. But don’t worry, we only need a high-level overview, which we’ll cover in this Kernel. Also, thanks to computer science, a lot of the heavy lifting is done for you. So, problems that once required graduate degrees in mathematics or statistics, now only take a few lines of code. Last, we’ll need some business acumen to think through the problem. After all, like training a sight-seeing dog, it’s learning from us and not the other way around.
+
+Machine Learning (ML), as the name suggest, is teaching the machine how-to think and not what to think. While this topic and big data has been around for decades, it is becoming more popular than ever because the barrier to entry is lower, for businesses and professionals alike. This is both good and bad. It’s good because these algorithms are now accessible to more people that can solve more problems in the real-world. It’s bad because a lower barrier to entry means, more people will not know the tools they are using and can come to incorrect conclusions. That’s why I focus on teaching you, not just what to do, but why you’re doing it. Previously, I used the analogy of asking someone to hand you a Philip screwdriver, and they hand you a flathead screwdriver or worst a hammer. At best, it shows a complete lack of understanding. At worst, it makes completing the project impossible; or even worst, implements incorrect actionable intelligence. So now that I’ve hammered (no pun intended) my point, I’ll show you what to do and most importantly, WHY you do it.
+
+First, you must understand, that the purpose of machine learning is to solve human problems. Machine learning can be categorized as: supervised learning, unsupervised learning, and reinforced learning. Supervised learning is where you train the model by presenting it a training dataset that includes the correct answer. Unsupervised learning is where you train the model using a training dataset that does not include the correct answer. And reinforced learning is a hybrid of the previous two, where the model is not given the correct answer immediately, but later after a sequence of events to reinforce learning. We are doing supervised machine learning, because we are training our algorithm by presenting it with a set of features and their corresponding target. We then hope to present it a new subset from the same dataset and have similar results in prediction accuracy.
+
+There are many machine learning algorithms, however they can be reduced to four categories: classification, regression, clustering, or dimensionality reduction, depending on your target variable and data modeling goals. We'll save clustering and dimension reduction for another day, and focus on classification and regression. We can generalize that a continuous target variable requires a regression algorithm and a discrete target variable requires a classification algorithm. One side note, logistic regression, while it has regression in the name, is really a classification algorithm. Since our problem is predicting if a passenger survived or did not survive, this is a discrete target variable. We will use a classification algorithm from the *sklearn* library to begin our analysis. We will use cross validation and scoring metrics, discussed in later sections, to rank and compare our algorithms’ performance.
+
+**Machine Learning Selection:**
+* [Sklearn Estimator Overview](http://scikit-learn.org/stable/user_guide.html)
+* [Sklearn Estimator Detail](http://scikit-learn.org/stable/modules/classes.html)
+* [Choosing Estimator Mind Map](http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html)
+* [Choosing Estimator Cheat Sheet](https://s3.amazonaws.com/assets.datacamp.com/blog_assets/Scikit_Learn_Cheat_Sheet_Python.pdf)
+
+
+Now that we identified our solution as a supervised learning classification algorithm. We can narrow our list of choices.
+
+**Machine Learning Classification Algorithms:**
+* [Ensemble Methods](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.ensemble)
+* [Generalized Linear Models (GLM)](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.linear_model)
+* [Naive Bayes](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.naive_bayes)
+* [Nearest Neighbors](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.neighbors)
+* [Support Vector Machines (SVM)](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.svm)
+* [Decision Trees](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.tree)
+* [Discriminant Analysis](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.discriminant_analysis)
+
+
+### Data Science 101: How to Choose a Machine Learning Algorithm (MLA)
+**IMPORTANT:** When it comes to data modeling, the beginner’s question is always, "what is the best machine learning algorithm?" To this the beginner must learn, the [No Free Lunch Theorem (NFLT)](http://robertmarks.org/Classes/ENGR5358/Papers/NFL_4_Dummies.pdf) of Machine Learning. In short, NFLT states, there is no super algorithm, that works best in all situations, for all datasets. So the best approach is to try multiple MLAs, tune them, and compare them for your specific scenario. With that being said, some good research has been done to compare algorithms, such as [Caruana & Niculescu-Mizil 2006](https://www.cs.cornell.edu/~caruana/ctp/ct.papers/caruana.icml06.pdf) watch [video lecture here](http://videolectures.net/solomon_caruana_wslmw/) of MLA comparisons, [Ogutu et al. 2011](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3103196/) done by the NIH for genomic selection, [Fernandez-Delgado et al. 2014](http://jmlr.org/papers/volume15/delgado14a/delgado14a.pdf) comparing 179 classifiers from 17 families, [Thoma 2016 sklearn comparison](https://martin-thoma.com/comparing-classifiers/), and there is also a school of thought that says, [more data beats a better algorithm](https://www.kdnuggets.com/2015/06/machine-learning-more-data-better-algorithms.html). 
+
+So with all this information, where is a beginner to start? I recommend starting with [Trees, Bagging, Random Forests, and Boosting](http://jessica2.msri.org/attachments/10778/10778-boost.pdf). They are basically different implementations of a decision tree, which is the easiest concept to learn and understand. They are also easier to tune, discussed in the next section, than something like SVC. Below, I'll give an overview of how-to run and compare several MLAs, but the rest of this Kernel will focus on learning data modeling via decision trees and its derivatives.
+
+'''
