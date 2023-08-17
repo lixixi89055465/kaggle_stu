@@ -656,3 +656,11 @@ Now that we identified our solution as a supervised learning classification algo
 So with all this information, where is a beginner to start? I recommend starting with [Trees, Bagging, Random Forests, and Boosting](http://jessica2.msri.org/attachments/10778/10778-boost.pdf). They are basically different implementations of a decision tree, which is the easiest concept to learn and understand. They are also easier to tune, discussed in the next section, than something like SVC. Below, I'll give an overview of how-to run and compare several MLAs, but the rest of this Kernel will focus on learning data modeling via decision trees and its derivatives.
 
 '''
+#Machine Learning Algorithm (MLA) Selection and Initialization
+from sklearn import ensemble
+MLA=[
+    #Ensemble Methods
+    ensemble.AdaBoostClassifier(),
+    ensemble.BaggingClassifier(),
+
+]
