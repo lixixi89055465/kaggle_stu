@@ -52,7 +52,7 @@ warnings.filterwarnings('ignore')
 print('-' * 25)
 from subprocess import check_output
 
-# print(check_output(['ls', '../data/']))
+print(check_output(['ls', '../data/']).decode('utf8'))
 
 import pandas as pd
 
@@ -62,27 +62,27 @@ data_val = pd.read_csv('../data/test.csv')
 # #remember python assignment or equal passes by reference vs values, so we use the copy function: https://stackoverflow.com/questions/46327494/python-pandas-dataframe-copydeep-false-vs-copydeep-true-vs
 data1 = data_raw.copy(deep=True)
 data_cleaner = [data1, data_val]
-# print("2" * 100)
-# print(data_raw.info())
-# print(data_raw.head())
-# print(data_raw.sample(9))
+print("2" * 100)
+print(data_raw.info())
+print(data_raw.head())
+print(data_raw.sample(9))
 # Duplicates
 import numpy as np
 
-# print("3" * 100)
-# print(
-#     f'Duplicates in train set :{data_raw.duplicated().sum()},'
-#     f'{np.round(100 * data_raw.duplicated().sum() / len(data_raw), 1)})')
-# print(
-#     f'Duplicates in test set :{data_raw.duplicated().sum()},'
-#     f'{np.round(100 * data_val.duplicated().sum() / len(data_raw), 1)})')
-#
-# print('Train columns with null value:\n', data1.isnull().sum())
-# print("-" * 100)
-# print('Test/Validation columns with null value :\n', data_val.isnull().sum())
-# print("- " * 100)
-# print(data_raw.nunique())
-# print(data_raw.dtypes)
+print("3" * 100)
+print(
+    f'Duplicates in train set :{data_raw.duplicated().sum()},'
+    f'{np.round(100 * data_raw.duplicated().sum() / len(data_raw), 1)})')
+print(
+    f'Duplicates in test set :{data_raw.duplicated().sum()},'
+    f'{np.round(100 * data_val.duplicated().sum() / len(data_raw), 1)})')
+
+print('Train columns with null value:\n', data1.isnull().sum())
+print("-" * 100)
+print('Test/Validation columns with null value :\n', data_val.isnull().sum())
+print("- " * 100)
+print(data_raw.nunique())
+print(data_raw.dtypes)
 # Expenditure features
 exp_feats = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
 # Categorical feature
@@ -620,42 +620,8 @@ print('6'*100)
 pp = sns.pairplot(data1, hue = 'Transported', palette = 'deep', size=1.2, diag_kind = 'kde', diag_kws=dict(shade=True), plot_kws=dict(s=10) )
 pp.set(xticklabels=[])
 plt.show()
-'''
-<a id="ch7"></a>
-# Step 5: Model Data
-Data Science is a multi-disciplinary field between mathematics (i.e. statistics, linear algebra, etc.), computer science (i.e. programming languages, computer systems, etc.) and business management (i.e. communication, subject-matter knowledge, etc.). Most data scientist come from one of the three fields, so they tend to lean towards that discipline. However, data science is like a three-legged stool, with no one leg being more important than the other. So, this step will require advanced knowledge in mathematics. But don’t worry, we only need a high-level overview, which we’ll cover in this Kernel. Also, thanks to computer science, a lot of the heavy lifting is done for you. So, problems that once required graduate degrees in mathematics or statistics, now only take a few lines of code. Last, we’ll need some business acumen to think through the problem. After all, like training a sight-seeing dog, it’s learning from us and not the other way around.
-
-Machine Learning (ML), as the name suggest, is teaching the machine how-to think and not what to think. While this topic and big data has been around for decades, it is becoming more popular than ever because the barrier to entry is lower, for businesses and professionals alike. This is both good and bad. It’s good because these algorithms are now accessible to more people that can solve more problems in the real-world. It’s bad because a lower barrier to entry means, more people will not know the tools they are using and can come to incorrect conclusions. That’s why I focus on teaching you, not just what to do, but why you’re doing it. Previously, I used the analogy of asking someone to hand you a Philip screwdriver, and they hand you a flathead screwdriver or worst a hammer. At best, it shows a complete lack of understanding. At worst, it makes completing the project impossible; or even worst, implements incorrect actionable intelligence. So now that I’ve hammered (no pun intended) my point, I’ll show you what to do and most importantly, WHY you do it.
-
-First, you must understand, that the purpose of machine learning is to solve human problems. Machine learning can be categorized as: supervised learning, unsupervised learning, and reinforced learning. Supervised learning is where you train the model by presenting it a training dataset that includes the correct answer. Unsupervised learning is where you train the model using a training dataset that does not include the correct answer. And reinforced learning is a hybrid of the previous two, where the model is not given the correct answer immediately, but later after a sequence of events to reinforce learning. We are doing supervised machine learning, because we are training our algorithm by presenting it with a set of features and their corresponding target. We then hope to present it a new subset from the same dataset and have similar results in prediction accuracy.
-
-There are many machine learning algorithms, however they can be reduced to four categories: classification, regression, clustering, or dimensionality reduction, depending on your target variable and data modeling goals. We'll save clustering and dimension reduction for another day, and focus on classification and regression. We can generalize that a continuous target variable requires a regression algorithm and a discrete target variable requires a classification algorithm. One side note, logistic regression, while it has regression in the name, is really a classification algorithm. Since our problem is predicting if a passenger survived or did not survive, this is a discrete target variable. We will use a classification algorithm from the *sklearn* library to begin our analysis. We will use cross validation and scoring metrics, discussed in later sections, to rank and compare our algorithms’ performance.
-
-**Machine Learning Selection:**
-* [Sklearn Estimator Overview](http://scikit-learn.org/stable/user_guide.html)
-* [Sklearn Estimator Detail](http://scikit-learn.org/stable/modules/classes.html)
-* [Choosing Estimator Mind Map](http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html)
-* [Choosing Estimator Cheat Sheet](https://s3.amazonaws.com/assets.datacamp.com/blog_assets/Scikit_Learn_Cheat_Sheet_Python.pdf)
 
 
-Now that we identified our solution as a supervised learning classification algorithm. We can narrow our list of choices.
-
-**Machine Learning Classification Algorithms:**
-* [Ensemble Methods](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.ensemble)
-* [Generalized Linear Models (GLM)](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.linear_model)
-* [Naive Bayes](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.naive_bayes)
-* [Nearest Neighbors](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.neighbors)
-* [Support Vector Machines (SVM)](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.svm)
-* [Decision Trees](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.tree)
-* [Discriminant Analysis](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.discriminant_analysis)
-
-
-### Data Science 101: How to Choose a Machine Learning Algorithm (MLA)
-**IMPORTANT:** When it comes to data modeling, the beginner’s question is always, "what is the best machine learning algorithm?" To this the beginner must learn, the [No Free Lunch Theorem (NFLT)](http://robertmarks.org/Classes/ENGR5358/Papers/NFL_4_Dummies.pdf) of Machine Learning. In short, NFLT states, there is no super algorithm, that works best in all situations, for all datasets. So the best approach is to try multiple MLAs, tune them, and compare them for your specific scenario. With that being said, some good research has been done to compare algorithms, such as [Caruana & Niculescu-Mizil 2006](https://www.cs.cornell.edu/~caruana/ctp/ct.papers/caruana.icml06.pdf) watch [video lecture here](http://videolectures.net/solomon_caruana_wslmw/) of MLA comparisons, [Ogutu et al. 2011](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3103196/) done by the NIH for genomic selection, [Fernandez-Delgado et al. 2014](http://jmlr.org/papers/volume15/delgado14a/delgado14a.pdf) comparing 179 classifiers from 17 families, [Thoma 2016 sklearn comparison](https://martin-thoma.com/comparing-classifiers/), and there is also a school of thought that says, [more data beats a better algorithm](https://www.kdnuggets.com/2015/06/machine-learning-more-data-better-algorithms.html). 
-
-So with all this information, where is a beginner to start? I recommend starting with [Trees, Bagging, Random Forests, and Boosting](http://jessica2.msri.org/attachments/10778/10778-boost.pdf). They are basically different implementations of a decision tree, which is the easiest concept to learn and understand. They are also easier to tune, discussed in the next section, than something like SVC. Below, I'll give an overview of how-to run and compare several MLAs, but the rest of this Kernel will focus on learning data modeling via decision trees and its derivatives.
-
-'''
 #Machine Learning Algorithm (MLA) Selection and Initialization
 from sklearn import ensemble
 MLA=[
