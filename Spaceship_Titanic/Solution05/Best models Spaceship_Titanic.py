@@ -346,9 +346,11 @@ for data in data_cleaner:
     # plt.title('Ratio of cabin side by surname')
 # plt.show()
 # Print proportion
+#TODO
 print("Percentage of families all on the same cabin side:", 100 * np.round(SCS_gb['Ratio'] / len(SCS_gb), 3), '%')
 print("2" * 100)
 print(SCS_gb.head())
+
 
 # Missing values before
 CS_bef = data['Cabin_deck'].isna().sum()
