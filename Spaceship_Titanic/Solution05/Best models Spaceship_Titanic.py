@@ -294,8 +294,6 @@ print('7' * 100)
 #TODO
 for data in data_cleaner:
     HP_bef = data['HomePlanet'].isna().sum()
-    # g1 = data[(~data['HomePlanet'].isna())&(~data['Cabin_deck'].isin(['A','B','C','T','G']))].groupby(['Cabin_deck', 'HomePlanet'])[
-    #     'Cabin_deck'].size().unstack().fillna(0)
     data.loc[(data['HomePlanet'].isna()) & ~(data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Earth'
     data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Mars'
 # print('#HomePlanet missing values before:', HP_bef)
@@ -336,7 +334,7 @@ for data in data_cleaner:
     # Print number of missing values left
     # print('#Cabin_side missing values before:', CS_bef)
     # print('#Cabin_side missing values after:', data['Cabin_side'].isna().sum())
-print('1' * 100)
+print('1' * 100) #TODO
 for data in data_cleaner:
     # Joint distribution of Surname and Cabin side
     SCS_gb = data[data['Group_size'] > 1].groupby(['Surname', 'Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
