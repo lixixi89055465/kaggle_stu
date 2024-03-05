@@ -52,7 +52,7 @@ warnings.filterwarnings('ignore')
 print('-' * 25)
 from subprocess import check_output
 
-print(check_output(['ls', '../data/']).decode('utf8'))
+# print(check_output(['ls', '../data/']).decode('utf8'))
 
 import pandas as pd
 
@@ -255,6 +255,7 @@ data1['na_count'] = data1.isna().sum(axis=1)
 # We managed to fill 131 values with 100% confidence but we are nott finished yet.
 
 
+#TODO
 for dataset in data_cleaner:
     GHP_gb = dataset.groupby(['Group', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
     # Missing values before
@@ -290,6 +291,7 @@ for data in data_cleaner:
 # print('#HomePlanet missing values after:', data['HomePlanet'].isna().sum())
 
 print('7' * 100)
+#TODO
 for data in data_cleaner:
     HP_bef = data['HomePlanet'].isna().sum()
     # g1 = data[(~data['HomePlanet'].isna())&(~data['Cabin_deck'].isin(['A','B','C','T','G']))].groupby(['Cabin_deck', 'HomePlanet'])[
