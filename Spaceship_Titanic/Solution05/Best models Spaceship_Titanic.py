@@ -364,6 +364,7 @@ for data in data_cleaner:
     data.drop('Surname', axis=1, inplace=True)
     print('#Cabin side missing before:', CS_bef)
     print('#Cabin side missing after:', data['Cabin_side'].isna().sum())
+#TODO
 print("3" * 100)
 for data in data_cleaner:
     # Value counts
