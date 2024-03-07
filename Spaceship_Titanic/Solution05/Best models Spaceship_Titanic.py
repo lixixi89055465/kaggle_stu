@@ -387,6 +387,7 @@ for data in data_cleaner:
     # print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
 
 print("7" * 100)
+#TODO
 for data in data_cleaner:
     print(data[['HomePlanet', 'Destination', 'Solo', 'Cabin_deck']].value_counts())
     print(data.groupby(['HomePlanet', 'Destination', 'Solo', 'Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0))
@@ -425,6 +426,7 @@ for data in data_cleaner:
         X_CN = data.loc[(~data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
         y_CN = data.loc[(~data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
         X_test_CN = data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
+        #TODO
         if not X_test_CN.empty:
             model_CN = sklearn.linear_model.LinearRegression()
             model_CN.fit(X_CN.values.reshape(-1, 1), y_CN)
