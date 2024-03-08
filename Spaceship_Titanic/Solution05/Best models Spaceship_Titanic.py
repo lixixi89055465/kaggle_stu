@@ -456,7 +456,7 @@ for data in data_cleaner:
     # print('#VIP missing values after:', data['VIP'].isna().sum())
     # print('1' * 100)
 for data in data_cleaner:
-    # data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].median().unstack().fillna(0)
+    data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].median().unstack().fillna(0)
     # Missing values before
     A_bef = data[exp_feats].isna().sum().sum()
     # # Fill missing values using the median
@@ -477,12 +477,12 @@ for data in data_cleaner:
 
 print('2' * 100)
 for data in data_cleaner:
-    data.loc[data['Age'] <= 12, 'Age_group'] = 'Age_0-12'
+    data.loc[data['Age_'] <= 12, 'Age_group'] = 'Age_0-12'
     data.loc[(data['Age'] > 12) & (data['Age'] < 18), 'Age_group'] = 'Age_13_17'
     data.loc[(data['Age'] >= 18) & (data['Age'] <= 25), 'Age_group'] = 'Age_18-25'
     data.loc[(data['Age'] > 25) & (data['Age'] <= 30), 'Age_group'] = 'Age_26-30'
     data.loc[(data['Age'] > 30) & (data['Age'] <= 50), 'Age_group'] = 'Age_31-50'
-    data.loc[data['Age'] > 50, 'Age_group'] = 'Age_51+'
+    data.loc[data['Age'] > 50, 'Agegroup'] = 'Age_51+'
 
 for data in data_cleaner:
     # Join distribution
@@ -495,6 +495,7 @@ for data in data_cleaner:
     # print("#CryoSleep misisng values before:", CSL_bef)
     # print('#CryoSleep missing values after:', data['CryoSleep'].isna().sum())
 
+#TODO
 for data in data_cleaner:
     # Missing value before
     E_bef = data[exp_feats].isna().sum().sum()
