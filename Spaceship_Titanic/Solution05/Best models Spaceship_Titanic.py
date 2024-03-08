@@ -465,6 +465,7 @@ for data in data_cleaner:
     #     data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(
     #         lambda x: x.fillna(x.median()))[na_rows_A]
     na_rows_A = data.loc[data['Age'].isna(), 'Age'].index
+    #TODO
     data.loc[data['Age'].isna(), 'Age'] = \
         data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(
             lambda x: x.fillna(x.median()))[
