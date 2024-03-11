@@ -227,9 +227,10 @@ data1['Cabin_region_plot'] = (
 for dataset in data_cleaner:
 	dataset['Name'].fillna('Unknown Unknown', inplace=True)
 	dataset['Surname'] = dataset['Name'].str.split().str[-1]
-	tset01 = dataset['Name'].str
 	dataset['Family_size'] = dataset['Surname'].map(lambda x: dataset['Surname'].value_counts()[x])
-	dataset['Surname'].map(lambda x: dataset['Surname'].value_counts()[x])
+	testSurname=dataset['Surname'].value_counts()
+	# dataset['Surname'].map(lambda x: dataset['Surname'].value_counts()[x])
+	dataset['Surname'].map(lambda x: testSurname[x])
 	# dataset.loc[dataset['Surname'] == 'Unknow Unknow'] = np.nan
 	dataset.loc[dataset['Surname'] == 'Unknown', 'Surname'] = np.nan
 	dataset.loc[dataset['Family_size'] > 100, 'Family_size'] = np.nan
@@ -576,7 +577,10 @@ for data in data_cleaner:
 	data['Cabin_side_Code'] = label.fit_transform(data['Cabin_side'])
 
 Target = ['Transported']
-data1_x = ['HomePlanet', 'CryoSleep', 'Destination', 'Age', 'VIP', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa',
+data1_x = ['HomePlanet', 'CryoSleep',
+		   'Destination', 'Age', 'VIP',
+		   'RoomService', 'FoodCourt',
+		   'ShoppingMall', 'Spa',
 		   'VRDeck']  # Original data
 data1_x_calc = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Expenditure', 'No_spending',
 				'Group', 'Group_size', 'Solo', 'Cabin_number', 'Cabin_region1', 'Cabin_region2', 'Cabin_region3',
@@ -586,9 +590,14 @@ data1_x_calc = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDec
 data1_xy = Target + data1_x
 print('Original X Y:', data1_xy, '\n')
 # defina x variables for original w/bin features to remove continuous variables
-data1_x_bin = ['Age', 'No_spending', 'Group_size', 'Solo', 'Cabin_region1', 'Cabin_region2', 'Cabin_region3',
-			   'Cabin_region4', 'Cabin_region5', 'Cabin_region6', 'Cabin_region7', 'Family_size', 'HomePlanet_Code',
-			   'CryoSleep_Code', 'Destination_Code', 'VIP_Code', 'Age_group_Code', 'Cabin_deck_Code', 'Cabin_side_Code']
+data1_x_bin = ['Age', 'No_spending', 'Group_size', 'Solo', 'Cabin_region1',
+			   'Cabin_region2', 'Cabin_region3',
+			   'Cabin_region4', 'Cabin_region5',
+			   'Cabin_region6', 'Cabin_region7',
+			   'Family_size', 'HomePlanet_Code',
+			   'CryoSleep_Code', 'Destination_Code',
+			   'VIP_Code', 'Age_group_Code',
+			   'Cabin_deck_Code', 'Cabin_side_Code']
 data1_xy_bin = Target + data1_x_bin
 print('Bin X Y: ', data1_xy_bin, '\n')
 # define x and y variables for dummy features original
@@ -623,13 +632,13 @@ train1_x_dummy, test1_x_dummy, train1_y_dummy, test1_y_dummy = model_selection.t
 # print("Data1 Shape: {}".format(data1.shape))
 # print("Train1 Shape: {}".format(train1_x.shape))
 # print("Test1 Shape: {}".format(test1_x.shape))
-print(train1_x_dummy.head())
+# print(train1_x_dummy.head())
 
-for x in data1_x:
-	if data1[x].dtype != 'float64':
-		print('Transported Correlation by :', x)
-		print(data1[[x, Target[0]]].groupby(x, as_index=False).mean())
-		print('-' * 10, '\n')
+# for x in data1_x:
+# 	if data1[x].dtype != 'float64':
+# 		print('Transported Correlation by :', x)
+# 		print(data1[[x, Target[0]]].groupby(x, as_index=False).mean())
+# 		print('-' * 10, '\n')
 
 
 # correlation heatmap of dataset
@@ -645,57 +654,63 @@ def correlation_heatmap(df):
 		linewidths=0.1, vmax=1.0, linecolor='white',
 		annot_kws={'fontsize': 5}
 	)
-	plt.title('Pearson correlation of features', y=1.05, size=15)
+# 	plt.title('Pearson correlation of features', y=1.05, size=15)
 
 
-correlation_heatmap(data1)
+# correlation_heatmap(data1)
 
 print('6' * 100)
 # pair plots of entire dataset
-pp = sns.pairplot(data1, hue='Transported', palette='deep', size=1.2, diag_kind='kde', diag_kws=dict(shade=True),
-				  plot_kws=dict(s=10))
-pp.set(xticklabels=[])
-plt.show()
+# pp = sns.pairplot(data1, hue='Transported', palette='deep', size=1.2, diag_kind='kde', diag_kws=dict(shade=True),
+# 				  plot_kws=dict(s=10))
+# pp.set(xticklabels=[])
+# plt.show()
 
 # Machine Learning Algorithm (MLA) Selection and Initialization
-from sklearn import ensemble, gaussian_process, linear_model, naive_bayes, neighbors, svm, tree, discriminant_analysis
+from sklearn import ensemble, gaussian_process, \
+	linear_model, naive_bayes,\
+	neighbors, svm, tree, discriminant_analysis
 from xgboost import XGBClassifier
 
 MLA = [
-	# Ensemble Methods
-	ensemble.AdaBoostClassifier(),
-	ensemble.BaggingClassifier(),
-	ensemble.ExtraTreesClassifier(),
-	ensemble.GradientBoostingClassifier(),
-	ensemble.RandomForestClassifier(),
+	# # Ensemble Methods
+	# ensemble.AdaBoostClassifier(),
+	# ensemble.BaggingClassifier(),
+	# ensemble.ExtraTreesClassifier(),
+	# ensemble.GradientBoostingClassifier(),
+	# ensemble.RandomForestClassifier(),
+	#
+	# # Gaussian Processes
+	# gaussian_process.GaussianProcessClassifier(),
+	# # GLM
+	# linear_model.LogisticRegressionCV(),
+	# linear_model.PassiveAggressiveClassifier(),
+	# linear_model.RidgeClassifierCV(),
+	# linear_model.SGDClassifier(),
+	# linear_model.Perceptron(),
+	#
+	# # Navies Bayer
+	# naive_bayes.BernoulliNB(),
+	# naive_bayes.GaussianNB(),
 
-	# Gaussian Processes
-	gaussian_process.GaussianProcessClassifier(),
-	# GLM
-	linear_model.LogisticRegressionCV(),
-	linear_model.PassiveAggressiveClassifier(),
-	linear_model.RidgeClassifierCV(),
-	linear_model.SGDClassifier(),
-	linear_model.Perceptron(),
-	# Navies Bayer
-	naive_bayes.BernoulliNB(),
-	naive_bayes.GaussianNB(),
 	# Nearest Neighbor
 	neighbors.KNeighborsClassifier(),
 
-	# SVM
-	svm.SVC(probability=True),
-	svm.NuSVC(probability=True),
-	svm.LInearSVC(),
-	# Trees
-	tree.DecisionTreeClassifier(),
-	tree.ExtraTreeClassifier(),
-	# Discriminat Analysisi
-	discriminant_analysis.LinearDiscriminantAnalysis(),
-	discriminant_analysis.QuadraticDiscriminantAnalysis(),
-	XGBClassifier()
+	# # SVM
+	# 	# svm.SVC(probability=True),
+	# 	# svm.NuSVC(probability=True),
+	# 	# svm.LinearSVC(),
+	# 	# # Trees
+	# 	# tree.DecisionTreeClassifier(),
+	# 	# tree.ExtraTreeClassifier(),
+	# 	# # Discriminat Analysisi
+	# 	# discriminant_analysis.LinearDiscriminantAnalysis(),
+	# 	# discriminant_analysis.QuadraticDiscriminantAnalysis(),
+	# 	# # xgboost: http://xgboost.readthedocs.io/en/latest/model.html
+	# 	# XGBClassifier()
 ]
-# split dataset in cross-validation with this splitter class: http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.ShuffleSplit.html#sklearn.model_selection.ShuffleSplit
+# split dataset in cross-validation with this splitter class:
+# http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.ShuffleSplit.html#sklearn.model_selection.ShuffleSplit
 # note: this is an alternative to train_test_split
 cv_split = model_selection.ShuffleSplit(n_splits=10, test_size=.3, train_size=.6, random_state=0)
 # create table to compare MLA metrics
@@ -725,6 +740,7 @@ for alg in MLA:
 	MLA_compare.loc[row_index, 'MLA Test Accuracy Mean'] = cv_results['test_score'].mean()
 	# if this is a non-bias random sample, then +/-3 standard deviations (std) from the mean, should statistically capture 99.7% of the subsets
 	MLA_compare.loc[row_index, 'MLA Test accuracy 3*STD'] = cv_results['test_score'].std() * 3
+
 	# Save MLA predictions - see section 6 for usage
 	alg.fit(data1[data1_x_bin], data1[Target])
 	MLA_predict[MLA_name] = alg.predict(data1[data1_x_bin])
@@ -734,11 +750,11 @@ for alg in MLA:
 MLA_compare.sort_values(by=['MLA Test Accuracy Mean'], ascending=False, inplace=True)
 # MLA_compare
 # barplot using https://seaborn.pydata.org/generated/seaborn.barplot.html
-sns.barplot(x='MLA test Accuracy Mean', y='MLA name ', data=MLA_compare, color='m')
-# prettify using pyplot: https://matplotlib.org/api/pyplot_api.html
-plt.title('Machine Learning Algorithm Accuracy Score \n')
-plt.xlabel('Accuracy Score ( % )')
-plt.ylabel('Algorithm')
+# sns.barplot(x='MLA test Accuracy Mean', y='MLA name ', data=MLA_compare, color='m')
+# # prettify using pyplot: https://matplotlib.org/api/pyplot_api.html
+# plt.title('Machine Learning Algorithm Accuracy Score \n')
+# plt.xlabel('Accuracy Score ( % )')
+# plt.ylabel('Algorithm')
 
 for index, row in data1.iterrows():
 	if random.random() > .5:
@@ -774,3 +790,272 @@ print('\n Survival Decision Tree CryoSleep Node:\n', pivot_CryoSleep)
 
 pivot_Cabin_side_Code = data1.groupby(['Cabin_side_Code'])['Transported'].mean()
 print('\n Survival Decision Tree Cabin_side Code:\n', pivot_CryoSleep)
+
+
+# pivot_male = data1[data1.Sex=='male'].groupby(['Sex','Title'])['Transported'].mean()
+# print('\n\nSurvival Decision Tree w/Male Node: \n',pivot_male)
+
+# handmade data model using brain power (and Microsoft Excel Pivot Tables for quick calculations
+def mytree(df):
+	# initialize table to store predictions
+	Model = pd.DataFrame(data={'Predict': []})
+	for index, row in df.iterrows():
+		# Question 1 :Age group (55=69%)
+		if (df.loc[index, 'Age_group'] == 'Age_0-12') or \
+				(df.loc[index, 'Age_group'] == 'Age_13-17'):
+			Model.loc[index, 'Predict'] = 1
+		# Question 2:HomePlanet_code (66-67%)
+		if (df.loc[index, 'HomePlanet_Code'] == 0):
+			Model.loc[index, 'Predict'] = 0
+		# Question 3:vip_code (71%)
+		if (df.loc[index, 'VIP_Code'] == 1):
+			Model.loc[index, 'Predict'] = 0
+		# Question 4: CryoSleep_Code (68-81%)
+		if (df.loc[index, 'CryoSleep_Code'] == 0):
+			Model.loc[index, 'Predict'] = 0
+		if (df.loc[index, 'CryoSleep_Code'] == 1):
+			Model.loc[index, 'Predict'] = 1
+		# Question 5: Cabin_deck_Code_Code (73-80%)
+		if (df.loc[index, 'Cabin_deck_Code'] == 7):
+			Model.loc[index, 'Cabin_deck_Code'] = 0
+		if (df.loc[index, 'Cabin_deck_Code'] == 1):
+			Model.loc[index, 'Predict'] = 1
+		if (df.loc[index, 'Cabin_deck_Code'] == 2):
+			Model.loc[index, 'Predict'] = 1
+		if (df.loc[index, 'Cabin_deck_Code'] == 4):
+			Model.loc[index, 'Predict'] = 0
+		# Question 6: Cabin_side_Code (72%)
+		if (df.loc[index, 'Cabin_side_Code'] == 2):
+			Model.loc[index, 'Predict'] = 0
+	return Model
+
+
+# model data
+Tree_Predict = mytree(data1)
+
+#TODO
+print('Decision Tree Model Accuracy /Precision Score:{:.2f}%\n'.
+	  format(metrics.accuracy_score(data1['Transported'], Tree_Predict) * 100))
+#Accuracy Summary Report with http://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html#sklearn.metrics.classification_report
+#Where recall score = (true positives)/(true positive + false negative) w/1 being best:http://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html#sklearn.metrics.recall_score
+#And F1 score = weighted average of precision and recall w/1 being best: http://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score
+print(metrics.classification_report(data1['Transported'], Tree_Predict))
+#Plot Accuracy Summary
+#Credit: http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
+import itertools
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
+# Compute confusion matrix
+cnf_matrix = metrics.confusion_matrix(data1['Transported'], Tree_Predict)
+np.set_printoptions(precision=2)
+
+class_names = ['NotTransported', 'Transported']
+# Plot non-normalized confusion matrix
+plt.figure()
+plot_confusion_matrix(cnf_matrix, classes=class_names,
+                      title='Confusion matrix, without normalization')
+
+# Plot normalized confusion matrix
+plt.figure()
+plot_confusion_matrix(cnf_matrix, classes=class_names, normalize=True,
+                      title='Normalized confusion matrix')
+
+#base model
+dtree = tree.DecisionTreeClassifier(random_state = 0)
+base_results = model_selection.cross_validate(dtree, data1[data1_x_bin], data1[Target], cv  = cv_split, return_train_score=True )
+dtree.fit(data1[data1_x_bin], data1[Target])
+
+print('BEFORE DT Parameters: ', dtree.get_params())
+print("BEFORE DT Training w/bin score mean: {:.2f}". format(base_results['train_score'].mean()*100))
+print("BEFORE DT Test w/bin score mean: {:.2f}". format(base_results['test_score'].mean()*100))
+print("BEFORE DT Test w/bin score 3*std: +/- {:.2f}". format(base_results['test_score'].std()*100*3))
+#print("BEFORE DT Test w/bin set score min: {:.2f}". format(base_results['test_score'].min()*100))
+print('-'*10)
+
+
+#tune hyper-parameters: http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier
+param_grid = {'criterion': ['gini', 'entropy'],  #scoring methodology; two supported formulas for calculating information gain - default is gini
+              #'splitter': ['best', 'random'], #splitting methodology; two supported strategies - default is best
+              'max_depth': [2,4,6,8,10,None], #max depth tree can grow; default is none
+              #'min_samples_split': [2,5,10,.03,.05], #minimum subset size BEFORE new split (fraction is % of total); default is 2
+              #'min_samples_leaf': [1,5,10,.03,.05], #minimum subset size AFTER new split split (fraction is % of total); default is 1
+              #'max_features': [None, 'auto'], #max features to consider when performing split; default none or all
+              'random_state': [0] #seed or control random number generator: https://www.quora.com/What-is-seed-in-random-number-generation
+             }
+
+#print(list(model_selection.ParameterGrid(param_grid)))
+
+#choose best model with grid_search: #http://scikit-learn.org/stable/modules/grid_search.html#grid-search
+#http://scikit-learn.org/stable/auto_examples/model_selection/plot_grid_search_digits.html
+tune_model = model_selection.GridSearchCV(tree.DecisionTreeClassifier(), param_grid=param_grid, scoring = 'roc_auc', cv = cv_split, return_train_score=True )
+tune_model.fit(data1[data1_x_bin], data1[Target])
+
+#print(tune_model.cv_results_.keys())
+#print(tune_model.cv_results_['params'])
+print('AFTER DT Parameters: ', tune_model.best_params_)
+#print(tune_model.cv_results_['mean_train_score'])
+print("AFTER DT Training w/bin score mean: {:.2f}". format(tune_model.cv_results_['mean_train_score'][tune_model.best_index_]*100))
+#print(tune_model.cv_results_['mean_test_score'])
+print("AFTER DT Test w/bin score mean: {:.2f}". format(tune_model.cv_results_['mean_test_score'][tune_model.best_index_]*100))
+print("AFTER DT Test w/bin score 3*std: +/- {:.2f}". format(tune_model.cv_results_['std_test_score'][tune_model.best_index_]*100*3))
+print('-'*10)
+
+
+#duplicates gridsearchcv
+#tune_results = model_selection.cross_validate(tune_model, data1[data1_x_bin], data1[Target], cv  = cv_split)
+
+#print('AFTER DT Parameters: ', tune_model.best_params_)
+#print("AFTER DT Training w/bin set score mean: {:.2f}". format(tune_results['train_score'].mean()*100))
+#print("AFTER DT Test w/bin set score mean: {:.2f}". format(tune_results['test_score'].mean()*100))
+#print("AFTER DT Test w/bin set score min: {:.2f}". format(tune_results['test_score'].min()*100))
+#print('-'*10)
+
+
+#base model
+print('BEFORE DT RFE Training Shape Old: ', data1[data1_x_bin].shape)
+print('BEFORE DT RFE Training Columns Old: ', data1[data1_x_bin].columns.values)
+
+print("BEFORE DT RFE Training w/bin score mean: {:.2f}". format(base_results['train_score'].mean()*100))
+print("BEFORE DT RFE Test w/bin score mean: {:.2f}". format(base_results['test_score'].mean()*100))
+print("BEFORE DT RFE Test w/bin score 3*std: +/- {:.2f}". format(base_results['test_score'].std()*100*3))
+print('-'*10)
+
+
+
+#feature selection
+dtree_rfe = feature_selection.RFECV(dtree, step = 1, scoring = 'accuracy', cv = cv_split)
+dtree_rfe.fit(data1[data1_x_bin], data1[Target])
+
+#transform x&y to reduced features and fit new model
+#alternative: can use pipeline to reduce fit and transform steps: http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html
+X_rfe = data1[data1_x_bin].columns.values[dtree_rfe.get_support()]
+rfe_results = model_selection.cross_validate(dtree, data1[X_rfe], data1[Target], cv  = cv_split, return_train_score=True )
+
+#print(dtree_rfe.grid_scores_)
+print('AFTER DT RFE Training Shape New: ', data1[X_rfe].shape)
+print('AFTER DT RFE Training Columns New: ', X_rfe)
+
+print("AFTER DT RFE Training w/bin score mean: {:.2f}". format(rfe_results['train_score'].mean()*100))
+print("AFTER DT RFE Test w/bin score mean: {:.2f}". format(rfe_results['test_score'].mean()*100))
+print("AFTER DT RFE Test w/bin score 3*std: +/- {:.2f}". format(rfe_results['test_score'].std()*100*3))
+print('-'*10)
+
+
+#tune rfe model
+rfe_tune_model = model_selection.GridSearchCV(tree.DecisionTreeClassifier(), param_grid=param_grid, scoring = 'roc_auc', cv = cv_split, return_train_score=True )
+rfe_tune_model.fit(data1[X_rfe], data1[Target])
+
+#print(rfe_tune_model.cv_results_.keys())
+#print(rfe_tune_model.cv_results_['params'])
+print('AFTER DT RFE Tuned Parameters: ', rfe_tune_model.best_params_)
+#print(rfe_tune_model.cv_results_['mean_train_score'])
+print("AFTER DT RFE Tuned Training w/bin score mean: {:.2f}". format(rfe_tune_model.cv_results_['mean_train_score'][tune_model.best_index_]*100))
+#print(rfe_tune_model.cv_results_['mean_test_score'])
+print("AFTER DT RFE Tuned Test w/bin score mean: {:.2f}". format(rfe_tune_model.cv_results_['mean_test_score'][tune_model.best_index_]*100))
+print("AFTER DT RFE Tuned Test w/bin score 3*std: +/- {:.2f}". format(rfe_tune_model.cv_results_['std_test_score'][tune_model.best_index_]*100*3))
+print('-'*10)
+
+#Graph MLA version of Decision Tree: http://scikit-learn.org/stable/modules/generated/sklearn.tree.export_graphviz.html
+import graphviz
+dot_data = tree.export_graphviz(dtree, out_file=None,
+                                feature_names = data1_x_bin, class_names = True,
+                                filled = True, rounded = True)
+graph = graphviz.Source(dot_data)
+graph
+
+#compare algorithm predictions with each other, where 1 = exactly similar and 0 = exactly opposite
+#there are some 1's, but enough blues and light reds to create a "super algorithm" by combining them
+correlation_heatmap(MLA_predict)
+#why choose one model, when you can pick them all with voting classifier
+#http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.VotingClassifier.html
+#removed models w/o attribute 'predict_proba' required for
+# vote classifier and models with a 1.0 correlation to
+# another model
+from sklearn.svm import SVC
+vote_est=[
+	# Ensemble Methods: http://scikit-learn.org/stable/modules/ensemble.html
+	('ada',ensemble.AdaBoostClassifier()),
+	('bc',ensemble.BaggingClassifier()),
+	('etc',ensemble.ExtraTreesClassifier()),
+	('gbc',ensemble.GradientBoostingClassifier()),
+	('rfc',ensemble.RandomForestClassifier()),
+	# Gaussian Processes: http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-classification-gpc
+	('gpc',gaussian_process.GaussianProcessClassifier()),
+	# GLM: http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+	('lr',linear_model.LogisticRegressionCV()),
+	# Navies Bayes: http://scikit-learn.org/stable/modules/naive_bayes.html
+	('bnb',naive_bayes.BernoulliNB()),
+	('gnb',naive_bayes.GaussianNB()),
+	# Nearest Neighbor: http://scikit-learn.org/stable/modules/neighbors.html
+	('knn',neighbors.KNeighborsClassifier()),
+	# SVM: http://scikit-learn.org/stable/modules/svm.html
+	# ('svc', SVC(probability==True)),
+	('svc', svm.SVC(probability=True)),
+	# xgboost: http://xgboost.readthedocs.io/en/latest/model.html
+	('xgb', XGBClassifier())
+]
+#Hard Vote or majority rules
+vote_hard=ensemble.VotingClassifier(estimators=vote_est,voting='hard')
+vote_hard_cv=model_selection.cross_validate(vote_hard,data1[data1_x_bin],data1[Target],\
+											cv=cv_split,\
+											return_train_score=True )
+vote_hard.fit(data1[data1_x_bin],data1[Target])
+print("Hard Voting Training w/bin score mean: {:.2f}". format(vote_hard_cv['train_score'].mean()*100))
+print("Hard Voting Test w/bin score mean: {:.2f}". format(vote_hard_cv['test_score'].mean()*100))
+print("Hard Voting Test w/bin score 3*std: +/- {:.2f}". format(vote_hard_cv['test_score'].std()*100*3))
+print('-'*10)
+
+#Soft Vote or weighted probabilities
+
+vote_soft=ensemble.VotingClassifier(estimators=vote_est,voting='soft')
+vote_soft_cv=model_selection.cross_validate(vote_soft,data1[data1_x_bin],data1[Target],\
+											cv=cv_split,return_train_score=True)
+vote_soft.fit(data1[data1_x_bin],data1[Target])
+
+print("Soft Voting Training w/bin score mean: {:.2f}". format(vote_soft_cv['train_score'].mean()*100))
+print("Soft Voting Test w/bin score mean: {:.2f}". format(vote_soft_cv['test_score'].mean()*100))
+print("Soft Voting Test w/bin score 3*std: +/- {:.2f}". format(vote_soft_cv['test_score'].std()*100*3))
+print('-'*10)
+#IMPORTANT: THIS SECTION IS UNDER CONSTRUCTION!!!!
+#UPDATE: This section was scrapped for the next section; as it's more computational friendly.
+
+#WARNING: Running is very computational intensive and time expensive
+#code is written for experimental/developmental purposes and not production ready
+
+
+#tune each estimator before creating a super model
+#http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html
+
+
