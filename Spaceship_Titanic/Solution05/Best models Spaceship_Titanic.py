@@ -673,9 +673,9 @@ from sklearn import ensemble, gaussian_process, \
 from xgboost import XGBClassifier
 
 MLA = [
-	# # Ensemble Methods
-	# ensemble.AdaBoostClassifier(),
-	# ensemble.BaggingClassifier(),
+	# Ensemble Methods
+	ensemble.AdaBoostClassifier(),
+	ensemble.BaggingClassifier(),
 	# ensemble.ExtraTreesClassifier(),
 	# ensemble.GradientBoostingClassifier(),
 	# ensemble.RandomForestClassifier(),
@@ -692,22 +692,22 @@ MLA = [
 	# # Navies Bayer
 	# naive_bayes.BernoulliNB(),
 	# naive_bayes.GaussianNB(),
+	#
+	# # Nearest Neighbor
+	# neighbors.KNeighborsClassifier(),
 
-	# Nearest Neighbor
-	neighbors.KNeighborsClassifier(),
-
-	# # SVM
-	# 	# svm.SVC(probability=True),
-	# 	# svm.NuSVC(probability=True),
-	# 	# svm.LinearSVC(),
-	# 	# # Trees
-	# 	# tree.DecisionTreeClassifier(),
-	# 	# tree.ExtraTreeClassifier(),
-	# 	# # Discriminat Analysisi
-	# 	# discriminant_analysis.LinearDiscriminantAnalysis(),
-	# 	# discriminant_analysis.QuadraticDiscriminantAnalysis(),
-	# 	# # xgboost: http://xgboost.readthedocs.io/en/latest/model.html
-	# 	# XGBClassifier()
+	# SVM
+	# 	svm.SVC(probability=True),
+	# 	svm.NuSVC(probability=True),
+	# 	svm.LinearSVC(),
+	# 	# Trees
+	# 	tree.DecisionTreeClassifier(),
+	# 	tree.ExtraTreeClassifier(),
+	# 	# Discriminat Analysisi
+	# 	discriminant_analysis.LinearDiscriminantAnalysis(),
+	# 	discriminant_analysis.QuadraticDiscriminantAnalysis(),
+	# 	# xgboost: http://xgboost.readthedocs.io/en/latest/model.html
+	# 	XGBClassifier()
 ]
 # split dataset in cross-validation with this splitter class:
 # http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.ShuffleSplit.html#sklearn.model_selection.ShuffleSplit
@@ -764,9 +764,9 @@ for index, row in data1.iterrows():
 
 # score random guess of survival. Use shortcut 1 = Right Guess and 0 = Wrong Guess
 # the mean of the column will then equal the accuracy
-data1['Ranomd_Score'] = 0
+data1['Random_Score'] = 0
 data1.loc[(data1['Transported'] == data1['Random_Predict']), 'Random_Score'] = 1
-print('Coin Flip Model Accuracy :{:.2f}%'.format(data1['Ranomd_state'].mean() * 100))
+print('Coin Flip Model Accuracy :{:.2f}%'.format(data1['Random_Score'].mean() * 100))
 
 print('Coin Flip Model Accuracy w/Scikit:{:.2f}%'.format(metrics.accuracy_score(data1[Target],  #
 																				data1['Random_Predict']) * 100))
