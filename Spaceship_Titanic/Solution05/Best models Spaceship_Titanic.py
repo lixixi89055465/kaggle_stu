@@ -807,6 +807,8 @@ def mytree(df):
 		# Question 2:HomePlanet_code (66-67%)
 		if (df.loc[index, 'HomePlanet_Code'] == 0):
 			Model.loc[index, 'Predict'] = 0
+		if(df.loc[index,'HomePlanet_Code']==1):
+			Model.loc[index,'Predict']=1
 		# Question 3:vip_code (71%)
 		if (df.loc[index, 'VIP_Code'] == 1):
 			Model.loc[index, 'Predict'] = 0
@@ -817,7 +819,7 @@ def mytree(df):
 			Model.loc[index, 'Predict'] = 1
 		# Question 5: Cabin_deck_Code_Code (73-80%)
 		if (df.loc[index, 'Cabin_deck_Code'] == 7):
-			Model.loc[index, 'Cabin_deck_Code'] = 0
+			Model.loc[index, 'Predict'] = 0
 		if (df.loc[index, 'Cabin_deck_Code'] == 1):
 			Model.loc[index, 'Predict'] = 1
 		if (df.loc[index, 'Cabin_deck_Code'] == 2):
