@@ -688,10 +688,10 @@ MLA = [
 	linear_model.PassiveAggressiveClassifier(),
 	linear_model.RidgeClassifierCV(),
 	linear_model.SGDClassifier(),
-	# linear_model.Perceptron(),
-	#
-	# # Navies Bayer
-	# naive_bayes.BernoulliNB(),
+	linear_model.Perceptron(),
+
+	# Navies Bayer
+	naive_bayes.BernoulliNB(),
 	# naive_bayes.GaussianNB(),
 	#
 	# # Nearest Neighbor
