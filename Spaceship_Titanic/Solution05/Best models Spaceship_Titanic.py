@@ -228,7 +228,7 @@ for dataset in data_cleaner:
 	dataset['Name'].fillna('Unknown Unknown', inplace=True)
 	dataset['Surname'] = dataset['Name'].str.split().str[-1]
 	dataset['Family_size'] = dataset['Surname'].map(lambda x: dataset['Surname'].value_counts()[x])
-	testSurname=dataset['Surname'].value_counts()
+	testSurname = dataset['Surname'].value_counts()
 	# dataset['Surname'].map(lambda x: dataset['Surname'].value_counts()[x])
 	dataset['Surname'].map(lambda x: testSurname[x])
 	# dataset.loc[dataset['Surname'] == 'Unknow Unknow'] = np.nan
@@ -629,6 +629,7 @@ train_x_bin, test1_x_bin, train1_y_bin, test1_y_bin = model_selection.train_test
 train1_x_dummy, test1_x_dummy, train1_y_dummy, test1_y_dummy = model_selection.train_test_split(
 	data1_dummy[data1_x_dummy], data1[Target], random_state=0)
 
+
 # print("Data1 Shape: {}".format(data1.shape))
 # print("Train1 Shape: {}".format(train1_x.shape))
 # print("Test1 Shape: {}".format(test1_x.shape))
@@ -654,6 +655,8 @@ def correlation_heatmap(df):
 		linewidths=0.1, vmax=1.0, linecolor='white',
 		annot_kws={'fontsize': 5}
 	)
+
+
 # 	plt.title('Pearson correlation of features', y=1.05, size=15)
 
 
@@ -668,7 +671,7 @@ print('6' * 100)
 
 # Machine Learning Algorithm (MLA) Selection and Initialization
 from sklearn import ensemble, gaussian_process, \
-	linear_model, naive_bayes,\
+	linear_model, naive_bayes, \
 	neighbors, svm, tree, discriminant_analysis
 from xgboost import XGBClassifier
 
@@ -676,39 +679,39 @@ MLA = [
 	# Ensemble Methods
 	ensemble.AdaBoostClassifier(),
 	ensemble.BaggingClassifier(),
-	ensemble.ExtraTreesClassifier(),
-	#TODO
-	ensemble.GradientBoostingClassifier(),
-	ensemble.RandomForestClassifier(),
-
-	# Gaussian Processes
-	gaussian_process.GaussianProcessClassifier(),
-	# # GLM
-	linear_model.LogisticRegressionCV(),
-	linear_model.PassiveAggressiveClassifier(),
-	linear_model.RidgeClassifierCV(),
-	linear_model.SGDClassifier(),
-	linear_model.Perceptron(),
-
-	# Navies Bayer
-	naive_bayes.BernoulliNB(),
-	naive_bayes.GaussianNB(),
+	# ensemble.ExtraTreesClassifier(),
+	# # TODO
+	# ensemble.GradientBoostingClassifier(),
+	# ensemble.RandomForestClassifier(),
 	#
-	# Nearest Neighbor
-	neighbors.KNeighborsClassifier(),
-
-	# SVM
-		svm.SVC(probability=True),
-		svm.NuSVC(probability=True),
-		svm.LinearSVC(),
-		# Trees
-		tree.DecisionTreeClassifier(),
-		tree.ExtraTreeClassifier(),
-		# Discriminat Analysisi
-		discriminant_analysis.LinearDiscriminantAnalysis(),
-		discriminant_analysis.QuadraticDiscriminantAnalysis(),
-	# 	# xgboost: http://xgboost.readthedocs.io/en/latest/model.html
-		XGBClassifier()
+	# # Gaussian Processes
+	# gaussian_process.GaussianProcessClassifier(),
+	# # GLM
+	# linear_model.LogisticRegressionCV(),
+	# linear_model.PassiveAggressiveClassifier(),
+	# linear_model.RidgeClassifierCV(),
+	# linear_model.SGDClassifier(),
+	# linear_model.Perceptron(),
+	#
+	# # Navies Bayer
+	# naive_bayes.BernoulliNB(),
+	# naive_bayes.GaussianNB(),
+	# # Nearest Neighbor
+	# neighbors.KNeighborsClassifier(),
+	#
+	# # SVM
+	# svm.SVC(probability=True),
+	# svm.NuSVC(probability=True),
+	# svm.LinearSVC(),
+	# # Trees
+	# tree.DecisionTreeClassifier(),
+	# tree.ExtraTreeClassifier(),
+	# # Discriminat Analysisi
+	# discriminant_analysis.LinearDiscriminantAnalysis(),
+	# discriminant_analysis.QuadraticDiscriminantAnalysis(),
+	# #xgboost: http://xgboost.readthedocs.io/en/latest/model.html
+	# # TODO
+	# XGBClassifier()
 ]
 # split dataset in cross-validation with this splitter class:
 # http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.ShuffleSplit.html#sklearn.model_selection.ShuffleSplit
@@ -808,8 +811,8 @@ def mytree(df):
 		# Question 2:HomePlanet_code (66-67%)
 		if (df.loc[index, 'HomePlanet_Code'] == 0):
 			Model.loc[index, 'Predict'] = 0
-		if(df.loc[index,'HomePlanet_Code']==1):
-			Model.loc[index,'Predict']=1
+		if (df.loc[index, 'HomePlanet_Code'] == 1):
+			Model.loc[index, 'Predict'] = 1
 		# Question 3:vip_code (71%)
 		if (df.loc[index, 'VIP_Code'] == 1):
 			Model.loc[index, 'Predict'] = 0
@@ -836,49 +839,52 @@ def mytree(df):
 # model data
 Tree_Predict = mytree(data1)
 
-#TODO
+# TODO
 print('Decision Tree Model Accuracy /Precision Score:{:.2f}%\n'.
 	  format(metrics.accuracy_score(data1['Transported'], Tree_Predict) * 100))
-#Accuracy Summary Report with http://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html#sklearn.metrics.classification_report
-#Where recall score = (true positives)/(true positive + false negative) w/1 being best:http://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html#sklearn.metrics.recall_score
-#And F1 score = weighted average of precision and recall w/1 being best: http://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score
+# Accuracy Summary Report with http://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html#sklearn.metrics.classification_report
+# Where recall score = (true positives)/(true positive + false negative) w/1 being best:http://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html#sklearn.metrics.recall_score
+# And F1 score = weighted average of precision and recall w/1 being best: http://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score
 print(metrics.classification_report(data1['Transported'], Tree_Predict))
-#Plot Accuracy Summary
-#Credit: http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
+# Plot Accuracy Summary
+# Credit: http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
 import itertools
+
+
 def plot_confusion_matrix(cm, classes,
-                          normalize=False,
-                          title='Confusion matrix',
-                          cmap=plt.cm.Blues):
-    """
-    This function prints and plots the confusion matrix.
-    Normalization can be applied by setting `normalize=True`.
-    """
-    if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        print("Normalized confusion matrix")
-    else:
-        print('Confusion matrix, without normalization')
+						  normalize=False,
+						  title='Confusion matrix',
+						  cmap=plt.cm.Blues):
+	"""
+	This function prints and plots the confusion matrix.
+	Normalization can be applied by setting `normalize=True`.
+	"""
+	if normalize:
+		cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+		print("Normalized confusion matrix")
+	else:
+		print('Confusion matrix, without normalization')
 
-    print(cm)
+	print(cm)
 
-    plt.imshow(cm, interpolation='nearest', cmap=cmap)
-    plt.title(title)
-    plt.colorbar()
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45)
-    plt.yticks(tick_marks, classes)
+	plt.imshow(cm, interpolation='nearest', cmap=cmap)
+	plt.title(title)
+	plt.colorbar()
+	tick_marks = np.arange(len(classes))
+	plt.xticks(tick_marks, classes, rotation=45)
+	plt.yticks(tick_marks, classes)
 
-    fmt = '.2f' if normalize else 'd'
-    thresh = cm.max() / 2.
-    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, format(cm[i, j], fmt),
-                 horizontalalignment="center",
-                 color="white" if cm[i, j] > thresh else "black")
+	fmt = '.2f' if normalize else 'd'
+	thresh = cm.max() / 2.
+	for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+		plt.text(j, i, format(cm[i, j], fmt),
+				 horizontalalignment="center",
+				 color="white" if cm[i, j] > thresh else "black")
 
-    plt.tight_layout()
-    plt.ylabel('True label')
-    plt.xlabel('Predicted label')
+	plt.tight_layout()
+	plt.ylabel('True label')
+	plt.xlabel('Predicted label')
+
 
 # Compute confusion matrix
 cnf_matrix = metrics.confusion_matrix(data1['Transported'], Tree_Predict)
@@ -888,177 +894,185 @@ class_names = ['NotTransported', 'Transported']
 # Plot non-normalized confusion matrix
 plt.figure()
 plot_confusion_matrix(cnf_matrix, classes=class_names,
-                      title='Confusion matrix, without normalization')
+					  title='Confusion matrix, without normalization')
 
 # Plot normalized confusion matrix
 plt.figure()
 plot_confusion_matrix(cnf_matrix, classes=class_names, normalize=True,
-                      title='Normalized confusion matrix')
+					  title='Normalized confusion matrix')
 
-#base model
-dtree = tree.DecisionTreeClassifier(random_state = 0)
-base_results = model_selection.cross_validate(dtree, data1[data1_x_bin], data1[Target], cv  = cv_split, return_train_score=True )
+# base model
+dtree = tree.DecisionTreeClassifier(random_state=0)
+base_results = model_selection.cross_validate(dtree, data1[data1_x_bin], data1[Target], cv=cv_split,
+											  return_train_score=True)
 dtree.fit(data1[data1_x_bin], data1[Target])
 
 print('BEFORE DT Parameters: ', dtree.get_params())
-print("BEFORE DT Training w/bin score mean: {:.2f}". format(base_results['train_score'].mean()*100))
-print("BEFORE DT Test w/bin score mean: {:.2f}". format(base_results['test_score'].mean()*100))
-print("BEFORE DT Test w/bin score 3*std: +/- {:.2f}". format(base_results['test_score'].std()*100*3))
-#print("BEFORE DT Test w/bin set score min: {:.2f}". format(base_results['test_score'].min()*100))
-print('-'*10)
+print("BEFORE DT Training w/bin score mean: {:.2f}".format(base_results['train_score'].mean() * 100))
+print("BEFORE DT Test w/bin score mean: {:.2f}".format(base_results['test_score'].mean() * 100))
+print("BEFORE DT Test w/bin score 3*std: +/- {:.2f}".format(base_results['test_score'].std() * 100 * 3))
+# print("BEFORE DT Test w/bin set score min: {:.2f}". format(base_results['test_score'].min()*100))
+print('-' * 10)
 
+# tune hyper-parameters: http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier
+param_grid = {'criterion': ['gini', 'entropy'],
+			  # scoring methodology; two supported formulas for calculating information gain - default is gini
+			  # 'splitter': ['best', 'random'], #splitting methodology; two supported strategies - default is best
+			  'max_depth': [2, 4, 6, 8, 10, None],  # max depth tree can grow; default is none
+			  # 'min_samples_split': [2,5,10,.03,.05], #minimum subset size BEFORE new split (fraction is % of total); default is 2
+			  # 'min_samples_leaf': [1,5,10,.03,.05], #minimum subset size AFTER new split split (fraction is % of total); default is 1
+			  # 'max_features': [None, 'auto'], #max features to consider when performing split; default none or all
+			  'random_state': [0]
+			  # seed or control random number generator: https://www.quora.com/What-is-seed-in-random-number-generation
+			  }
 
-#tune hyper-parameters: http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier
-param_grid = {'criterion': ['gini', 'entropy'],  #scoring methodology; two supported formulas for calculating information gain - default is gini
-              #'splitter': ['best', 'random'], #splitting methodology; two supported strategies - default is best
-              'max_depth': [2,4,6,8,10,None], #max depth tree can grow; default is none
-              #'min_samples_split': [2,5,10,.03,.05], #minimum subset size BEFORE new split (fraction is % of total); default is 2
-              #'min_samples_leaf': [1,5,10,.03,.05], #minimum subset size AFTER new split split (fraction is % of total); default is 1
-              #'max_features': [None, 'auto'], #max features to consider when performing split; default none or all
-              'random_state': [0] #seed or control random number generator: https://www.quora.com/What-is-seed-in-random-number-generation
-             }
+# print(list(model_selection.ParameterGrid(param_grid)))
 
-#print(list(model_selection.ParameterGrid(param_grid)))
-
-#choose best model with grid_search: #http://scikit-learn.org/stable/modules/grid_search.html#grid-search
-#http://scikit-learn.org/stable/auto_examples/model_selection/plot_grid_search_digits.html
-tune_model = model_selection.GridSearchCV(tree.DecisionTreeClassifier(), param_grid=param_grid, scoring = 'roc_auc', cv = cv_split, return_train_score=True )
+# choose best model with grid_search: #http://scikit-learn.org/stable/modules/grid_search.html#grid-search
+# http://scikit-learn.org/stable/auto_examples/model_selection/plot_grid_search_digits.html
+tune_model = model_selection.GridSearchCV(tree.DecisionTreeClassifier(), param_grid=param_grid, scoring='roc_auc',
+										  cv=cv_split, return_train_score=True)
 tune_model.fit(data1[data1_x_bin], data1[Target])
 
-#print(tune_model.cv_results_.keys())
-#print(tune_model.cv_results_['params'])
+# print(tune_model.cv_results_.keys())
+# print(tune_model.cv_results_['params'])
 print('AFTER DT Parameters: ', tune_model.best_params_)
-#print(tune_model.cv_results_['mean_train_score'])
-print("AFTER DT Training w/bin score mean: {:.2f}". format(tune_model.cv_results_['mean_train_score'][tune_model.best_index_]*100))
-#print(tune_model.cv_results_['mean_test_score'])
-print("AFTER DT Test w/bin score mean: {:.2f}". format(tune_model.cv_results_['mean_test_score'][tune_model.best_index_]*100))
-print("AFTER DT Test w/bin score 3*std: +/- {:.2f}". format(tune_model.cv_results_['std_test_score'][tune_model.best_index_]*100*3))
-print('-'*10)
+# print(tune_model.cv_results_['mean_train_score'])
+print("AFTER DT Training w/bin score mean: {:.2f}".format(
+	tune_model.cv_results_['mean_train_score'][tune_model.best_index_] * 100))
+# print(tune_model.cv_results_['mean_test_score'])
+print("AFTER DT Test w/bin score mean: {:.2f}".format(
+	tune_model.cv_results_['mean_test_score'][tune_model.best_index_] * 100))
+print("AFTER DT Test w/bin score 3*std: +/- {:.2f}".format(
+	tune_model.cv_results_['std_test_score'][tune_model.best_index_] * 100 * 3))
+print('-' * 10)
+
+# duplicates gridsearchcv
+# tune_results = model_selection.cross_validate(tune_model, data1[data1_x_bin], data1[Target], cv  = cv_split)
+
+# print('AFTER DT Parameters: ', tune_model.best_params_)
+# print("AFTER DT Training w/bin set score mean: {:.2f}". format(tune_results['train_score'].mean()*100))
+# print("AFTER DT Test w/bin set score mean: {:.2f}". format(tune_results['test_score'].mean()*100))
+# print("AFTER DT Test w/bin set score min: {:.2f}". format(tune_results['test_score'].min()*100))
+# print('-'*10)
 
 
-#duplicates gridsearchcv
-#tune_results = model_selection.cross_validate(tune_model, data1[data1_x_bin], data1[Target], cv  = cv_split)
-
-#print('AFTER DT Parameters: ', tune_model.best_params_)
-#print("AFTER DT Training w/bin set score mean: {:.2f}". format(tune_results['train_score'].mean()*100))
-#print("AFTER DT Test w/bin set score mean: {:.2f}". format(tune_results['test_score'].mean()*100))
-#print("AFTER DT Test w/bin set score min: {:.2f}". format(tune_results['test_score'].min()*100))
-#print('-'*10)
-
-
-#base model
+# base model
 print('BEFORE DT RFE Training Shape Old: ', data1[data1_x_bin].shape)
 print('BEFORE DT RFE Training Columns Old: ', data1[data1_x_bin].columns.values)
 
-print("BEFORE DT RFE Training w/bin score mean: {:.2f}". format(base_results['train_score'].mean()*100))
-print("BEFORE DT RFE Test w/bin score mean: {:.2f}". format(base_results['test_score'].mean()*100))
-print("BEFORE DT RFE Test w/bin score 3*std: +/- {:.2f}". format(base_results['test_score'].std()*100*3))
-print('-'*10)
+print("BEFORE DT RFE Training w/bin score mean: {:.2f}".format(base_results['train_score'].mean() * 100))
+print("BEFORE DT RFE Test w/bin score mean: {:.2f}".format(base_results['test_score'].mean() * 100))
+print("BEFORE DT RFE Test w/bin score 3*std: +/- {:.2f}".format(base_results['test_score'].std() * 100 * 3))
+print('-' * 10)
 
-
-
-#feature selection
-dtree_rfe = feature_selection.RFECV(dtree, step = 1, scoring = 'accuracy', cv = cv_split)
+#TODO
+from sklearn import feature_selection
+# feature selection
+dtree_rfe = feature_selection.RFECV(dtree, step=1, scoring='accuracy', cv=cv_split)
 dtree_rfe.fit(data1[data1_x_bin], data1[Target])
 
-#transform x&y to reduced features and fit new model
-#alternative: can use pipeline to reduce fit and transform steps: http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html
+# transform x&y to reduced features and fit new model
+# alternative: can use pipeline to reduce fit and transform steps: http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html
 X_rfe = data1[data1_x_bin].columns.values[dtree_rfe.get_support()]
-rfe_results = model_selection.cross_validate(dtree, data1[X_rfe], data1[Target], cv  = cv_split, return_train_score=True )
+rfe_results = model_selection.cross_validate(dtree, data1[X_rfe], data1[Target], cv=cv_split, return_train_score=True)
 
-#print(dtree_rfe.grid_scores_)
+# print(dtree_rfe.grid_scores_)
 print('AFTER DT RFE Training Shape New: ', data1[X_rfe].shape)
 print('AFTER DT RFE Training Columns New: ', X_rfe)
 
-print("AFTER DT RFE Training w/bin score mean: {:.2f}". format(rfe_results['train_score'].mean()*100))
-print("AFTER DT RFE Test w/bin score mean: {:.2f}". format(rfe_results['test_score'].mean()*100))
-print("AFTER DT RFE Test w/bin score 3*std: +/- {:.2f}". format(rfe_results['test_score'].std()*100*3))
-print('-'*10)
+print("AFTER DT RFE Training w/bin score mean: {:.2f}".format(rfe_results['train_score'].mean() * 100))
+print("AFTER DT RFE Test w/bin score mean: {:.2f}".format(rfe_results['test_score'].mean() * 100))
+print("AFTER DT RFE Test w/bin score 3*std: +/- {:.2f}".format(rfe_results['test_score'].std() * 100 * 3))
+print('-' * 10)
 
-
-#tune rfe model
-rfe_tune_model = model_selection.GridSearchCV(tree.DecisionTreeClassifier(), param_grid=param_grid, scoring = 'roc_auc', cv = cv_split, return_train_score=True )
+# tune rfe model
+rfe_tune_model = model_selection.GridSearchCV(tree.DecisionTreeClassifier(), param_grid=param_grid, scoring='roc_auc',
+											  cv=cv_split, return_train_score=True)
 rfe_tune_model.fit(data1[X_rfe], data1[Target])
 
-#print(rfe_tune_model.cv_results_.keys())
-#print(rfe_tune_model.cv_results_['params'])
+# print(rfe_tune_model.cv_results_.keys())
+# print(rfe_tune_model.cv_results_['params'])
 print('AFTER DT RFE Tuned Parameters: ', rfe_tune_model.best_params_)
-#print(rfe_tune_model.cv_results_['mean_train_score'])
-print("AFTER DT RFE Tuned Training w/bin score mean: {:.2f}". format(rfe_tune_model.cv_results_['mean_train_score'][tune_model.best_index_]*100))
-#print(rfe_tune_model.cv_results_['mean_test_score'])
-print("AFTER DT RFE Tuned Test w/bin score mean: {:.2f}". format(rfe_tune_model.cv_results_['mean_test_score'][tune_model.best_index_]*100))
-print("AFTER DT RFE Tuned Test w/bin score 3*std: +/- {:.2f}". format(rfe_tune_model.cv_results_['std_test_score'][tune_model.best_index_]*100*3))
-print('-'*10)
+# print(rfe_tune_model.cv_results_['mean_train_score'])
+print("AFTER DT RFE Tuned Training w/bin score mean: {:.2f}".format(
+	rfe_tune_model.cv_results_['mean_train_score'][tune_model.best_index_] * 100))
+# print(rfe_tune_model.cv_results_['mean_test_score'])
+print("AFTER DT RFE Tuned Test w/bin score mean: {:.2f}".format(
+	rfe_tune_model.cv_results_['mean_test_score'][tune_model.best_index_] * 100))
+print("AFTER DT RFE Tuned Test w/bin score 3*std: +/- {:.2f}".format(
+	rfe_tune_model.cv_results_['std_test_score'][tune_model.best_index_] * 100 * 3))
+print('-' * 10)
 
-#Graph MLA version of Decision Tree: http://scikit-learn.org/stable/modules/generated/sklearn.tree.export_graphviz.html
+# Graph MLA version of Decision Tree: http://scikit-learn.org/stable/modules/generated/sklearn.tree.export_graphviz.html
 import graphviz
+
 dot_data = tree.export_graphviz(dtree, out_file=None,
-                                feature_names = data1_x_bin, class_names = True,
-                                filled = True, rounded = True)
+								feature_names=data1_x_bin, class_names=True,
+								filled=True, rounded=True)
 graph = graphviz.Source(dot_data)
 graph
 
-#compare algorithm predictions with each other, where 1 = exactly similar and 0 = exactly opposite
-#there are some 1's, but enough blues and light reds to create a "super algorithm" by combining them
+# compare algorithm predictions with each other, where 1 = exactly similar and 0 = exactly opposite
+# there are some 1's, but enough blues and light reds to create a "super algorithm" by combining them
 correlation_heatmap(MLA_predict)
-#why choose one model, when you can pick them all with voting classifier
-#http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.VotingClassifier.html
-#removed models w/o attribute 'predict_proba' required for
+# why choose one model, when you can pick them all with voting classifier
+# http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.VotingClassifier.html
+# removed models w/o attribute 'predict_proba' required for
 # vote classifier and models with a 1.0 correlation to
 # another model
 from sklearn.svm import SVC
-vote_est=[
+
+vote_est = [
 	# Ensemble Methods: http://scikit-learn.org/stable/modules/ensemble.html
-	('ada',ensemble.AdaBoostClassifier()),
-	('bc',ensemble.BaggingClassifier()),
-	('etc',ensemble.ExtraTreesClassifier()),
-	('gbc',ensemble.GradientBoostingClassifier()),
-	('rfc',ensemble.RandomForestClassifier()),
-	# Gaussian Processes: http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-classification-gpc
-	('gpc',gaussian_process.GaussianProcessClassifier()),
-	# GLM: http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
-	('lr',linear_model.LogisticRegressionCV()),
-	# Navies Bayes: http://scikit-learn.org/stable/modules/naive_bayes.html
-	('bnb',naive_bayes.BernoulliNB()),
-	('gnb',naive_bayes.GaussianNB()),
-	# Nearest Neighbor: http://scikit-learn.org/stable/modules/neighbors.html
-	('knn',neighbors.KNeighborsClassifier()),
-	# SVM: http://scikit-learn.org/stable/modules/svm.html
-	# ('svc', SVC(probability==True)),
-	('svc', svm.SVC(probability=True)),
-	# xgboost: http://xgboost.readthedocs.io/en/latest/model.html
-	('xgb', XGBClassifier())
+	('ada', ensemble.AdaBoostClassifier()),
+	('bc', ensemble.BaggingClassifier()),
+	# ('etc', ensemble.ExtraTreesClassifier()),
+	# ('gbc', ensemble.GradientBoostingClassifier()),
+	# ('rfc', ensemble.RandomForestClassifier()),
+	# # Gaussian Processes: http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-classification-gpc
+	# ('gpc', gaussian_process.GaussianProcessClassifier()),
+	# # GLM: http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+	# ('lr', linear_model.LogisticRegressionCV()),
+	# # Navies Bayes: http://scikit-learn.org/stable/modules/naive_bayes.html
+	# ('bnb', naive_bayes.BernoulliNB()),
+	# ('gnb', naive_bayes.GaussianNB()),
+	# # Nearest Neighbor: http://scikit-learn.org/stable/modules/neighbors.html
+	# ('knn', neighbors.KNeighborsClassifier()),
+	# # SVM: http://scikit-learn.org/stable/modules/svm.html
+	# # ('svc', SVC(probability==True)),
+	# ('svc', svm.SVC(probability=True)),
+	# # xgboost: http://xgboost.readthedocs.io/en/latest/model.html
+	# ('xgb', XGBClassifier())
 ]
-#Hard Vote or majority rules
-vote_hard=ensemble.VotingClassifier(estimators=vote_est,voting='hard')
-vote_hard_cv=model_selection.cross_validate(vote_hard,data1[data1_x_bin],data1[Target],\
-											cv=cv_split,\
-											return_train_score=True )
-vote_hard.fit(data1[data1_x_bin],data1[Target])
-print("Hard Voting Training w/bin score mean: {:.2f}". format(vote_hard_cv['train_score'].mean()*100))
-print("Hard Voting Test w/bin score mean: {:.2f}". format(vote_hard_cv['test_score'].mean()*100))
-print("Hard Voting Test w/bin score 3*std: +/- {:.2f}". format(vote_hard_cv['test_score'].std()*100*3))
-print('-'*10)
+# Hard Vote or majority rules
+vote_hard = ensemble.VotingClassifier(estimators=vote_est, voting='hard')
+vote_hard_cv = model_selection.cross_validate(vote_hard, data1[data1_x_bin], data1[Target], \
+											  cv=cv_split, \
+											  return_train_score=True)
+vote_hard.fit(data1[data1_x_bin], data1[Target])
+print("Hard Voting Training w/bin score mean: {:.2f}".format(vote_hard_cv['train_score'].mean() * 100))
+print("Hard Voting Test w/bin score mean: {:.2f}".format(vote_hard_cv['test_score'].mean() * 100))
+print("Hard Voting Test w/bin score 3*std: +/- {:.2f}".format(vote_hard_cv['test_score'].std() * 100 * 3))
+print('-' * 10)
 
-#Soft Vote or weighted probabilities
+# Soft Vote or weighted probabilities
 
-vote_soft=ensemble.VotingClassifier(estimators=vote_est,voting='soft')
-vote_soft_cv=model_selection.cross_validate(vote_soft,data1[data1_x_bin],data1[Target],\
-											cv=cv_split,return_train_score=True)
-vote_soft.fit(data1[data1_x_bin],data1[Target])
+vote_soft = ensemble.VotingClassifier(estimators=vote_est, voting='soft')
+vote_soft_cv = model_selection.cross_validate(vote_soft, data1[data1_x_bin], data1[Target], \
+											  cv=cv_split, return_train_score=True)
+vote_soft.fit(data1[data1_x_bin], data1[Target])
 
-print("Soft Voting Training w/bin score mean: {:.2f}". format(vote_soft_cv['train_score'].mean()*100))
-print("Soft Voting Test w/bin score mean: {:.2f}". format(vote_soft_cv['test_score'].mean()*100))
-print("Soft Voting Test w/bin score 3*std: +/- {:.2f}". format(vote_soft_cv['test_score'].std()*100*3))
-print('-'*10)
-#IMPORTANT: THIS SECTION IS UNDER CONSTRUCTION!!!!
-#UPDATE: This section was scrapped for the next section; as it's more computational friendly.
+print("Soft Voting Training w/bin score mean: {:.2f}".format(vote_soft_cv['train_score'].mean() * 100))
+print("Soft Voting Test w/bin score mean: {:.2f}".format(vote_soft_cv['test_score'].mean() * 100))
+print("Soft Voting Test w/bin score 3*std: +/- {:.2f}".format(vote_soft_cv['test_score'].std() * 100 * 3))
+print('-' * 10)
+# IMPORTANT: THIS SECTION IS UNDER CONSTRUCTION!!!!
+# UPDATE: This section was scrapped for the next section; as it's more computational friendly.
 
-#WARNING: Running is very computational intensive and time expensive
-#code is written for experimental/developmental purposes and not production ready
-
-
-#tune each estimator before creating a super model
-#http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html
+# WARNING: Running is very computational intensive and time expensive
+# code is written for experimental/developmental purposes and not production ready
 
 
+# tune each estimator before creating a super model
+# http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html
