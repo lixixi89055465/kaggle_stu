@@ -694,21 +694,21 @@ MLA = [
 	naive_bayes.BernoulliNB(),
 	naive_bayes.GaussianNB(),
 	#
-	# # Nearest Neighbor
+	# Nearest Neighbor
 	neighbors.KNeighborsClassifier(),
 
 	# SVM
 		svm.SVC(probability=True),
 		svm.NuSVC(probability=True),
 		svm.LinearSVC(),
-	# 	# Trees
+		# Trees
 		tree.DecisionTreeClassifier(),
 		tree.ExtraTreeClassifier(),
-	# 	# Discriminat Analysisi
-	# 	discriminant_analysis.LinearDiscriminantAnalysis(),
-	# 	discriminant_analysis.QuadraticDiscriminantAnalysis(),
+		# Discriminat Analysisi
+		discriminant_analysis.LinearDiscriminantAnalysis(),
+		discriminant_analysis.QuadraticDiscriminantAnalysis(),
 	# 	# xgboost: http://xgboost.readthedocs.io/en/latest/model.html
-	# 	XGBClassifier()
+		XGBClassifier()
 ]
 # split dataset in cross-validation with this splitter class:
 # http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.ShuffleSplit.html#sklearn.model_selection.ShuffleSplit
