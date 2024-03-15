@@ -695,15 +695,15 @@ MLA = [
 	naive_bayes.GaussianNB(),
 	#
 	# # Nearest Neighbor
-	# neighbors.KNeighborsClassifier(),
+	neighbors.KNeighborsClassifier(),
 
 	# SVM
-	# 	svm.SVC(probability=True),
-	# 	svm.NuSVC(probability=True),
-	# 	svm.LinearSVC(),
+		svm.SVC(probability=True),
+		svm.NuSVC(probability=True),
+		svm.LinearSVC(),
 	# 	# Trees
-	# 	tree.DecisionTreeClassifier(),
-	# 	tree.ExtraTreeClassifier(),
+		tree.DecisionTreeClassifier(),
+		tree.ExtraTreeClassifier(),
 	# 	# Discriminat Analysisi
 	# 	discriminant_analysis.LinearDiscriminantAnalysis(),
 	# 	discriminant_analysis.QuadraticDiscriminantAnalysis(),
