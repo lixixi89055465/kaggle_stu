@@ -373,10 +373,10 @@ test['Surname'] = test['Name'].str.split().str[-1]
 train['Family_size'] = train['Surname'].map(lambda x: pd.concat([train['Surname'], test['Surname']]).value_counts()[x])
 test['Family_size'] = test['Surname'].map(lambda x: pd.concat([train['Surname'], test['Surname']]).value_counts()[x])
 # Put Nan's back in (we will fill these later)
-train.loc[train['Surname']=='Unknown','Surname']=np.nan
-train.loc[train['Family_size']>100,'Family_size']=np.nan
-test.loc[test['Surname']=='Unknown','Surname']=np.nan
-test.loc[test['Family_size']>100,'Family_size']=np.nan
+train.loc[train['Surname'] == 'Unknown', 'Surname'] = np.nan
+train.loc[train['Family_size'] > 100, 'Family_size'] = np.nan
+test.loc[test['Surname'] == 'Unknown', 'Surname'] = np.nan
+test.loc[test['Family_size'] > 100, 'Family_size'] = np.nan
 
 # Drop name (we don't need it anymore)
 train.drop('Name', axis=1, inplace=True)
@@ -394,18 +394,18 @@ Combine train and test
 This will make it easier to fill missing values. We will split it back later.
 '''
 # Labels and features
-y=train['Transported'].copy().astype(int)
-X=train.drop('Transported', axis=1).copy()
+y = train['Transported'].copy().astype(int)
+X = train.drop('Transported', axis=1).copy()
 
 # Concatenate dataframes
-data=pd.concat([X, test], axis=0).reset_index(drop=True)
+data = pd.concat([X, test], axis=0).reset_index(drop=True)
 
 # Columns with missing values
-na_cols=data.columns[data.isna().any()].tolist()
+na_cols = data.columns[data.isna().any()].tolist()
 
 # Missing values summary
-mv=pd.DataFrame(data[na_cols].isna().sum(), columns=['Number_missing'])
-mv['Percentage_missing']=np.round(100*mv['Number_missing']/len(data),2)
+mv = pd.DataFrame(data[na_cols].isna().sum(), columns=['Number_missing'])
+mv['Percentage_missing'] = np.round(100 * mv['Number_missing'] / len(data), 2)
 # # mv
 # # Heatmap of missing values
 # plt.figure(figsize=(12,6))
@@ -413,8 +413,8 @@ mv['Percentage_missing']=np.round(100*mv['Number_missing']/len(data),2)
 # plt.title('Heatmap of missing values')
 
 # Countplot of number of missing values by passenger
-train['na_count']=train.isna().sum(axis=1)
-plt.figure(figsize=(10,4))
+train['na_count'] = train.isna().sum(axis=1)
+plt.figure(figsize=(10, 4))
 sns.countplot(data=train, x='na_count', hue='Transported')
 plt.title('Number of missing entries by passenger')
 train.drop('na_count', axis=1, inplace=True)
@@ -443,8 +443,155 @@ HomePlanet and Group
 '''
 
 # Joint distribution of Group and HomePlanet
-GHP_gb=data.groupby(['Group','HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
-print('1'*100)
+GHP_gb = data.groupby(['Group', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
 print(GHP_gb.head())
+print('1' * 100)
+# Countplot of unique values
+# sns.countplot((GHP_gb>0).sum(axis=1))
+# plt.title('Number of unique home planets per group')
+
+# Missing values before
+HP_bef = data['HomePlanet'].isna().sum()
+
+# Passengers with missing HomePlanet and in a group with known HomePlanet
+GHP_index = data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
+# Passengers with missing HomePlanet and in a group with known HomePlanet
+GHP_index=data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
+
+# Fill corresponding missing values
+data.loc[GHP_index,'HomePlanet']=data.iloc[GHP_index,:]['Group'].map(lambda x: GHP_gb.idxmax(axis=1)[x])
+# Print number of missing values left
+print('#HomePlanet missing values before:',HP_bef)
+print('#HomePlanet missing values after:',data['HomePlanet'].isna().sum())
+#HomePlanet missing values before: 288
+#HomePlanet missing values after: 157
+
+# We managed to fill 131 values with 100% confidence but we are not finished yet.
+
+# HomePlanet and CabinDeck
+# Joint distribution of CabinDeck and HomePlanet
+CDHP_gb=data.groupby(['Cabin_deck','HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
+
+# # Heatmap of missing values
+# plt.figure(figsize=(10,4))
+# sns.heatmap(CDHP_gb.T, annot=True, fmt='g', cmap='coolwarm')
+
+# Notes:
+# #
+# # Passengers on decks A, B, C or T came from Europa.
+# # Passengers on deck G came from Earth.
+# # Passengers on decks D, E or F came from multiple planets.
+# Missing values before
+HP_bef=data['HomePlanet'].isna().sum()
+
+# Decks A, B, C or T came from Europa
+data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet']='Europa'
+
+# Deck G came from Earth
+data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck']=='G'), 'HomePlanet']='Earth'
+# Print number of missing values left
+print('#HomePlanet missing values before:',HP_bef)
+print('#HomePlanet missing values after:',data['HomePlanet'].isna().sum())
+'''
+#HomePlanet missing values before: 157
+#HomePlanet missing values after: 94
+HomePlanet and Surname
+'''
+
+# Joint distribution of Surname and HomePlanet
+SHP_gb=data.groupby(['Surname','HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
+
+# Countplot of unique values
+plt.figure(figsize=(10,4))
+sns.countplot((SHP_gb>0).sum(axis=1))
+plt.title('Number of unique planets per surname')
+
+# Fantastic! Everyone with the same surname comes from the same home planet.
+
+# Missing values before
+HP_bef=data['HomePlanet'].isna().sum()
+
+# Passengers with missing HomePlanet and in a family with known HomePlanet
+SHP_index=data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Surname']).isin(SHP_gb.index)].index
+
+# Fill corresponding missing values
+data.loc[SHP_index,'HomePlanet']=data.iloc[SHP_index,:]['Surname'].map(lambda x: SHP_gb.idxmax(axis=1)[x])
+# Print number of missing values left
+print('#HomePlanet missing values before:',HP_bef)
+print('#HomePlanet missing values after:',data['HomePlanet'].isna().sum())
+#HomePlanet missing values before: 94
+#HomePlanet missing values after: 10
+
+# Only 10 HomePlanet missing values left - let's look at them
+print(data[data['HomePlanet'].isna()][['PassengerId', 'HomePlanet', 'Destination']])
+
+# Everyone left is heading towards TRAPPIST-1e. So let's look at the joint distribution of HomePlanet and Destination.
+# HomePlanet and Destination
+
+# Joint distribution of HomePlanet and Destination
+HPD_gb=data.groupby(['HomePlanet','Destination'])['Destination'].size().unstack().fillna(0)
+
+# Heatmap of missing values
+plt.figure(figsize=(10,4))
+sns.heatmap(HPD_gb.T, annot=True, fmt='g', cmap='coolwarm')
+
+# Missing values before
+HP_bef=data['HomePlanet'].isna().sum()
+
+# Fill remaining HomePlanet missing values with Earth (if not on deck D) or Mars (if on Deck D)
+data.loc[(data['HomePlanet'].isna()) & ~(data['Cabin_deck']=='D'), 'HomePlanet']='Earth'
+data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck']=='D'), 'HomePlanet']='Mars'
+
+# Print number of missing values left
+print('#HomePlanet missing values before:',HP_bef)
+print('#HomePlanet missing values after:',data['HomePlanet'].isna().sum())
 
 
+#HomePlanet missing values before: 10
+#HomePlanet missing values after: 0
+# Awesome! We're done with HomePlanet.
+
+# Destination
+#
+# Since the majority (68%) of passengers are heading towards TRAPPIST-1e (see EDA section), we'll just impute this value (i.e. the mode). A better rule hasn't been found at this stage.
+
+# Missing values before
+D_bef=data['Destination'].isna().sum()
+# Fill missing Destination values with mode
+data.loc[(data['Destination'].isna()), 'Destination']='TRAPPIST-1e'
+
+# Print number of missing values left
+print('#Destination missing values before:',D_bef)
+print('#Destination missing values after:',data['Destination'].isna().sum())
+
+#Destination missing values before: 274
+#Destination missing values after: 0
+
+# Surname and group
+
+# The reason we are filling missing surnames is because we will use surnames later to fill missing values of other features. It also means we can improve the accuracy of the family size feature.
+# Joint distribution of Group and Surname
+GSN_gb=data[data['Group_size']>1].groupby(['Group','Surname'])['Surname'].size().unstack().fillna(0)
+
+# # Countplot of unique values
+# plt.figure(figsize=(10,4))
+# sns.countplot((GSN_gb>0).sum(axis=1))
+# plt.title('Number of unique surnames by group')
+
+# The majority (83%) of groups contain only 1 family. So let's fill missing surnames according to the majority surname in that group.
+
+# Missing values before
+SN_bef=data['Surname'].isna().sum()
+
+# Passengers with missing Surname and in a group with know n majority Surname
+GSN_index=data[data['Surname'].isna()][(data[data['Surname'].isna()]['Group']).isin(GSN_gb.index)].index
+
+# Fill corresponding missing values
+data.loc[GSN_index,'Surname']=data.iloc[GSN_index,:]['Group'].map(lambda x: GSN_gb.idxmax(axis=1)[x])
+
+# Print number of missing values left
+print('#Surname missing values before:',SN_bef)
+print('#Surname missing values after:',data['Surname'].isna().sum())
+
+#Surname missing values before: 294
+#Surname missing values after: 155
