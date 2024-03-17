@@ -456,21 +456,21 @@ HP_bef = data['HomePlanet'].isna().sum()
 # Passengers with missing HomePlanet and in a group with known HomePlanet
 GHP_index = data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
 # Passengers with missing HomePlanet and in a group with known HomePlanet
-GHP_index=data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
+GHP_index = data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
 
 # Fill corresponding missing values
-data.loc[GHP_index,'HomePlanet']=data.iloc[GHP_index,:]['Group'].map(lambda x: GHP_gb.idxmax(axis=1)[x])
+data.loc[GHP_index, 'HomePlanet'] = data.iloc[GHP_index, :]['Group'].map(lambda x: GHP_gb.idxmax(axis=1)[x])
 # Print number of missing values left
-print('#HomePlanet missing values before:',HP_bef)
-print('#HomePlanet missing values after:',data['HomePlanet'].isna().sum())
-#HomePlanet missing values before: 288
-#HomePlanet missing values after: 157
+print('#HomePlanet missing values before:', HP_bef)
+print('#HomePlanet missing values after:', data['HomePlanet'].isna().sum())
+# HomePlanet missing values before: 288
+# HomePlanet missing values after: 157
 
 # We managed to fill 131 values with 100% confidence but we are not finished yet.
 
 # HomePlanet and CabinDeck
 # Joint distribution of CabinDeck and HomePlanet
-CDHP_gb=data.groupby(['Cabin_deck','HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
+CDHP_gb = data.groupby(['Cabin_deck', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
 
 # # Heatmap of missing values
 # plt.figure(figsize=(10,4))
@@ -482,16 +482,16 @@ CDHP_gb=data.groupby(['Cabin_deck','HomePlanet'])['HomePlanet'].size().unstack()
 # # Passengers on deck G came from Earth.
 # # Passengers on decks D, E or F came from multiple planets.
 # Missing values before
-HP_bef=data['HomePlanet'].isna().sum()
+HP_bef = data['HomePlanet'].isna().sum()
 
 # Decks A, B, C or T came from Europa
-data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet']='Europa'
+data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Europa'
 
 # Deck G came from Earth
-data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck']=='G'), 'HomePlanet']='Earth'
+data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck'] == 'G'), 'HomePlanet'] = 'Earth'
 # Print number of missing values left
-print('#HomePlanet missing values before:',HP_bef)
-print('#HomePlanet missing values after:',data['HomePlanet'].isna().sum())
+print('#HomePlanet missing values before:', HP_bef)
+print('#HomePlanet missing values after:', data['HomePlanet'].isna().sum())
 '''
 #HomePlanet missing values before: 157
 #HomePlanet missing values after: 94
@@ -499,28 +499,28 @@ HomePlanet and Surname
 '''
 
 # Joint distribution of Surname and HomePlanet
-SHP_gb=data.groupby(['Surname','HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
+SHP_gb = data.groupby(['Surname', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
 
 # Countplot of unique values
-plt.figure(figsize=(10,4))
-sns.countplot((SHP_gb>0).sum(axis=1))
+plt.figure(figsize=(10, 4))
+sns.countplot((SHP_gb > 0).sum(axis=1))
 plt.title('Number of unique planets per surname')
 
 # Fantastic! Everyone with the same surname comes from the same home planet.
 
 # Missing values before
-HP_bef=data['HomePlanet'].isna().sum()
+HP_bef = data['HomePlanet'].isna().sum()
 
 # Passengers with missing HomePlanet and in a family with known HomePlanet
-SHP_index=data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Surname']).isin(SHP_gb.index)].index
+SHP_index = data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Surname']).isin(SHP_gb.index)].index
 
 # Fill corresponding missing values
-data.loc[SHP_index,'HomePlanet']=data.iloc[SHP_index,:]['Surname'].map(lambda x: SHP_gb.idxmax(axis=1)[x])
+data.loc[SHP_index, 'HomePlanet'] = data.iloc[SHP_index, :]['Surname'].map(lambda x: SHP_gb.idxmax(axis=1)[x])
 # Print number of missing values left
-print('#HomePlanet missing values before:',HP_bef)
-print('#HomePlanet missing values after:',data['HomePlanet'].isna().sum())
-#HomePlanet missing values before: 94
-#HomePlanet missing values after: 10
+print('#HomePlanet missing values before:', HP_bef)
+print('#HomePlanet missing values after:', data['HomePlanet'].isna().sum())
+# HomePlanet missing values before: 94
+# HomePlanet missing values after: 10
 
 # Only 10 HomePlanet missing values left - let's look at them
 print(data[data['HomePlanet'].isna()][['PassengerId', 'HomePlanet', 'Destination']])
@@ -529,26 +529,25 @@ print(data[data['HomePlanet'].isna()][['PassengerId', 'HomePlanet', 'Destination
 # HomePlanet and Destination
 
 # Joint distribution of HomePlanet and Destination
-HPD_gb=data.groupby(['HomePlanet','Destination'])['Destination'].size().unstack().fillna(0)
+HPD_gb = data.groupby(['HomePlanet', 'Destination'])['Destination'].size().unstack().fillna(0)
 
 # Heatmap of missing values
-plt.figure(figsize=(10,4))
+plt.figure(figsize=(10, 4))
 sns.heatmap(HPD_gb.T, annot=True, fmt='g', cmap='coolwarm')
 
 # Missing values before
-HP_bef=data['HomePlanet'].isna().sum()
+HP_bef = data['HomePlanet'].isna().sum()
 
 # Fill remaining HomePlanet missing values with Earth (if not on deck D) or Mars (if on Deck D)
-data.loc[(data['HomePlanet'].isna()) & ~(data['Cabin_deck']=='D'), 'HomePlanet']='Earth'
-data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck']=='D'), 'HomePlanet']='Mars'
+data.loc[(data['HomePlanet'].isna()) & ~(data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Earth'
+data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Mars'
 
 # Print number of missing values left
-print('#HomePlanet missing values before:',HP_bef)
-print('#HomePlanet missing values after:',data['HomePlanet'].isna().sum())
+print('#HomePlanet missing values before:', HP_bef)
+print('#HomePlanet missing values after:', data['HomePlanet'].isna().sum())
 
-
-#HomePlanet missing values before: 10
-#HomePlanet missing values after: 0
+# HomePlanet missing values before: 10
+# HomePlanet missing values after: 0
 # Awesome! We're done with HomePlanet.
 
 # Destination
@@ -556,22 +555,22 @@ print('#HomePlanet missing values after:',data['HomePlanet'].isna().sum())
 # Since the majority (68%) of passengers are heading towards TRAPPIST-1e (see EDA section), we'll just impute this value (i.e. the mode). A better rule hasn't been found at this stage.
 
 # Missing values before
-D_bef=data['Destination'].isna().sum()
+D_bef = data['Destination'].isna().sum()
 # Fill missing Destination values with mode
-data.loc[(data['Destination'].isna()), 'Destination']='TRAPPIST-1e'
+data.loc[(data['Destination'].isna()), 'Destination'] = 'TRAPPIST-1e'
 
 # Print number of missing values left
-print('#Destination missing values before:',D_bef)
-print('#Destination missing values after:',data['Destination'].isna().sum())
+print('#Destination missing values before:', D_bef)
+print('#Destination missing values after:', data['Destination'].isna().sum())
 
-#Destination missing values before: 274
-#Destination missing values after: 0
+# Destination missing values before: 274
+# Destination missing values after: 0
 
 # Surname and group
 
 # The reason we are filling missing surnames is because we will use surnames later to fill missing values of other features. It also means we can improve the accuracy of the family size feature.
 # Joint distribution of Group and Surname
-GSN_gb=data[data['Group_size']>1].groupby(['Group','Surname'])['Surname'].size().unstack().fillna(0)
+GSN_gb = data[data['Group_size'] > 1].groupby(['Group', 'Surname'])['Surname'].size().unstack().fillna(0)
 
 # # Countplot of unique values
 # plt.figure(figsize=(10,4))
@@ -581,17 +580,200 @@ GSN_gb=data[data['Group_size']>1].groupby(['Group','Surname'])['Surname'].size()
 # The majority (83%) of groups contain only 1 family. So let's fill missing surnames according to the majority surname in that group.
 
 # Missing values before
-SN_bef=data['Surname'].isna().sum()
+SN_bef = data['Surname'].isna().sum()
 
 # Passengers with missing Surname and in a group with know n majority Surname
-GSN_index=data[data['Surname'].isna()][(data[data['Surname'].isna()]['Group']).isin(GSN_gb.index)].index
+GSN_index = data[data['Surname'].isna()][(data[data['Surname'].isna()]['Group']).isin(GSN_gb.index)].index
 
 # Fill corresponding missing values
-data.loc[GSN_index,'Surname']=data.iloc[GSN_index,:]['Group'].map(lambda x: GSN_gb.idxmax(axis=1)[x])
+data.loc[GSN_index, 'Surname'] = data.iloc[GSN_index, :]['Group'].map(lambda x: GSN_gb.idxmax(axis=1)[x])
 
 # Print number of missing values left
-print('#Surname missing values before:',SN_bef)
-print('#Surname missing values after:',data['Surname'].isna().sum())
+print('#Surname missing values before:', SN_bef)
+print('#Surname missing values after:', data['Surname'].isna().sum())
 
-#Surname missing values before: 294
-#Surname missing values after: 155
+# Surname missing values before: 294
+# Surname missing values after: 155
+# That is the best we can do.
+# We don't have to get rid of all of these missing values because we will end up dropping the surname feature anyway.
+# However, we can update the family size feature.
+
+# Replace NaN's with outliers (so we can use map)
+data['Surname'].fillna('Unknown', inplace=True)
+
+# Update family size feature
+data['Family_size'] = data['Surname'].map(lambda x: data['Surname'].value_counts()[x])
+# Put NaN's back in place of outliers
+data.loc[data['Surname'] == 'Unknown', 'Surname'] = np.nan
+
+# Say unknown surname means no family
+data.loc[data['Family_size'] > 100, 'Family_size'] = 0
+
+# CabinSide and Group
+
+# Joint distribution of Group and Cabin features
+GCD_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0)
+GCN_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_number'])['Cabin_number'].size().unstack().fillna(0)
+GCS_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
+
+# # Countplots
+# fig=plt.figure(figsize=(16,4))
+# plt.subplot(1,3,1)
+# sns.countplot((GCD_gb>0).sum(axis=1))
+# plt.title('#Unique cabin decks per group')
+
+# plt.subplot(1,3,2)
+# sns.countplot((GCN_gb>0).sum(axis=1))
+# plt.title('#Unique cabin numbers per group')
+#
+# plt.subplot(1,3,3)
+# sns.countplot((GCS_gb>0).sum(axis=1))
+# plt.title('#Unique cabin sides per group')
+# fig.tight_layout()
+
+# Missing values before
+CS_bef = data['Cabin_side'].isna().sum()
+
+# Passengers with missing Cabin side and in a group with known Cabin side
+GCS_index = data[data['Cabin_side'].isna()][(data[data['Cabin_side'].isna()]['Group']).isin(GCS_gb.index)].index
+
+# Fill corresponding missing values
+data.loc[GCS_index, 'Cabin_side'] = data.iloc[GCS_index, :]['Group'].map(lambda x: GCS_gb.idxmax(axis=1)[x])
+
+# Print number of missing values left
+print('#Cabin_side missing values before:', CS_bef)
+print('#Cabin_side missing values after:', data['Cabin_side'].isna().sum())
+
+# Joint distribution of Surname and Cabin side
+SCS_gb = data[data['Group_size'] > 1].groupby(['Surname', 'Cabin_side'])['Cabin_side'] \
+	.size().unstack().fillna(0)
+
+# Ratio of sides
+SCS_gb['Ratio'] = SCS_gb['P'] / (SCS_gb['P'] + SCS_gb['S'])
+# Histogram of ratio
+plt.figure(figsize=(10, 4))
+sns.histplot(SCS_gb['Ratio'], kde=True, binwidth=0.05)
+plt.title('Ratio of cabin side by surname')
+
+# Print proportion
+print('Percentage of families all on the same cabin side:', \
+	  100 * np.round((SCS_gb['Ratio'].isin([0, 1])).sum() / len(SCS_gb), 3), '%')
+print('4' * 100)
+# Another view of the same information
+print(SCS_gb.head())
+
+# This shows that families tend to be on the same cabin side (and 77% of families are entirely on the same side).
+# Missing values before
+CS_bef = data['Cabin_side'].isna().sum()
+# Drop ratio column
+SCS_gb.drop('Ratio', axis=1, inplace=True)
+# Passengers with missing Cabin side and in a family with known Cabin side
+SCS_index = data[data['Cabin_side'].isna()] \
+	[(data[data['Cabin_side'].isna()]['Surname']).isin(SCS_gb.index)].index
+
+# Fill corresponding missing values
+data.loc[SCS_index, 'Cabin_side'] = \
+	data.iloc[SCS_index, :]['Surname'].map(lambda x: SCS_gb.idxmax(axis=1)[x])
+
+# Drop surname (we don't need it anymore)
+data.drop('Surname', axis=1, inplace=True)
+
+# Print number of missing values left
+print('#Cabin_side missing values before:', CS_bef)
+print('#Cabin_side missing values after:', data['Cabin_side'].isna().sum())
+# Cabin_side missing values before: 162
+# Cabin_side missing values after: 66
+
+# The remaining missing values will be replaced with an outlier.
+# This is because we really don't know which one of the two (balanced) sides we should assign.
+# Value counts
+a = data['Cabin_side'].value_counts()
+
+# Missing values before
+CS_bef = data['Cabin_side'].isna().sum()
+# Fill remaining missing values with outlier
+data.loc[data['Cabin_side'].isna(), 'Cabin_side'] = 'Z'
+# Print number of missing values left
+print('#Cabin_side missing values before:', CS_bef)
+print('#Cabin_side missing values after:', data['Cabin_side'].isna().sum())
+# Cabin_side missing values before: 66
+# Cabin_side missing values after: 0
+# CabinDeck and Group
+# Remember (from above) that groups tend to be on the same cabin deck.
+# Missing values before
+CD_bef = data['Cabin_deck'].isna().sum()
+# Passengers with missing Cabin deck and in a group with known majority Cabin deck
+GCD_index = data[data['Cabin_deck'].isna()][(data[data['Cabin_deck'].isna()]['Group']).isin(GCD_gb.index)].index
+
+# Fill corresponding missing values
+data.loc[GCS_index, 'Cabin_side'] = data.iloc[GCS_index, :] \
+	['Group'].map(lambda x: GCS_gb.idxmax(axis=1)[x])
+# Print number of missing values left
+print('#Cabin_side missing values before:',CS_bef)
+print('#Cabin_side missing values after:',data['Cabin_side'].isna().sum())
+
+#Cabin_side missing values before: 299
+#Cabin_side missing values after: 162
+
+# Joint distribution of Surname and Cabin side
+SCS_gb=data[data['Group_size']>1].groupby(['Surname','Cabin_side'])\
+	['Cabin_side'].size().unstack().fillna(0)
+# Ratio of sides
+SCS_gb['Ratio']=SCS_gb['P']/(SCS_gb['P']+SCS_gb['S'])
+
+# # Histogram of ratio
+# plt.figure(figsize=(10,4))
+# sns.histplot(SCS_gb['Ratio'], kde=True, binwidth=0.05)
+# plt.title('Ratio of cabin side by surname')
+
+# Print proportion
+print('Percentage of families all on the same cabin side:', \
+	  100*np.round((SCS_gb['Ratio'].isin([0,1])).sum()/len(SCS_gb),3),'%')
+
+# Another view of the same information
+print(SCS_gb.head())
+# Percentage of families all on the same cabin side: 76.7 %
+
+# This shows that families tend to be on the same cabin side
+# (and 77% of families are entirely on the same side).
+# Missing values before
+CS_bef=data['Cabin_side'].isna().sum()
+# Drop ratio column
+SCS_gb.drop('Ratio', axis=1, inplace=True)
+# Passengers with missing Cabin side and in a family with known Cabin side
+SCS_index=data[data['Cabin_side'].isna()][(data[data['Cabin_side'].isna()]['Surname']).isin(SCS_gb.index)].index
+
+# Fill corresponding missing values
+data.loc[SCS_index,'Cabin_side']=data.iloc[SCS_index,:]['Surname'].map(lambda x: SCS_gb.idxmax(axis=1)[x])
+# Drop surname (we don't need it anymore)
+data.drop('Surname', axis=1, inplace=True)
+
+# Print number of missing values left
+print('#Cabin_side missing values before:',CS_bef)
+print('#Cabin_side missing values after:',data['Cabin_side'].isna().sum())
+#Cabin_side missing values before: 162
+#Cabin_side missing values after: 66
+
+# The remaining missing values will be replaced with an outlier. This is because we really don't know which one of the two (balanced) sides we should assign.
+
+# Joint distribution
+b=data.groupby(['HomePlanet','Destination','Solo','Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0)
+
+#
+# Passengers from Mars are most likely in deck F.
+# Passengers from Europa are (more or less) most likely in deck C if travelling solo and deck B otherwise.
+# Passengers from Earth are (more or less) most likely in deck G.
+# We will fill in missing values according to where the mode appears in these subgroups.
+#TODO 45
+# Notes:
+
+# Missing values before
+CD_bef=data['Cabin_deck'].isna().sum()
+
+# Fill missing values using the mode
+na_rows_CD=data.loc[data['Cabin_deck'].isna(),'Cabin_deck'].index
+data.loc[data['Cabin_deck'].isna(),'Cabin_deck']=data.groupby(['HomePlanet','Destination','Solo'])['Cabin_deck'].transform(lambda x: x.fillna(pd.Series.mode(x)[0]))[na_rows_CD]
+
+# Print number of missing values left
+print('#Cabin_deck missing values before:',CD_bef)
+print('#Cabin_deck missing values after:',data['Cabin_deck'].isna().sum())
