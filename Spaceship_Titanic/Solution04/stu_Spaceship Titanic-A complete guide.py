@@ -709,17 +709,17 @@ GCD_index = data[data['Cabin_deck'].isna()][(data[data['Cabin_deck'].isna()]['Gr
 data.loc[GCS_index, 'Cabin_side'] = data.iloc[GCS_index, :] \
 	['Group'].map(lambda x: GCS_gb.idxmax(axis=1)[x])
 # Print number of missing values left
-print('#Cabin_side missing values before:',CS_bef)
-print('#Cabin_side missing values after:',data['Cabin_side'].isna().sum())
+print('#Cabin_side missing values before:', CS_bef)
+print('#Cabin_side missing values after:', data['Cabin_side'].isna().sum())
 
-#Cabin_side missing values before: 299
-#Cabin_side missing values after: 162
+# Cabin_side missing values before: 299
+# Cabin_side missing values after: 162
 
 # Joint distribution of Surname and Cabin side
-SCS_gb=data[data['Group_size']>1].groupby(['Surname','Cabin_side'])\
+SCS_gb = data[data['Group_size'] > 1].groupby(['Surname', 'Cabin_side']) \
 	['Cabin_side'].size().unstack().fillna(0)
 # Ratio of sides
-SCS_gb['Ratio']=SCS_gb['P']/(SCS_gb['P']+SCS_gb['S'])
+SCS_gb['Ratio'] = SCS_gb['P'] / (SCS_gb['P'] + SCS_gb['S'])
 
 # # Histogram of ratio
 # plt.figure(figsize=(10,4))
@@ -728,7 +728,7 @@ SCS_gb['Ratio']=SCS_gb['P']/(SCS_gb['P']+SCS_gb['S'])
 
 # Print proportion
 print('Percentage of families all on the same cabin side:', \
-	  100*np.round((SCS_gb['Ratio'].isin([0,1])).sum()/len(SCS_gb),3),'%')
+	  100 * np.round((SCS_gb['Ratio'].isin([0, 1])).sum() / len(SCS_gb), 3), '%')
 
 # Another view of the same information
 print(SCS_gb.head())
@@ -737,43 +737,410 @@ print(SCS_gb.head())
 # This shows that families tend to be on the same cabin side
 # (and 77% of families are entirely on the same side).
 # Missing values before
-CS_bef=data['Cabin_side'].isna().sum()
+CS_bef = data['Cabin_side'].isna().sum()
 # Drop ratio column
 SCS_gb.drop('Ratio', axis=1, inplace=True)
 # Passengers with missing Cabin side and in a family with known Cabin side
-SCS_index=data[data['Cabin_side'].isna()][(data[data['Cabin_side'].isna()]['Surname']).isin(SCS_gb.index)].index
+SCS_index = data[data['Cabin_side'].isna()][(data[data['Cabin_side'].isna()]['Surname']).isin(SCS_gb.index)].index
 
 # Fill corresponding missing values
-data.loc[SCS_index,'Cabin_side']=data.iloc[SCS_index,:]['Surname'].map(lambda x: SCS_gb.idxmax(axis=1)[x])
+data.loc[SCS_index, 'Cabin_side'] = data.iloc[SCS_index, :]['Surname'].map(lambda x: SCS_gb.idxmax(axis=1)[x])
 # Drop surname (we don't need it anymore)
 data.drop('Surname', axis=1, inplace=True)
 
 # Print number of missing values left
-print('#Cabin_side missing values before:',CS_bef)
-print('#Cabin_side missing values after:',data['Cabin_side'].isna().sum())
-#Cabin_side missing values before: 162
-#Cabin_side missing values after: 66
+print('#Cabin_side missing values before:', CS_bef)
+print('#Cabin_side missing values after:', data['Cabin_side'].isna().sum())
+# Cabin_side missing values before: 66
+# Cabin_side missing values after: 0
 
-# The remaining missing values will be replaced with an outlier. This is because we really don't know which one of the two (balanced) sides we should assign.
+# CabinDeck and Group
+#
+# Remember (from above) that groups tend to be on the same cabin deck.
+# Missing values before
+CD_bef = data['Cabin_deck'].isna().sum()
 
+# Passengers with missing Cabin deck and in a group with known majority Cabin deck
+GCD_index = data[data['Cabin_deck'].isna()][(data[data['Cabin_deck'].isna()]['Group']).isin(GCD_gb.index)].index
+
+# Fill corresponding missing values
+data.loc[GCD_index, 'Cabin_deck'] = data.iloc[GCD_index, :]['Group'].map(lambda x: GCD_gb.idxmax(axis=1)[x])
+
+# Print number of missing values left
+print('#Cabin_deck missing values before:', CD_bef)
+print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
+
+# Cabin_deck missing values before: 299
+# Cabin_deck missing values after: 162
 # Joint distribution
-b=data.groupby(['HomePlanet','Destination','Solo','Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0)
+data.groupby(['HomePlanet', 'Destination', 'Solo', 'Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0)
 
+# Notes:
 #
 # Passengers from Mars are most likely in deck F.
 # Passengers from Europa are (more or less) most likely in deck C if travelling solo and deck B otherwise.
 # Passengers from Earth are (more or less) most likely in deck G.
 # We will fill in missing values according to where the mode appears in these subgroups.
-#TODO 45
-# Notes:
 
 # Missing values before
-CD_bef=data['Cabin_deck'].isna().sum()
+CD_bef = data['Cabin_deck'].isna().sum()
 
 # Fill missing values using the mode
-na_rows_CD=data.loc[data['Cabin_deck'].isna(),'Cabin_deck'].index
-data.loc[data['Cabin_deck'].isna(),'Cabin_deck']=data.groupby(['HomePlanet','Destination','Solo'])['Cabin_deck'].transform(lambda x: x.fillna(pd.Series.mode(x)[0]))[na_rows_CD]
+na_rows_CD = data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'].index
+data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'] = \
+	data.groupby(['HomePlanet', 'Destination', 'Solo'])['Cabin_deck'].transform(
+		lambda x: x.fillna(pd.Series.mode(x)[0]))[
+		na_rows_CD]
 
 # Print number of missing values left
-print('#Cabin_deck missing values before:',CD_bef)
-print('#Cabin_deck missing values after:',data['Cabin_deck'].isna().sum())
+print('#Cabin_deck missing values before:', CD_bef)
+print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
+# Cabin_deck missing values before: 162
+# Cabin_deck missing values after: 0
+
+# **CabinNumber and CabinDeck**
+# Scatterplot
+# plt.figure(figsize=(10,4))
+# sns.scatterplot(x=data['Cabin_number'], y=data['Group'], c=LabelEncoder().fit_transform(data.loc[~data['Cabin_number'].isna(),'Cabin_deck']), cmap='tab10')
+# plt.title('Cabin_number vs group coloured by group')
+
+# Missing values before
+CN_bef = data['Cabin_number'].isna().sum()
+
+# Extrapolate linear relationship on a deck by deck basis
+for deck in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
+	# Features and labels
+	X_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
+	y_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
+	X_test_CN = data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
+
+	# Linear regression
+	model_CN = LinearRegression()
+	model_CN.fit(X_CN.values.reshape(-1, 1), y_CN)
+	preds_CN = model_CN.predict(X_test_CN.values.reshape(-1, 1))
+
+	# Fill missing values with predictions
+	data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number'] = preds_CN.astype(int)
+
+# Print number of missing values left
+print('#Cabin_number missing values before:', CN_bef)
+print('#Cabin_number missing values after:', data['Cabin_number'].isna().sum())
+
+# Cabin_number missing values before: 299
+# Cabin_number missing values after: 0
+# One-hot encode cabin regions
+data['Cabin_region1'] = (data['Cabin_number'] < 300).astype(int)
+data['Cabin_region2'] = ((data['Cabin_number'] >= 300) & (data['Cabin_number'] < 600)).astype(int)
+data['Cabin_region3'] = ((data['Cabin_number'] >= 600) & (data['Cabin_number'] < 900)).astype(int)
+data['Cabin_region4'] = ((data['Cabin_number'] >= 900) & (data['Cabin_number'] < 1200)).astype(int)
+data['Cabin_region5'] = ((data['Cabin_number'] >= 1200) & (data['Cabin_number'] < 1500)).astype(int)
+data['Cabin_region6'] = ((data['Cabin_number'] >= 1500) & (data['Cabin_number'] < 1800)).astype(int)
+data['Cabin_region7'] = (data['Cabin_number'] >= 1800).astype(int)
+
+# VIP
+#
+# VIP is a highly unbalanced binary feature so we will just impute the mode.
+
+a = data['VIP'].value_counts()
+print(a)
+# Missing values before
+V_bef = data['VIP'].isna().sum()
+
+# Fill missing values with mode
+data.loc[data['VIP'].isna(), 'VIP'] = False
+
+# Print number of missing values left
+print('#VIP missing values before:', V_bef)
+print('#VIP missing values after:', data['VIP'].isna().sum())
+
+# VIP missing values before: 296
+# VIP missing values after: 0
+
+# Age
+#
+# Age varies across many features like HomePlanet, group size, expenditure and cabin deck, so we will impute missing values according to the median of these subgroups.
+# Joint distribution
+data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].median().unstack().fillna(0)
+
+# Missing values before
+A_bef = data[exp_feats].isna().sum().sum()
+
+# Fill missing values using the median
+na_rows_A = data.loc[data['Age'].isna(), 'Age'].index
+data.loc[data['Age'].isna(), 'Age'] = \
+	data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(lambda x: x.fillna(x.median()))[
+		na_rows_A]
+
+# Print number of missing values left
+print('#Age missing values before:', A_bef)
+print('#Age missing values after:', data['Age'].isna().sum())
+# Age missing values before: 1410
+# Age missing values after: 0
+
+# Let's update the age_group feature using the new data.
+
+# Update age group feature
+data.loc[data['Age'] <= 12, 'Age_group'] = 'Age_0-12'
+data.loc[(data['Age'] > 12) & (data['Age'] < 18), 'Age_group'] = 'Age_13-17'
+data.loc[(data['Age'] >= 18) & (data['Age'] <= 25), 'Age_group'] = 'Age_18-25'
+data.loc[(data['Age'] > 25) & (data['Age'] <= 30), 'Age_group'] = 'Age_26-30'
+data.loc[(data['Age'] > 30) & (data['Age'] <= 50), 'Age_group'] = 'Age_31-50'
+data.loc[data['Age'] > 50, 'Age_group'] = 'Age_51+'
+
+# CryoSleep
+# The best way to predict if a passenger is in CryoSleep or not is to see if they spent anything.
+# Joint distribution
+a = data.groupby(['No_spending', 'CryoSleep'])['CryoSleep'].size().unstack().fillna(0)
+
+# Missing values before
+CSL_bef = data['CryoSleep'].isna().sum()
+
+# Fill missing values using the mode
+na_rows_CSL = data.loc[data['CryoSleep'].isna(), 'CryoSleep'].index
+data.loc[data['CryoSleep'].isna(), 'CryoSleep'] = \
+	data.groupby(['No_spending'])['CryoSleep'].transform(lambda x: x.fillna(pd.Series.mode(x)[0]))[na_rows_CSL]
+
+# Print number of missing values left
+print('#CryoSleep missing values before:', CSL_bef)
+print('#CryoSleep missing values after:', data['CryoSleep'].isna().sum())
+
+# Age missing values before: 1410
+# Age missing values after: 0
+# Let's update the age_group feature using the new data.
+
+# Update age group feature
+data.loc[data['Age'] <= 12, 'Age_group'] = 'Age_0-12'
+data.loc[(data['Age'] > 12) & (data['Age'] < 18), 'Age_group'] = 'Age_13-17'
+data.loc[(data['Age'] >= 18) & (data['Age'] <= 25), 'Age_group'] = 'Age_18-25'
+data.loc[(data['Age'] > 25) & (data['Age'] <= 30), 'Age_group'] = 'Age_26-30'
+data.loc[(data['Age'] > 30) & (data['Age'] <= 50), 'Age_group'] = 'Age_31-50'
+data.loc[data['Age'] > 50, 'Age_group'] = 'Age_51+'
+# CryoSleep
+#
+# The best way to predict if a passenger is in CryoSleep or not is to see if they spent anything.
+# Missing values before
+CSL_bef = data['CryoSleep'].isna().sum()
+
+# Fill missing values using the mode
+na_rows_CSL = data.loc[data['CryoSleep'].isna(), 'CryoSleep'].index
+data.loc[data['CryoSleep'].isna(), 'CryoSleep'] = \
+	data.groupby(['No_spending'])['CryoSleep'].transform(lambda x: x.fillna(pd.Series.mode(x)[0]))[na_rows_CSL]
+
+# Print number of missing values left
+print('#CryoSleep missing values before:', CSL_bef)
+print('#CryoSleep missing values after:', data['CryoSleep'].isna().sum())
+# CryoSleep missing values before: 310
+# CryoSleep missing values after: 0
+# Expenditure and CryoSleep
+# This one makes a lot of sense.
+# We don't expect people in CryoSleep to be able to spend anything.
+
+print('Maximum expenditure of passengers in CryoSleep:',
+	  data.loc[data['CryoSleep'] == True, exp_feats].sum(axis=1).max())
+# Maximum expenditure of passengers in CryoSleep: 0.0
+
+# Missing values before
+E_bef = data[exp_feats].isna().sum().sum()
+
+# CryoSleep has no expenditure
+for col in exp_feats:
+	data.loc[(data[col].isna()) & (data['CryoSleep'] == True), col] = 0
+
+# Print number of missing values left
+print('#Expenditure missing values before:', E_bef)
+print('#Expenditure missing values after:', data[exp_feats].isna().sum().sum())
+# Expenditure missing values before: 1410
+# Expenditure missing values after: 866
+
+# Expenditure and others
+# Expenditure varies across many features but we will only impute missing values using HomePlanet, Solo and Age group to prevent overfitting. We will also use the mean instead of the median because a large proportion of passengers don't spend anything and median usually comes out as 0. Note how under 12's don't spend anything.
+
+# Joint distribution
+# 查看是否能填充数据
+data.groupby(['HomePlanet', 'Solo', 'Age_group'])['Expenditure'].mean().unstack().fillna(0)
+# Missing values before
+E_bef = data[exp_feats].isna().sum().sum()
+
+# Fill remaining missing values using the median
+for col in exp_feats:
+	na_rows = data.loc[data[col].isna(), col].index
+	data.loc[data[col].isna(), col] = \
+		data.groupby(['HomePlanet', 'Solo', 'Age_group'])[col].transform(lambda x: x.fillna(x.mean()))[na_rows]
+
+# Print number of missing values left
+print('#Expenditure missing values before:', E_bef)
+print('#Expenditure missing values after:', data[exp_feats].isna().sum().sum())
+
+# Finally, we can update the expenditure and no_spending features with these new data points.
+# Update expenditure and no_spending
+data['Expenditure'] = data[exp_feats].sum(axis=1)
+data['No_spending'] = (data['Expenditure'] == 0).astype(int)
+print(data.isna().sum())
+# No missing values left! It was a lot of effort but it should improve the accuracy of our models.
+# Preprocessing
+# Split data back into train and test sets
+# Train and test
+X = data[data['PassengerId'].isin(train['PassengerId'].values)].copy()
+X_test = data[data['PassengerId'].isin(test['PassengerId'].values)].copy()
+# Drop unwanted features
+
+# Drop qualitative/redundant/collinear/high cardinality features
+X.drop(['PassengerId', 'Group', 'Group_size', 'Age_group', 'Cabin_number'], axis=1, inplace=True)
+X_test.drop(['PassengerId', 'Group', 'Group_size', 'Age_group', 'Cabin_number'], axis=1, inplace=True)
+# Log transform
+# The logarithm transform is used to decrease skew in distributions, especially with large outliers. It can make it easier for algorithms to 'learn' the correct relationships. We will apply it to the expenditure features as these are heavily skewed by outliers.
+
+# Plot log transform results
+# fig = plt.figure(figsize=(12, 20))
+# for i, col in enumerate(['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Expenditure']):
+# 	plt.subplot(6, 2, 2 * i + 1)
+# 	sns.histplot(X[col], binwidth=100)
+# 	plt.ylim([0, 200])
+# 	plt.title(f'{col} (original)')
+#
+# 	plt.subplot(6, 2, 2 * i + 2)
+# 	sns.histplot(np.log(1 + X[col]), color='C1')
+# 	plt.ylim([0, 200])
+# 	plt.title(f'{col} (log-transform)')
+#
+# fig.tight_layout()
+# plt.show()
+
+# Apply log transform
+for col in ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Expenditure']:
+	X[col] = np.log(1 + X[col])
+	X_test[col] = np.log(1 + X_test[col])
+# Encoding and scaling
+# We will use column transformers to be more professional. It's also good practice.
+# Indentify numerical and categorical columns
+numerical_cols = [cname for cname in X.columns if X[cname].dtype in ['int64', 'float64']]
+categorical_cols = [cname for cname in X.columns if X[cname].dtype == "object"]
+
+# Scale numerical data to have mean=0 and variance=1
+numerical_transformer = Pipeline(steps=[('scaler', StandardScaler())])
+
+# One-hot encode categorical data
+categorical_transformer = Pipeline(steps=[('onehot', OneHotEncoder(drop='if_binary', handle_unknown='ignore',sparse=False))])
+
+# Combine preprocessing
+ct = ColumnTransformer(
+    transformers=[
+        ('num', numerical_transformer, numerical_cols),
+        ('cat', categorical_transformer, categorical_cols)],
+        remainder='passthrough')
+
+# Apply preprocessing
+X = ct.fit_transform(X)
+X_test = ct.transform(X_test)
+
+# Print new shape
+print('Training set shape:', X.shape)
+# Training set shape: (8693, 36)
+
+# PCA
+# Just for fun, let's look at the transformed data in PCA space. This gives a low dimensional representation of the data, which preserves local and global structure.
+pca = PCA(n_components=3)
+components = pca.fit_transform(X)
+total_var = pca.explained_variance_ratio_.sum() * 100
+# fig = px.scatter_3d(
+#     components, x=0, y=1, z=2, color=y, size=0.1*np.ones(len(X)), opacity = 1,
+#     title=f'Total Explained Variance: {total_var:.2f}%',
+#     labels={'0': 'PC 1', '1': 'PC 2', '2': 'PC 3'},
+#     width=800, height=500
+# )
+# fig.show()
+
+# Explained variance (how important each additional principal component is)
+pca = PCA().fit(X)
+# fig, ax = plt.subplots(figsize=(10,4))
+# xi = np.arange(1, 1+X.shape[1], step=1)
+# yi = np.cumsum(pca.explained_variance_ratio_)
+# plt.plot(xi, yi, marker='o', linestyle='--', color='b')
+#
+# # Aesthetics
+# plt.ylim(0.0,1.1)
+# plt.xlabel('Number of Components')
+# plt.xticks(np.arange(1, 1+X.shape[1], step=2))
+# plt.ylabel('Cumulative variance (%)')
+# plt.title('Explained variance by each component')
+# plt.axhline(y=1, color='r', linestyle='-')
+# plt.text(0.5, 0.85, '100% cut-off threshold', color = 'red')
+# ax.grid(axis='x')
+
+# Create a validation set
+# We will use this to choose which model(s) to use.
+# Train-validation split
+X_train, X_valid, y_train, y_valid = train_test_split(X,y,stratify=y,train_size=0.8,test_size=0.2,random_state=0)
+
+'''
+Model selection
+To briefly mention the algorithms we will use,
+
+Logistic Regression: Unlike linear regression which uses Least Squares, this model uses Maximum Likelihood Estimation to fit a sigmoid-curve on the target variable distribution. The sigmoid/logistic curve is commonly used when the data is questions had binary output.
+
+K-Nearest Neighbors (KNN): KNN works by selecting the majority class of the k-nearest neighbours, where the metric used is usually Euclidean distance. It is a simple and effective algorithm but can be sensitive by many factors, e.g. the value of k, the preprocessing done to the data and the metric used.
+
+Support Vector Machine (SVM): SVM finds the optimal hyperplane that seperates the data in the feature space. Predictions are made by looking at which side of the hyperplane the test point lies on. Ordinary SVM assumes the data is linearly separable, which is not always the case. A kernel trick can be used when this assumption fails to transform the data into a higher dimensional space where it is linearly seperable. SVM is a popular algorithm because it is computationally effecient and produces very good results.
+
+Random Forest (RF): RF is a reliable ensemble of decision trees, which can be used for regression or classification problems. Here, the individual trees are built via bagging (i.e. aggregation of bootstraps which are nothing but multiple train datasets created via sampling with replacement) and split using fewer features. The resulting diverse forest of uncorrelated trees exhibits reduced variance; therefore, is more robust towards change in data and carries its prediction accuracy to new data. It works well with both continuous & categorical data.
+
+Extreme Gradient Boosting (XGBoost): XGBoost is similar to RF in that it is made up of an ensemble of decision-trees. The difference arises in how those trees as derived; XGboost uses extreme gradient boosting when optimising its objective function. It often produces the best results but is relatively slow compared to other gradient boosting algorithms.
+
+Light Gradient Boosting Machine (LGBM): LGBM works essentially the same as XGBoost but with a lighter boosting technique. It usually produces similar results to XGBoost but is significantly faster.
+
+Categorical Boosting (CatBoost): CatBoost is an open source algorithm based on gradient boosted decision trees. It supports numerical, categorical and text features. It works well with heterogeneous data and even relatively small data. Informally, it tries to take the best of both worlds from XGBoost and LGBM.
+
+Naive Bayes (NB): Naive Bayes learns how to classify samples by using Bayes' Theorem. It uses prior information to 'update' the probability of an event by incoorporateing this information according to Bayes' law. The algorithm is quite fast but a downside is that it assumes the input features are independent, which is not always the case.
+
+We will train these models and evaluate them on the validation set to then choose which ones to carry through to the next stage (cross validation).
+
+Define classifiers
+'''
+#TODO
+# Classifiers
+classifiers = {
+    "LogisticRegression" : LogisticRegression(random_state=0),
+    "KNN" : KNeighborsClassifier(),
+    "SVC" : SVC(random_state=0, probability=True),
+    "RandomForest" : RandomForestClassifier(random_state=0),
+    #"XGBoost" : XGBClassifier(random_state=0, use_label_encoder=False, eval_metric='logloss'), # XGBoost takes too long
+    "LGBM" : LGBMClassifier(random_state=0),
+    "CatBoost" : CatBoostClassifier(random_state=0, verbose=False),
+    "NaiveBayes": GaussianNB()
+}
+
+# Grids for grid search
+LR_grid = {'penalty': ['l1','l2'],
+           'C': [0.25, 0.5, 0.75, 1, 1.25, 1.5],
+           'max_iter': [50, 100, 150]}
+
+KNN_grid = {'n_neighbors': [3, 5, 7, 9],
+            'p': [1, 2]}
+
+SVC_grid = {'C': [0.25, 0.5, 0.75, 1, 1.25, 1.5],
+            'kernel': ['linear', 'rbf'],
+            'gamma': ['scale', 'auto']}
+
+RF_grid = {'n_estimators': [50, 100, 150, 200, 250, 300],
+        'max_depth': [4, 6, 8, 10, 12]}
+
+boosted_grid = {'n_estimators': [50, 100, 150, 200],
+        'max_depth': [4, 8, 12],
+        'learning_rate': [0.05, 0.1, 0.15]}
+
+NB_grid={'var_smoothing': [1e-10, 1e-9, 1e-8, 1e-7]}
+
+# Dictionary of all grids
+grid = {
+    "LogisticRegression" : LR_grid,
+    "KNN" : KNN_grid,
+    "SVC" : SVC_grid,
+    "RandomForest" : RF_grid,
+    "XGBoost" : boosted_grid,
+    "LGBM" : boosted_grid,
+    "CatBoost" : boosted_grid,
+    "NaiveBayes": NB_grid
+}
+
+
+
