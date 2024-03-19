@@ -142,21 +142,21 @@ exp_feats = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
 # test['No_spending'] = (test['Expenditure'] == 0).astype(int)
 # Plot distribution of new features
 
-train=pd.read_csv('../data/train01.csv')
-test=pd.read_csv('../data/test01.csv')
-fig = plt.figure(figsize=(12, 4))
-plt.subplot(1, 2, 1)
-sns.histplot(data=train, x='Expenditure', hue='Transported', bins=200)
-
-plt.title('Total expenditure (truncated) ')
-plt.ylim([0, 200])
-plt.xlim([0, 20000])
-
-plt.subplot(1, 2, 2)
-sns.countplot(data=train, x='No_spending', hue='Transported')
-plt.title('No spending indicator')
-fig.tight_layout()
-plt.show()
+train = pd.read_csv('../data/train01.csv')
+test = pd.read_csv('../data/test01.csv')
+# fig = plt.figure(figsize=(12, 4))
+# plt.subplot(1, 2, 1)
+# sns.histplot(data=train, x='Expenditure', hue='Transported', bins=200)
+#
+# plt.title('Total expenditure (truncated) ')
+# plt.ylim([0, 200])
+# plt.xlim([0, 20000])
+#
+# plt.subplot(1, 2, 2)
+# sns.countplot(data=train, x='No_spending', hue='Transported')
+# plt.title('No spending indicator')
+# fig.tight_layout()
+# plt.show()
 # train['Group'] = train['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
 # test['Group'] = test['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
 
@@ -173,38 +173,39 @@ plt.show()
 # print(a.head())
 
 # Plot distribution of new features
-fig=plt.figure(figsize=(12,4))
-plt.figure(figsize=(20,4))
-plt.subplot(1,2,1)
-sns.histplot(data=train,x='Group',hue='Transported',binwidth=1)
-plt.title('Group')
-
-plt.subplot(1,2,2)
-sns.countplot(data=train, x='Group_size', hue='Transported')
-plt.title('Group size')
-fig.tight_layout()
-plt.show()
+# fig=plt.figure(figsize=(12,4))
+# plt.figure(figsize=(20,4))
+# plt.subplot(1,2,1)
+# sns.histplot(data=train,x='Group',hue='Transported',binwidth=1)
+# plt.title('Group')
+#
+# plt.subplot(1,2,2)
+# sns.countplot(data=train, x='Group_size', hue='Transported')
+# plt.title('Group size')
+# fig.tight_layout()
+# plt.show()
 
 
 # Expenditure features
 exp_feats = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
 
-#TODO 03-19
-# Plot expenditure features
-fig = plt.figure(figsize=(10, 20))
-for i, var_name in enumerate(exp_feats):
-	# Left plot
-	ax = fig.add_subplot(5, 2, 2 * i + 1)
-	sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=False, hue='Transported')
-	ax.set_title(var_name)
+# TODO 03-19
 
-	# Right plot (truncated)
-	ax = fig.add_subplot(5, 2, 2 * i + 2)
-	sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=True, hue='Transported')
-	plt.ylim([0, 100])
-	ax.set_title(var_name)
-fig.tight_layout()  # Improves appearance a bit
-plt.show()
+# Plot expenditure features
+# fig = plt.figure(figsize=(10, 20))
+# for i, var_name in enumerate(exp_feats):
+# 	# Left plot
+# 	ax = fig.add_subplot(5, 2, 2 * i + 1)
+# 	sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=False, hue='Transported')
+# 	ax.set_title(var_name)
+#
+# 	# Right plot (truncated)
+# 	ax = fig.add_subplot(5, 2, 2 * i + 2)
+# 	sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=True, hue='Transported')
+# 	plt.ylim([0, 100])
+# 	ax.set_title(var_name)
+# fig.tight_layout()  # Improves appearance a bit
+# plt.show()
 
 # Categorical features
 cat_feats = ['HomePlanet', 'CryoSleep', 'Destination', 'VIP']
@@ -224,10 +225,9 @@ qual_feats = ['PassengerId', 'Cabin', 'Name']
 print('0' * 100)
 print(train[qual_feats].head())
 
-
 # New feature
-train['Solo'] = (train['Group_size'] == 1).astype(int)
-test['Solo'] = (test['Group_size'] == 1).astype(int)
+# train['Solo'] = (train['Group_size'] == 1).astype(int)
+# test['Solo'] = (test['Group_size'] == 1).astype(int)
 
 # # New feature distribution
 # plt.figure(figsize=(10,4))
@@ -237,38 +237,38 @@ test['Solo'] = (test['Group_size'] == 1).astype(int)
 
 
 # Replace NaN's with outliers for now (so we can split feature)
-train['Cabin'].fillna('Z/9999/Z', inplace=True)
-test['Cabin'].fillna('Z/9999/Z', inplace=True)
+# train['Cabin'].fillna('Z/9999/Z', inplace=True)
+# test['Cabin'].fillna('Z/9999/Z', inplace=True)
 
 # New features - training set
-train['Cabin_deck'] = train['Cabin'].apply(lambda x: x.split('/')[0])
-train['Cabin_number'] = train['Cabin'].apply(lambda x: x.split('/')[1]).astype(int)
-train['Cabin_side'] = train['Cabin'].apply(lambda x: x.split('/')[2])
+# train['Cabin_deck'] = train['Cabin'].apply(lambda x: x.split('/')[0])
+# train['Cabin_number'] = train['Cabin'].apply(lambda x: x.split('/')[1]).astype(int)
+# train['Cabin_side'] = train['Cabin'].apply(lambda x: x.split('/')[2])
 
 # New features - test set
-test['Cabin_deck'] = test['Cabin'].apply(lambda x: x.split('/')[0])
-test['Cabin_number'] = test['Cabin'].apply(lambda x: x.split('/')[1]).astype(int)
-test['Cabin_side'] = test['Cabin'].apply(lambda x: x.split('/')[2])
+# test['Cabin_deck'] = test['Cabin'].apply(lambda x: x.split('/')[0])
+# test['Cabin_number'] = test['Cabin'].apply(lambda x: x.split('/')[1]).astype(int)
+# test['Cabin_side'] = test['Cabin'].apply(lambda x: x.split('/')[2])
 
 # Put Nan's back in (we will fill these later)
-train.loc[train['Cabin_deck'] == 'Z', 'Cabin_deck'] = np.nan
-train.loc[train['Cabin_number'] == 9999, 'Cabin_number'] = np.nan
-train.loc[train['Cabin_side'] == 'Z', 'Cabin_side'] = np.nan
-test.loc[test['Cabin_deck'] == 'Z', 'Cabin_deck'] = np.nan
-test.loc[test['Cabin_number'] == 9999, 'Cabin_number'] = np.nan
-test.loc[test['Cabin_side'] == 'Z', 'Cabin_side'] = np.nan
+# train.loc[train['Cabin_deck'] == 'Z', 'Cabin_deck'] = np.nan
+# train.loc[train['Cabin_number'] == 9999, 'Cabin_number'] = np.nan
+# train.loc[train['Cabin_side'] == 'Z', 'Cabin_side'] = np.nan
+# test.loc[test['Cabin_deck'] == 'Z', 'Cabin_deck'] = np.nan
+# test.loc[test['Cabin_number'] == 9999, 'Cabin_number'] = np.nan
+# test.loc[test['Cabin_side'] == 'Z', 'Cabin_side'] = np.nan
 
 # Drop Cabin (we don't need it anymore)
-train.drop('Cabin', axis=1, inplace=True)
-test.drop('Cabin', axis=1, inplace=True)
+# train.drop('Cabin', axis=1, inplace=True)
+# test.drop('Cabin', axis=1, inplace=True)
 
 # # Plot distribution of new features
 # fig=plt.figure(figsize=(10,12))
 # plt.subplot(3,1,1)
 # sns.countplot(data=train, x='Cabin_deck', hue='Transported', order=['A','B','C','D','E','F','G','T'])
 # plt.title('Cabin deck')
-#
-#
+
+
 # plt.subplot(3,1,2)
 # sns.histplot(data=train, x='Cabin_number', hue='Transported',binwidth=20)
 # plt.vlines(300, ymin=0, ymax=200, color='black')
@@ -279,53 +279,64 @@ test.drop('Cabin', axis=1, inplace=True)
 # plt.vlines(1800, ymin=0, ymax=200, color='black')
 # plt.title('Cabin number')
 # plt.xlim([0,2000])
-#
+
 # plt.subplot(3,1,3)
 # sns.countplot(data=train, x='Cabin_side', hue='Transported')
 # plt.title('Cabin side')
 # fig.tight_layout()
+# plt.show()
 '''
 This is interesting! It appears that Cabin_number is grouped into chunks of 300 cabins. This means we can compress this feature into a categorical one, which indicates which chunk each passenger is in.
 
 Other notes: The cabin deck 'T' seems to be an outlier (there are only 5 samples).
 '''
 
+# TODO
+
 # New features - training set
-train['Cabin_region1'] = (train['Cabin_number'] < 300).astype(int)  # one-hot encoding
-train['Cabin_region2'] = ((train['Cabin_number'] >= 300) & (train['Cabin_number'] < 600)).astype(int)
-train['Cabin_region3'] = ((train['Cabin_number'] >= 600) & (train['Cabin_number'] < 900)).astype(int)
-train['Cabin_region4'] = ((train['Cabin_number'] >= 900) & (train['Cabin_number'] < 1200)).astype(int)
-train['Cabin_region5'] = ((train['Cabin_number'] >= 1200) & (train['Cabin_number'] < 1500)).astype(int)
-train['Cabin_region6'] = ((train['Cabin_number'] >= 1500) & (train['Cabin_number'] < 1800)).astype(int)
-train['Cabin_region7'] = (train['Cabin_number'] >= 1800).astype(int)
+# train['Cabin_region1'] = (train['Cabin_number'] < 300).astype(int)  # one-hot encoding
+# train['Cabin_region2'] = ((train['Cabin_number'] >= 300) & (train['Cabin_number'] < 600)).astype(int)
+# train['Cabin_region3'] = ((train['Cabin_number'] >= 600) & (train['Cabin_number'] < 900)).astype(int)
+# train['Cabin_region4'] = ((train['Cabin_number'] >= 900) & (train['Cabin_number'] < 1200)).astype(int)
+# train['Cabin_region5'] = ((train['Cabin_number'] >= 1200) & (train['Cabin_number'] < 1500)).astype(int)
+# train['Cabin_region6'] = ((train['Cabin_number'] >= 1500) & (train['Cabin_number'] < 1800)).astype(int)
+# train['Cabin_region7'] = (train['Cabin_number'] >= 1800).astype(int)
 
 # New features - test set
-test['Cabin_region1'] = (test['Cabin_number'] < 300).astype(int)  # one-hot encoding
-test['Cabin_region2'] = ((test['Cabin_number'] >= 300) & (test['Cabin_number'] < 600)).astype(int)
-test['Cabin_region3'] = ((test['Cabin_number'] >= 600) & (test['Cabin_number'] < 900)).astype(int)
-test['Cabin_region4'] = ((test['Cabin_number'] >= 900) & (test['Cabin_number'] < 1200)).astype(int)
-test['Cabin_region5'] = ((test['Cabin_number'] >= 1200) & (test['Cabin_number'] < 1500)).astype(int)
-test['Cabin_region6'] = ((test['Cabin_number'] >= 1500) & (test['Cabin_number'] < 1800)).astype(int)
-test['Cabin_region7'] = (test['Cabin_number'] >= 1800).astype(int)
+# test['Cabin_region1'] = (test['Cabin_number'] < 300).astype(int)  # one-hot encoding
+# test['Cabin_region2'] = ((test['Cabin_number'] >= 300) & (test['Cabin_number'] < 600)).astype(int)
+# test['Cabin_region3'] = ((test['Cabin_number'] >= 600) & (test['Cabin_number'] < 900)).astype(int)
+# test['Cabin_region4'] = ((test['Cabin_number'] >= 900) & (test['Cabin_number'] < 1200)).astype(int)
+# test['Cabin_region5'] = ((test['Cabin_number'] >= 1200) & (test['Cabin_number'] < 1500)).astype(int)
+# test['Cabin_region6'] = ((test['Cabin_number'] >= 1500) & (test['Cabin_number'] < 1800)).astype(int)
+# test['Cabin_region7'] = (test['Cabin_number'] >= 1800).astype(int)
 
 # # Plot distribution of new features
 # plt.figure(figsize=(10,4))
 # train['Cabin_regions_plot']=(train['Cabin_region1']+2*train['Cabin_region2']+3*train['Cabin_region3']+4*train['Cabin_region4']+5*train['Cabin_region5']+6*train['Cabin_region6']+7*train['Cabin_region7']).astype(int)
 # sns.countplot(data=train, x='Cabin_regions_plot', hue='Transported')
 # plt.title('Cabin regions')
+# plt.show()
 # train.drop('Cabin_regions_plot', axis=1, inplace=True)
 
 # Replace NaN's with outliers for now (so we can split feature)
-train['Name'].fillna('Unknown Unknown', inplace=True)
-test['Name'].fillna('Unknown Unknown', inplace=True)
+# train['Name'].fillna('Unknown Unknown', inplace=True)
+# test['Name'].fillna('Unknown Unknown', inplace=True)
 
 # New feature - Surname
-train['Surname'] = train['Name'].str.split().str[-1]
-test['Surname'] = test['Name'].str.split().str[-1]
+# train['Surname'] = train['Name'].str.split().str[-1]
+# test['Surname'] = test['Name'].str.split().str[-1]
 
 # New feature - Family size
-train['Family_size'] = train['Surname'].map(lambda x: pd.concat([train['Surname'], test['Surname']]).value_counts()[x])
-test['Family_size'] = test['Surname'].map(lambda x: pd.concat([train['Surname'], test['Surname']]).value_counts()[x])
+# train['Family_size'] = train['Surname'].map(lambda x: pd.concat([train['Surname'], test['Surname']]).value_counts()[x])
+# test['Family_size'] = test['Surname'].map(lambda x: pd.concat([train['Surname'], test['Surname']]).value_counts()[x])
+
+# 将group 后的结果保存起来，下次直接读取文件
+# train.to_csv("../data/train02.csv",index=False)
+# test.to_csv("../data/test02.csv",index=False )
+train = pd.read_csv("../data/train02.csv")
+test = pd.read_csv("../data/test02.csv")
+
 # Put Nan's back in (we will fill these later)
 train.loc[train['Surname'] == 'Unknown', 'Surname'] = np.nan
 train.loc[train['Family_size'] > 100, 'Family_size'] = np.nan
@@ -368,10 +379,10 @@ mv['Percentage_missing'] = np.round(100 * mv['Number_missing'] / len(data), 2)
 
 # Countplot of number of missing values by passenger
 train['na_count'] = train.isna().sum(axis=1)
-plt.figure(figsize=(10, 4))
-sns.countplot(data=train, x='na_count', hue='Transported')
-plt.title('Number of missing entries by passenger')
-train.drop('na_count', axis=1, inplace=True)
+# plt.figure(figsize=(10, 4))
+# sns.countplot(data=train, x='na_count', hue='Transported')
+# plt.title('Number of missing entries by passenger')
+# train.drop('na_count', axis=1, inplace=True)
 
 '''
 
@@ -409,11 +420,10 @@ HP_bef = data['HomePlanet'].isna().sum()
 
 # Passengers with missing HomePlanet and in a group with known HomePlanet
 GHP_index = data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
-# Passengers with missing HomePlanet and in a group with known HomePlanet
-GHP_index = data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
 
 # Fill corresponding missing values
 data.loc[GHP_index, 'HomePlanet'] = data.iloc[GHP_index, :]['Group'].map(lambda x: GHP_gb.idxmax(axis=1)[x])
+
 # Print number of missing values left
 print('#HomePlanet missing values before:', HP_bef)
 print('#HomePlanet missing values after:', data['HomePlanet'].isna().sum())
@@ -670,8 +680,7 @@ print('#Cabin_side missing values after:', data['Cabin_side'].isna().sum())
 # Cabin_side missing values after: 162
 
 # Joint distribution of Surname and Cabin side
-SCS_gb = data[data['Group_size'] > 1].groupby(['Surname', 'Cabin_side']) \
-	['Cabin_side'].size().unstack().fillna(0)
+SCS_gb = data[data['Group_size'] > 1].groupby(['Surname', 'Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
 # Ratio of sides
 SCS_gb['Ratio'] = SCS_gb['P'] / (SCS_gb['P'] + SCS_gb['S'])
 
