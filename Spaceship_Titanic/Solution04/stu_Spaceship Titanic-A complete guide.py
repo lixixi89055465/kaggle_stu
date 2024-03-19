@@ -67,18 +67,18 @@ print(
 	f'Duplicated in test set :{test.duplicated().sum()},({np.round(100 * train.duplicated().sum() / len(train), 1)}%)')
 print(train.nunique())
 print(train.dtypes)
-# plt.figure(figsize=(6, 6,))
+plt.figure(figsize=(6, 6,))
 # train['Transported'].value_counts().plot.pie(explode=[0.1, 0.1], autopct='%1.1f%%', shadow=True,
 #                                              textprops={'fontsize': 16}).set_title('Target distribution')
-
+#
 # plt.figure(figsize=(10, 4))
-# Histogram
+# # Histogram
 # sns.histplot(data=train, x='Age', hue='Transported', binwidth=1, kde=True)
 # plt.show()
 
 # Expenditure features
 
-# exp_feats = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
+exp_feats = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
 # fig = plt.figure(figsize=(10, 20))
 # for i, var_name in enumerate(exp_feats):
 #     ax = fig.add_subplot(5, 2, 2 * i + 1)
@@ -93,8 +93,8 @@ print(train.dtypes)
 # plt.show()
 
 # Categorical features
-# cat_feats = ['HomePlanet', 'CryoSleep', 'Destination', 'VIP']
-# fig = plt.figure(figsize=(10, 16))
+cat_feats = ['HomePlanet', 'CryoSleep', 'Destination', 'VIP']
+fig = plt.figure(figsize=(10, 16))
 #
 # for i, var_name in enumerate(cat_feats):
 #     ax = fig.add_subplot(4, 1, i + 1)
@@ -109,21 +109,21 @@ qual_feats = ['PassengerId', 'Cabin', 'Name']
 print(train[qual_feats].head())
 # plt.show()
 print('2' * 100)
-train['Age_group'] = np.nan
-train.loc[train['Age'] <= 12, 'Age_group'] = 'Age_0-12'
-train.loc[(train['Age'] > 12) & (train['Age'] < 18), 'Age_group'] = 'Age_13-17'
-train.loc[(train['Age'] >= 18) & (train['Age'] <= 25), 'Age_group'] = 'Age_18-25'
-train.loc[(train['Age'] >= 26) & (train['Age'] <= 30), 'Age_group'] = 'Age_26-30'
-train.loc[(train['Age'] > 30) & (train['Age'] <= 50), 'Age_group'] = 'Age_31-50'
-train.loc[(train['Age'] > 50), 'Age_group'] = 'Age_51+'
+# train['Age_group'] = np.nan
+# train.loc[train['Age'] <= 12, 'Age_group'] = 'Age_0-12'
+# train.loc[(train['Age'] > 12) & (train['Age'] < 18), 'Age_group'] = 'Age_13-17'
+# train.loc[(train['Age'] >= 18) & (train['Age'] <= 25), 'Age_group'] = 'Age_18-25'
+# train.loc[(train['Age'] >= 26) & (train['Age'] <= 30), 'Age_group'] = 'Age_26-30'
+# train.loc[(train['Age'] > 30) & (train['Age'] <= 50), 'Age_group'] = 'Age_31-50'
+# train.loc[(train['Age'] > 50), 'Age_group'] = 'Age_51+'
 
-test['Age_group'] = np.nan
-test.loc[train['Age'] <= 12, 'Age_group'] = 'Age_0-12'
-test.loc[(train['Age'] > 12) & (train['Age'] < 18), 'Age_group'] = 'Age_13-17'
-test.loc[(train['Age'] >= 18) & (train['Age'] <= 25), 'Age_group'] = 'Age_18-25'
-test.loc[(train['Age'] >= 26) & (train['Age'] <= 30), 'Age_group'] = 'Age_26-30'
-test.loc[(train['Age'] > 30) & (train['Age'] <= 50), 'Age_group'] = 'Age_31-50'
-test.loc[(train['Age'] > 50), 'Age_group'] = 'Age_51+'
+# test['Age_group'] = np.nan
+# test.loc[train['Age'] <= 12, 'Age_group'] = 'Age_0-12'
+# test.loc[(train['Age'] > 12) & (train['Age'] < 18), 'Age_group'] = 'Age_13-17'
+# test.loc[(train['Age'] >= 18) & (train['Age'] <= 25), 'Age_group'] = 'Age_18-25'
+# test.loc[(train['Age'] >= 26) & (train['Age'] <= 30), 'Age_group'] = 'Age_26-30'
+# test.loc[(train['Age'] > 30) & (train['Age'] <= 50), 'Age_group'] = 'Age_31-50'
+# test.loc[(train['Age'] > 50), 'Age_group'] = 'Age_51+'
 # Plot distribution of new features
 
 # plt.figure(figsize=(10, 4))
@@ -135,67 +135,76 @@ test.loc[(train['Age'] > 50), 'Age_group'] = 'Age_51+'
 # New features - training set
 # Expenditure features
 exp_feats = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
-train['Expenditure'] = train[exp_feats].sum(axis=1)
-train['No_spending'] = (train['Expenditure'] == 0).astype(int)
+# train['Expenditure'] = train[exp_feats].sum(axis=1)
+# train['No_spending'] = (train['Expenditure'] == 0).astype(int)
 # New features  - test set
-test['Expenditure'] = test[exp_feats].sum(axis=1)
-test['No_spending'] = (test['Expenditure']).astype(int)
+# test['Expenditure'] = test[exp_feats].sum(axis=1)
+# test['No_spending'] = (test['Expenditure'] == 0).astype(int)
 # Plot distribution of new features
 
-# fig = plt.figure(figsize=(12, 4))
-# plt.subplot(1, 2, 1)
-# sns.histplot(data=train, x='Expenditure', hue='Transported', bins=200)
-#
-# plt.title('Total expenditure (truncated) ')
-# plt.ylim([0, 200])
-# plt.xlim([0, 20000])
-#
-# plt.subplot(1, 2, 2)
-# sns.countplot(data=train, x='No_spending', hue='Transported')
-# plt.title('No spending indicator')
-# fig.tight_layout()
-# plt.show()
-train['Group'] = train['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
-test['Group'] = test['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
+train=pd.read_csv('../data/train01.csv')
+test=pd.read_csv('../data/test01.csv')
+fig = plt.figure(figsize=(12, 4))
+plt.subplot(1, 2, 1)
+sns.histplot(data=train, x='Expenditure', hue='Transported', bins=200)
+
+plt.title('Total expenditure (truncated) ')
+plt.ylim([0, 200])
+plt.xlim([0, 20000])
+
+plt.subplot(1, 2, 2)
+sns.countplot(data=train, x='No_spending', hue='Transported')
+plt.title('No spending indicator')
+fig.tight_layout()
+plt.show()
+# train['Group'] = train['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
+# test['Group'] = test['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
 
 # New feature - group size
-train['Group_size'] = train['Group'].map(lambda x: pd.concat([train['Group'], test['Group']]).value_counts()[x])
-test['Group_size'] = test['Group'].map(lambda x: pd.concat([train['Group'], test['Group']]).value_counts()[x])
-a = pd.concat([train['Group'], test['Group']])
-print('8' * 100)
-print(a.head())
+# train['Group_size'] = train['Group'].map(lambda x: pd.concat([train['Group'], test['Group']]).value_counts()[x])
+# test['Group_size']=test['Group'].map(lambda x:pd.concat([train['Group'],test['Group']]).value_counts()[x])
+# 将group 后的结果保存起来，下次直接读取文件
+# train.to_csv("../data/train01.csv",index=False)
+# test.to_csv("../data/test01.csv",index=False )
+
+
+# a = pd.concat([train['Group'], test['Group']])
+# print('8' * 100)
+# print(a.head())
 
 # Plot distribution of new features
-# fig=plt.figure(figsize=(12,4))
-# plt.figure(figsize=(20,4))
-# plt.subplot(1,2,1)
-# sns.histplot(data=train,x='Group',hue='Transported',binwidth=1)
-# plt.title('Group')
-#
-# plt.subplot(1,2,2)
-# sns.countplot(data=train, x='Group_size', hue='Transported')
-# plt.title('Group size')
-# fig.tight_layout()
+fig=plt.figure(figsize=(12,4))
+plt.figure(figsize=(20,4))
+plt.subplot(1,2,1)
+sns.histplot(data=train,x='Group',hue='Transported',binwidth=1)
+plt.title('Group')
+
+plt.subplot(1,2,2)
+sns.countplot(data=train, x='Group_size', hue='Transported')
+plt.title('Group size')
+fig.tight_layout()
+plt.show()
 
 
 # Expenditure features
 exp_feats = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
 
+#TODO 03-19
 # Plot expenditure features
-# fig = plt.figure(figsize=(10, 20))
-# for i, var_name in enumerate(exp_feats):
-# 	# Left plot
-# 	ax = fig.add_subplot(5, 2, 2 * i + 1)
-# 	sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=False, hue='Transported')
-# 	ax.set_title(var_name)
-#
-# 	# Right plot (truncated)
-# 	ax = fig.add_subplot(5, 2, 2 * i + 2)
-# 	sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=True, hue='Transported')
-# 	plt.ylim([0, 100])
-# 	ax.set_title(var_name)
-# fig.tight_layout()  # Improves appearance a bit
-# plt.show()
+fig = plt.figure(figsize=(10, 20))
+for i, var_name in enumerate(exp_feats):
+	# Left plot
+	ax = fig.add_subplot(5, 2, 2 * i + 1)
+	sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=False, hue='Transported')
+	ax.set_title(var_name)
+
+	# Right plot (truncated)
+	ax = fig.add_subplot(5, 2, 2 * i + 2)
+	sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=True, hue='Transported')
+	plt.ylim([0, 100])
+	ax.set_title(var_name)
+fig.tight_layout()  # Improves appearance a bit
+plt.show()
 
 # Categorical features
 cat_feats = ['HomePlanet', 'CryoSleep', 'Destination', 'VIP']
@@ -215,61 +224,6 @@ qual_feats = ['PassengerId', 'Cabin', 'Name']
 print('0' * 100)
 print(train[qual_feats].head())
 
-# New features - training set
-train['Age_group'] = np.nan
-train.loc[train['Age'] <= 12, 'Age_group'] = 'Age_0-12'
-train.loc[(train['Age'] > 12) & (train['Age'] < 18), 'Age_group'] = 'Age_13-17'
-train.loc[(train['Age'] >= 18) & (train['Age'] <= 25), 'Age_group'] = 'Age_18-25'
-train.loc[(train['Age'] > 25) & (train['Age'] <= 30), 'Age_group'] = 'Age_26-30'
-train.loc[(train['Age'] > 30) & (train['Age'] <= 50), 'Age_group'] = 'Age_31-50'
-train.loc[train['Age'] > 50, 'Age_group'] = 'Age_51+'
-# New features - test set
-test['Age_group'] = np.nan
-test.loc[test['Age'] <= 12, 'Age_group'] = 'Age_0-12'
-test.loc[(test['Age'] > 12) & (test['Age'] < 18), 'Age_group'] = 'Age_13-17'
-test.loc[(test['Age'] >= 18) & (test['Age'] <= 25), 'Age_group'] = 'Age_18-25'
-test.loc[(test['Age'] > 25) & (test['Age'] <= 30), 'Age_group'] = 'Age_26-30'
-test.loc[(test['Age'] > 30) & (test['Age'] <= 50), 'Age_group'] = 'Age_31-50'
-test.loc[test['Age'] > 50, 'Age_group'] = 'Age_51+'
-
-# New features - training set
-train['Expenditure'] = train[exp_feats].sum(axis=1)
-train['No_spending'] = (train['Expenditure'] == 0).astype(int)
-# New features - test set
-test['Expenditure'] = test[exp_feats].sum(axis=1)
-test['No_spending'] = (test['Expenditure'] == 0).astype(int)
-
-# # Plot distribution of new features
-# fig=plt.figure(figsize=(12,4))
-# plt.subplot(1,2,1)
-# sns.histplot(data=train, x='Expenditure', hue='Transported', bins=200)
-# plt.title('Total expenditure (truncated)')
-# plt.ylim([0,200])
-# plt.xlim([0,20000])
-#
-# plt.subplot(1,2,2)
-# sns.countplot(data=train, x='No_spending', hue='Transported')
-# plt.title('No spending indicator')
-# fig.tight_layout()
-
-# New feature - Group
-train['Group'] = train['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
-test['Group'] = test['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
-
-# New feature - Group size
-train['Group_size'] = train['Group'].map(lambda x: pd.concat([train['Group'], test['Group']]).value_counts()[x])
-test['Group_size'] = test['Group'].map(lambda x: pd.concat([train['Group'], test['Group']]).value_counts()[x])
-
-# Plot distribution of new features
-# plt.figure(figsize=(20,4))
-# plt.subplot(1,2,1)
-# sns.histplot(data=train, x='Group', hue='Transported', binwidth=1)
-# plt.title('Group')
-#
-# plt.subplot(1,2,2)
-# sns.countplot(data=train, x='Group_size', hue='Transported')
-# plt.title('Group size')
-# fig.tight_layout()
 
 # New feature
 train['Solo'] = (train['Group_size'] == 1).astype(int)
@@ -1097,7 +1051,6 @@ We will train these models and evaluate them on the validation set to then choos
 
 Define classifiers
 '''
-# TODO
 # Classifiers
 classifiers = {
 	"LogisticRegression": LogisticRegression(random_state=0),
@@ -1297,23 +1250,26 @@ def plot_preds_prop(preds_arr):
 	T_opt = T_array[np.abs(prop - target_prop).argmin()]
 	print('Optimal threshold:', T_opt)
 	return T_opt
+
+
 T_opt = plot_preds_prop(preds)
 
 # Classify test set using optimal threshold
-preds_tuned=(preds>=T_opt).astype(int)
+preds_tuned = (preds >= T_opt).astype(int)
 # Submit predictions
 # Sample submission (to get right format)
-sub=pd.read_csv('../input/spaceship-titanic/sample_submission.csv')
+sub = pd.read_csv('../input/spaceship-titanic/sample_submission.csv')
 
 # Add predictions
-sub['Transported']=preds_tuned
+sub['Transported'] = preds_tuned
 
 # Replace 0 to False and 1 to True
-sub=sub.replace({0:False, 1:True})
+sub = sub.replace({0: False, 1: True})
 
 # Prediction distribution
-plt.figure(figsize=(6,6))
-sub['Transported'].value_counts().plot.pie(explode=[0.1,0.1], autopct='%1.1f%%', shadow=True, textprops={'fontsize':16}).set_title("Prediction distribution")
+plt.figure(figsize=(6, 6))
+sub['Transported'].value_counts().plot.pie(explode=[0.1, 0.1], autopct='%1.1f%%', shadow=True,
+										   textprops={'fontsize': 16}).set_title("Prediction distribution")
 # Text(0.5, 1.0, 'Prediction distribution')
 
 # Output to csv
