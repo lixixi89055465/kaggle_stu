@@ -583,20 +583,20 @@ GCN_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_number'])['Cabin_
 GCS_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
 
 # # Countplots
-# fig=plt.figure(figsize=(16,4))
-# plt.subplot(1,3,1)
-# sns.countplot((GCD_gb>0).sum(axis=1))
-# plt.title('#Unique cabin decks per group')
+fig=plt.figure(figsize=(16,4))
+plt.subplot(1,3,1)
+sns.countplot((GCD_gb>0).sum(axis=1))
+plt.title('#Unique cabin decks per group')
 
-# plt.subplot(1,3,2)
-# sns.countplot((GCN_gb>0).sum(axis=1))
-# plt.title('#Unique cabin numbers per group')
-#
-# plt.subplot(1,3,3)
-# sns.countplot((GCS_gb>0).sum(axis=1))
-# plt.title('#Unique cabin sides per group')
-# fig.tight_layout()
+plt.subplot(1,3,2)
+sns.countplot((GCN_gb>0).sum(axis=1))
+plt.title('#Unique cabin numbers per group')
 
+plt.subplot(1,3,3)
+sns.countplot((GCS_gb>0).sum(axis=1))
+plt.title('#Unique cabin sides per group')
+fig.tight_layout()
+plt.show()
 # Missing values before
 CS_bef = data['Cabin_side'].isna().sum()
 
