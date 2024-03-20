@@ -437,8 +437,9 @@ print('#HomePlanet missing values after:', data['HomePlanet'].isna().sum())
 CDHP_gb = data.groupby(['Cabin_deck', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
 
 # # Heatmap of missing values
-# plt.figure(figsize=(10,4))
-# sns.heatmap(CDHP_gb.T, annot=True, fmt='g', cmap='coolwarm')
+plt.figure(figsize=(10,4))
+sns.heatmap(CDHP_gb.T, annot=True, fmt='g', cmap='coolwarm')
+plt.show()
 
 # Notes:
 # #
@@ -450,7 +451,6 @@ HP_bef = data['HomePlanet'].isna().sum()
 
 # Decks A, B, C or T came from Europa
 data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Europa'
-
 # Deck G came from Earth
 data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck'] == 'G'), 'HomePlanet'] = 'Earth'
 # Print number of missing values left
@@ -466,9 +466,9 @@ HomePlanet and Surname
 SHP_gb = data.groupby(['Surname', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
 
 # Countplot of unique values
-plt.figure(figsize=(10, 4))
-sns.countplot((SHP_gb > 0).sum(axis=1))
-plt.title('Number of unique planets per surname')
+# plt.figure(figsize=(10, 4))
+# sns.countplot((SHP_gb > 0).sum(axis=1))
+# plt.title('Number of unique planets per surname')
 
 # Fantastic! Everyone with the same surname comes from the same home planet.
 
@@ -496,8 +496,8 @@ print(data[data['HomePlanet'].isna()][['PassengerId', 'HomePlanet', 'Destination
 HPD_gb = data.groupby(['HomePlanet', 'Destination'])['Destination'].size().unstack().fillna(0)
 
 # Heatmap of missing values
-plt.figure(figsize=(10, 4))
-sns.heatmap(HPD_gb.T, annot=True, fmt='g', cmap='coolwarm')
+# plt.figure(figsize=(10, 4))
+# sns.heatmap(HPD_gb.T, annot=True, fmt='g', cmap='coolwarm')
 
 # Missing values before
 HP_bef = data['HomePlanet'].isna().sum()
@@ -551,6 +551,7 @@ GSN_index = data[data['Surname'].isna()][(data[data['Surname'].isna()]['Group'])
 
 # Fill corresponding missing values
 data.loc[GSN_index, 'Surname'] = data.iloc[GSN_index, :]['Group'].map(lambda x: GSN_gb.idxmax(axis=1)[x])
+data.loc[GSN_index,'Surname']=data.iloc[GSN_index,:]['Group'].map(lambda x:GSN_gb.idxmax(axis=1)[x])
 
 # Print number of missing values left
 print('#Surname missing values before:', SN_bef)
@@ -574,6 +575,7 @@ data.loc[data['Surname'] == 'Unknown', 'Surname'] = np.nan
 data.loc[data['Family_size'] > 100, 'Family_size'] = 0
 
 # CabinSide and Group
+#TODO
 
 # Joint distribution of Group and Cabin features
 GCD_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0)
