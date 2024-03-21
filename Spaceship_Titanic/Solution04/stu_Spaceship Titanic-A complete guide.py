@@ -617,10 +617,10 @@ SCS_gb = data[data['Group_size'] > 1].groupby(['Surname', 'Cabin_side'])['Cabin_
 # Ratio of sides
 SCS_gb['Ratio'] = SCS_gb['P'] / (SCS_gb['P'] + SCS_gb['S'])
 # Histogram of ratio
-plt.figure(figsize=(10, 4))
-sns.histplot(SCS_gb['Ratio'], kde=True, binwidth=0.05)
-plt.title('Ratio of cabin side by surname')
-plt.show()
+# plt.figure(figsize=(10, 4))
+# sns.histplot(SCS_gb['Ratio'], kde=True, binwidth=0.05)
+# plt.title('Ratio of cabin side by surname')
+# plt.show()
 
 # Print proportion
 print('Percentage of families all on the same cabin side:', \
@@ -653,8 +653,6 @@ print('#Cabin_side missing values after:', data['Cabin_side'].isna().sum())
 
 # The remaining missing values will be replaced with an outlier.
 # This is because we really don't know which one of the two (balanced) sides we should assign.
-# Value counts
-a = data['Cabin_side'].value_counts()
 
 # Missing values before
 CS_bef = data['Cabin_side'].isna().sum()
@@ -679,67 +677,12 @@ data.loc[GCS_index, 'Cabin_side'] = data.iloc[GCS_index, :] \
 print('#Cabin_side missing values before:', CS_bef)
 print('#Cabin_side missing values after:', data['Cabin_side'].isna().sum())
 
+
+
 # Cabin_side missing values before: 299
 # Cabin_side missing values after: 162
 
-# Joint distribution of Surname and Cabin side
-SCS_gb = data[data['Group_size'] > 1].groupby(['Surname', 'Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
-# Ratio of sides
-SCS_gb['Ratio'] = SCS_gb['P'] / (SCS_gb['P'] + SCS_gb['S'])
-
-# # Histogram of ratio
-# plt.figure(figsize=(10,4))
-# sns.histplot(SCS_gb['Ratio'], kde=True, binwidth=0.05)
-# plt.title('Ratio of cabin side by surname')
-
-# Print proportion
-print('Percentage of families all on the same cabin side:', \
-	  100 * np.round((SCS_gb['Ratio'].isin([0, 1])).sum() / len(SCS_gb), 3), '%')
-
-# Another view of the same information
-print(SCS_gb.head())
-# Percentage of families all on the same cabin side: 76.7 %
-
-# This shows that families tend to be on the same cabin side
-# (and 77% of families are entirely on the same side).
-# Missing values before
-CS_bef = data['Cabin_side'].isna().sum()
-# Drop ratio column
-SCS_gb.drop('Ratio', axis=1, inplace=True)
-# Passengers with missing Cabin side and in a family with known Cabin side
-SCS_index = data[data['Cabin_side'].isna()][(data[data['Cabin_side'].isna()]['Surname']).isin(SCS_gb.index)].index
-
-# Fill corresponding missing values
-data.loc[SCS_index, 'Cabin_side'] = data.iloc[SCS_index, :]['Surname'].map(lambda x: SCS_gb.idxmax(axis=1)[x])
-# Drop surname (we don't need it anymore)
-data.drop('Surname', axis=1, inplace=True)
-
-# Print number of missing values left
-print('#Cabin_side missing values before:', CS_bef)
-print('#Cabin_side missing values after:', data['Cabin_side'].isna().sum())
-# Cabin_side missing values before: 66
-# Cabin_side missing values after: 0
-
-# CabinDeck and Group
-#
-# Remember (from above) that groups tend to be on the same cabin deck.
-# Missing values before
-CD_bef = data['Cabin_deck'].isna().sum()
-
-# Passengers with missing Cabin deck and in a group with known majority Cabin deck
-GCD_index = data[data['Cabin_deck'].isna()][(data[data['Cabin_deck'].isna()]['Group']).isin(GCD_gb.index)].index
-
-# Fill corresponding missing values
-data.loc[GCD_index, 'Cabin_deck'] = data.iloc[GCD_index, :]['Group'].map(lambda x: GCD_gb.idxmax(axis=1)[x])
-
-# Print number of missing values left
-print('#Cabin_deck missing values before:', CD_bef)
-print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
-
-# Cabin_deck missing values before: 299
-# Cabin_deck missing values after: 162
-# Joint distribution
-data.groupby(['HomePlanet', 'Destination', 'Solo', 'Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0)
+data.groupby(['HomePlanet','Destination','Solo','Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0)
 
 # Notes:
 #
@@ -754,9 +697,7 @@ CD_bef = data['Cabin_deck'].isna().sum()
 # Fill missing values using the mode
 na_rows_CD = data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'].index
 data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'] = \
-	data.groupby(['HomePlanet', 'Destination', 'Solo'])['Cabin_deck'].transform(
-		lambda x: x.fillna(pd.Series.mode(x)[0]))[
-		na_rows_CD]
+	data.groupby(['HomePlanet', 'Destination', 'Solo'])['Cabin_deck'].transform(lambda x: x.fillna(pd.Series.mode(x)[0]))[na_rows_CD]
 
 # Print number of missing values left
 print('#Cabin_deck missing values before:', CD_bef)
@@ -773,6 +714,7 @@ print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
 # Missing values before
 CN_bef = data['Cabin_number'].isna().sum()
 
+#TODO
 # Extrapolate linear relationship on a deck by deck basis
 for deck in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
 	# Features and labels
