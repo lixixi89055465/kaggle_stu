@@ -437,9 +437,9 @@ print('#HomePlanet missing values after:', data['HomePlanet'].isna().sum())
 CDHP_gb = data.groupby(['Cabin_deck', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
 
 # # Heatmap of missing values
-plt.figure(figsize=(10,4))
-sns.heatmap(CDHP_gb.T, annot=True, fmt='g', cmap='coolwarm')
-plt.show()
+# plt.figure(figsize=(10,4))
+# sns.heatmap(CDHP_gb.T, annot=True, fmt='g', cmap='coolwarm')
+# plt.show()
 
 # Notes:
 # #
@@ -583,20 +583,20 @@ GCN_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_number'])['Cabin_
 GCS_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
 
 # # Countplots
-fig=plt.figure(figsize=(16,4))
-plt.subplot(1,3,1)
-sns.countplot((GCD_gb>0).sum(axis=1))
-plt.title('#Unique cabin decks per group')
-
-plt.subplot(1,3,2)
-sns.countplot((GCN_gb>0).sum(axis=1))
-plt.title('#Unique cabin numbers per group')
-
-plt.subplot(1,3,3)
-sns.countplot((GCS_gb>0).sum(axis=1))
-plt.title('#Unique cabin sides per group')
-fig.tight_layout()
-plt.show()
+# fig=plt.figure(figsize=(16,4))
+# plt.subplot(1,3,1)
+# sns.countplot((GCD_gb>0).sum(axis=1))
+# plt.title('#Unique cabin decks per group')
+#
+# plt.subplot(1,3,2)
+# sns.countplot((GCN_gb>0).sum(axis=1))
+# plt.title('#Unique cabin numbers per group')
+#
+# plt.subplot(1,3,3)
+# sns.countplot((GCS_gb>0).sum(axis=1))
+# plt.title('#Unique cabin sides per group')
+# fig.tight_layout()
+# plt.show()
 # Missing values before
 CS_bef = data['Cabin_side'].isna().sum()
 
@@ -620,6 +620,7 @@ SCS_gb['Ratio'] = SCS_gb['P'] / (SCS_gb['P'] + SCS_gb['S'])
 plt.figure(figsize=(10, 4))
 sns.histplot(SCS_gb['Ratio'], kde=True, binwidth=0.05)
 plt.title('Ratio of cabin side by surname')
+plt.show()
 
 # Print proportion
 print('Percentage of families all on the same cabin side:', \
