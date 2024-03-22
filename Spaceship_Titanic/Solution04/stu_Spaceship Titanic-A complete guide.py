@@ -950,7 +950,8 @@ print('Training set shape:', X.shape)
 # Training set shape: (8693, 36)
 
 # PCA
-# Just for fun, let's look at the transformed data in PCA space. This gives a low dimensional representation of the data, which preserves local and global structure.
+# Just for fun, let's look at the transformed data in PCA space.
+# This gives a low dimensional representation of the data, which preserves local and global structure.
 pca = PCA(n_components=3)
 components = pca.fit_transform(X)
 total_var = pca.explained_variance_ratio_.sum() * 100
@@ -1021,7 +1022,7 @@ classifiers = {
 }
 
 # Grids for grid search
-LR_grid = {'penalty': ['l1', 'l2'],
+LR_grid = {'penalty': ['none', 'l2'],
 		   'C': [0.25, 0.5, 0.75, 1, 1.25, 1.5],
 		   'max_iter': [50, 100, 150]}
 
@@ -1054,7 +1055,8 @@ grid = {
 }
 '''
 Train and evaluate models
-Train models with grid search (but no cross validation so it doesn't take too long) to get a rough idea of which are the best models for this dataset.
+Train models with grid search (but no cross validation so it doesn't take too long)
+ to get a rough idea of which are the best models for this dataset.
 '''
 i = 0
 clf_best_params = classifiers.copy()
