@@ -721,6 +721,8 @@ for deck in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
 	X_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
 	y_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
 	X_test_CN = data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
+	if len(X_test_CN)==0:
+		continue
 
 	# Linear regression
 	model_CN = LinearRegression()
