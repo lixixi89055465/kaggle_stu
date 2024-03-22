@@ -934,6 +934,7 @@ categorical_transformer = Pipeline(
 	steps=[('onehot', OneHotEncoder(drop='if_binary', handle_unknown='ignore', sparse=False))])
 
 # Combine preprocessing
+#TODO
 ct = ColumnTransformer(
 	transformers=[
 		('num', numerical_transformer, numerical_cols),
