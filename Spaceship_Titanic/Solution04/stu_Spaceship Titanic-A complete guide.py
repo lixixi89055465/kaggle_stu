@@ -1171,7 +1171,11 @@ It is interesting to see that the models are either very confident or very uncon
 
 Post processing
 
-Finally, we need to convert each predicted probability into one of the two classes (transported or not). The simplest way is to round each probability to the nearest integer (0 for False or 1 for True). However, assuming the train and test sets have similar distributions, we can tune the classification threshold to obtain a similar proportion of transported/not transported in our predictions as in the train set. Remember that the proportion of transported passengers in the train set was 50.4%.
+Finally, we need to convert each predicted probability into one of the two classes (transported or not). 
+The simplest way is to round each probability to the nearest integer (0 for False or 1 for True).
+ However, assuming the train and test sets have similar distributions, 
+ we can tune the classification threshold to obtain a similar proportion of transported/not transported in our predictions
+  as in the train set. Remember that the proportion of transported passengers in the train set was 50.4%.
 '''
 # Proportion (in test set) we get from rounding
 print(np.round(100 * np.round(preds).sum() / len(preds), 2))
