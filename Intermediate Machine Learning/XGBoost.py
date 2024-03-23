@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# Read the data
+# Read the input
 data = pd.read_csv('../input/melbourne-housing-snapshot/melb_data.csv')
 
 # Select subset of predictors
@@ -12,7 +12,7 @@ X = data[cols_to_use]
 # Select target
 y = data.Price
 
-# Separate data into training and validation sets
+# Separate input into training and validation sets
 X_train, X_valid, y_train, y_valid = train_test_split(X, y)
 
 from xgboost import XGBRegressor

@@ -22,7 +22,7 @@ base_features = [
 X = data[base_features]
 train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
 first_model = RandomForestRegressor(n_estimators=50, random_state=1).fit(train_X, train_y)
-# show data
+# show input
 print("Data sample:")
 print(data.head())
 print(data.columns)

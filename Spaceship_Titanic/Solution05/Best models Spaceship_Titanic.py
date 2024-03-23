@@ -1,5 +1,5 @@
 '''
-Hello and Welcome to Kaggle, the online Data Science Community to learn, share, and compete. Most beginners get lost in the field, because they fall into the black box approach, using libraries and algorithms they don't understand. This tutorial will give you a 1-2-year head start over your peers, by providing a framework that teaches you how-to think like a data scientist vs what to think/code. Not only will you be able to submit your first competition, but you’ll be able to solve any problem thrown your way. I provide clear explanations, clean code, and plenty of links to resources. Please Note: This Kernel is still being improved. So check the Change Logs below for updates. Also, please be sure to upvote, fork, and comment and I'll continue to develop. Thanks, and may you have "statistically significant" luck!
+Hello and Welcome to Kaggle, the online Data Science Community to learn, share, and compete. Most beginners get lost in the field, because they fall into the black box approach, using libraries and algorithms they don't understand. This tutorial will give you a 1-2-year head start over your peers, by providing a framework that teaches you how-to think like a input scientist vs what to think/code. Not only will you be able to submit your first competition, but you’ll be able to solve any problem thrown your way. I provide clear explanations, clean code, and plenty of links to resources. Please Note: This Kernel is still being improved. So check the Change Logs below for updates. Also, please be sure to upvote, fork, and comment and I'll continue to develop. Thanks, and may you have "statistically significant" luck!
 '''
 import sys
 import matplotlib as mpl
@@ -52,13 +52,13 @@ warnings.filterwarnings('ignore')
 print('-' * 25)
 from subprocess import check_output
 
-# print(check_output(['ls', '../data/']).decode('utf8'))
+# print(check_output(['ls', '../input/']).decode('utf8'))
 
 import pandas as pd
 
-data_raw = pd.read_csv('../data/train.csv')
-data_val = pd.read_csv('../data/test.csv')
-# #to play with our data we'll create a copy
+data_raw = pd.read_csv('../input/train.csv')
+data_val = pd.read_csv('../input/test.csv')
+# #to play with our input we'll create a copy
 # #remember python assignment or equal passes by reference vs values, so we use the copy function: https://stackoverflow.com/questions/46327494/python-pandas-dataframe-copydeep-false-vs-copydeep-true-vs
 data1 = data_raw.copy(deep=True)
 data_cleaner = [data1, data_val]
@@ -101,7 +101,7 @@ for dataset in data_cleaner:
 
 # Plot distribution of new features
 # plt.figure(figsize=(10, 4))
-# g = sns.countplot(data=data1, x='Age_group', hue='Transported',
+# g = sns.countplot(input=data1, x='Age_group', hue='Transported',
 #                   order=['Age_0-12', 'Age_13-17', 'Age_18-25', 'Age_26-30', 'Age_31-50', 'Age_51+'])
 # plt.title('Age group distribution')
 # plt.show()
@@ -112,12 +112,12 @@ for dataset in data_cleaner:
 
 # fig = plt.figure(figsize=(12, 4))
 # plt.subplot(1, 2, 1)
-# sns.histplot(data=data1, x='Expenditure', hue='Transported', bins=200)
+# sns.histplot(input=data1, x='Expenditure', hue='Transported', bins=200)
 # plt.title('Total expenditure (truncated) ')
 # plt.ylim([0, 200])
 # plt.xlim([0, 20000])
 # plt.subplot(1, 2, 2)
-# sns.countplot(data=data1, x='No_spending', hue='Transported')
+# sns.countplot(input=data1, x='No_spending', hue='Transported')
 # plt.title('No spending indicator')
 # fig.tight_layout()
 # plt.show()
@@ -126,13 +126,13 @@ for dataset in data_cleaner:
 # Plot distribution of new features
 fig = plt.figure(figsize=(12, 4))
 # plt.subplot(1, 2, 1)
-# sns.histplot(data=data1, x='Expenditure', hue='Transported', bins=200)
+# sns.histplot(input=data1, x='Expenditure', hue='Transported', bins=200)
 # plt.title('Total expenditure (truncated)')
 # plt.ylim([0, 200])
 # plt.xlim([0, 20000])
 #
 # plt.subplot(1, 2, 2)
-# sns.countplot(data=data1, x='No_spending', hue='Transported')
+# sns.countplot(input=data1, x='No_spending', hue='Transported')
 # plt.title('No spending indicator')
 # fig.tight_layout()
 for dataset in data_cleaner:
@@ -143,11 +143,11 @@ for dataset in data_cleaner:
 
 # plt.figure(figsize=(20, 16))
 # plt.subplot(1, 2, 1)
-# sns.histplot(data=data1, x='Group', hue='Transported', binwidth=1)
+# sns.histplot(input=data1, x='Group', hue='Transported', binwidth=1)
 # plt.title('Group')
 #
 # plt.subplot(1, 2, 2)
-# sns.countplot(data=data1, x='Group_size', hue='Transported')
+# sns.countplot(input=data1, x='Group_size', hue='Transported')
 # plt.title('Group size')
 # fig.tight_layout()
 # plt.show()
@@ -162,7 +162,7 @@ for dataset in data_cleaner:
 	dataset['Solo'] = (dataset['Group_size'] == 1).astype(int)
 # New feature distribution
 # plt.figure(figsize=(10, 4))
-# sns.countplot(data=data1, x='Solo', hue='Transported')
+# sns.countplot(input=data1, x='Solo', hue='Transported')
 # plt.title('Passenger travelling sole  or not ')
 # plt.ylim([0, 3000])
 # plt.show()
@@ -185,11 +185,11 @@ for dataset in data_cleaner:
 # plot distribution of new features
 # fig = plt.figure(figsize=(10, 12))
 # plt.subplot(3, 1, 1)
-# sns.countplot(data=data1, x='Cabin_deck', hue='Transported', order=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'T'])
+# sns.countplot(input=data1, x='Cabin_deck', hue='Transported', order=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'T'])
 # plt.title('Cabin-deck')
 #
 # plt.subplot(3, 1, 2)
-# sns.histplot(data=data1, x='Cabin_number', hue='Transported', binwidth=20)
+# sns.histplot(input=data1, x='Cabin_number', hue='Transported', binwidth=20)
 # plt.vlines(300, ymin=0, ymax=200, color='black')
 # plt.vlines(600, ymin=0, ymax=200, color='black')
 # plt.vlines(900, ymin=0, ymax=200, color='black')
@@ -200,7 +200,7 @@ for dataset in data_cleaner:
 # plt.xlim([0, 2000])
 #
 # plt.subplot(3, 1, 3)
-# sns.countplot(data=data1, x='Cabin_side', hue='Transported')
+# sns.countplot(input=data1, x='Cabin_side', hue='Transported')
 # plt.title('cabin side')
 # fig.tight_layout()
 # plt.show()
@@ -219,7 +219,7 @@ for dataset in data_cleaner:
 data1['Cabin_region_plot'] = (
 		data1['Cabin_region1'] + 2 * data1['Cabin_region2'] + 3 * data1['Cabin_region3'] + 4 * data1[
 	'Cabin_region4'] + 5 * data1['Cabin_region5'] + 6 * data1['Cabin_region6'] + 7 * data1['Cabin_region7']).astype(int)
-# sns.countplot(data=data1, x='Cabin_region_plot', hue='Transported')
+# sns.countplot(input=data1, x='Cabin_region_plot', hue='Transported')
 # plt.title('Cabin region ')
 # plt.show()
 # data1.drop('Cabin_region_plot', axis=1, inplace=True)
@@ -239,7 +239,7 @@ for dataset in data_cleaner:
 # New  feature distribution
 #
 # plt.figure(figsize=(12, 4))
-# sns.countplot(data=data1, x='Family_size', hue='Transported')
+# sns.countplot(input=data1, x='Family_size', hue='Transported')
 # plt.title('Family_size ')
 # plt.show()
 # Missing values¶
@@ -255,7 +255,7 @@ data1['na_count'] = data1.isna().sum(axis=1)
 
 # Countplot of number of missing values by passenger
 # plt.figure(figsize=(10, 4))
-# sns.countplot(data=data1, x='na_count', hue='Transported')
+# sns.countplot(input=data1, x='na_count', hue='Transported')
 # plt.title("number of missing entries by pasenger")
 # plt.show()
 # data1.drop('na_count', axis=1, inplace=True)
@@ -292,7 +292,7 @@ for data in data_cleaner:
 
 # Print number of missing values left
 # print('#HomePlanet missing values before:', HP_bef)
-# print('#HomePlanet missing values after:', data['HomePlanet'].isna().sum())
+# print('#HomePlanet missing values after:', input['HomePlanet'].isna().sum())
 
 print('7' * 100)
 # TODO
@@ -301,7 +301,7 @@ for data in data_cleaner:
 	data.loc[(data['HomePlanet'].isna()) & ~(data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Earth'
 	data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Mars'
 # print('#HomePlanet missing values before:', HP_bef)
-# print('#HomePlanet missing values after:', data['HomePlanet'].isna().sum())
+# print('#HomePlanet missing values after:', input['HomePlanet'].isna().sum())
 # We're done with HomePlanet.
 print('8' * 100)
 for data in data_cleaner:
@@ -318,7 +318,7 @@ for data in data_cleaner:
 	data.loc[GSN_index, 'Surname'] = data.iloc[GSN_index, :]['Group'].map(lambda x: GSN_gb.idxmax(axis=1)[x])
 	# Print number of missing values left
 	# print('#Surname missing values before:', SN_bef)
-	# print('#Surname missing values after:', data['Surname'].isna().sum())
+	# print('#Surname missing values after:', input['Surname'].isna().sum())
 	data['Surname'].fillna('Unknown', inplace=True)
 	data['Family_size'] = data['Surname'].map(lambda x: data['Surname'].value_counts()[x])
 	data.loc[data['Surname'] == 'Unknown', 'Surname'] = np.nan
@@ -330,14 +330,14 @@ for data in data_cleaner:
 	GCN_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_number'])['Cabin_number'].size().unstack().fillna(0)
 	GCS_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
 	# Everyone in the same group is also on the same cabin side. For cabin deck and cabin number there is also a fairly good (but not perfect) correlation with group.
-	# data[data['Group_size'] > 1].groupby(['Group', 'Cabin_side'])['Group'].size().unstack().fillna(0)
+	# input[input['Group_size'] > 1].groupby(['Group', 'Cabin_side'])['Group'].size().unstack().fillna(0)
 	# Missing values before
 	CS_bef = data['Cabin_side'].isna().sum()
 	GCS_index = data[data['Cabin_side'].isna()][(data[data['Cabin_side'].isna()]['Group']).isin(GCS_gb.index)].index
 	data.loc[GCS_index, 'Cabin_side'] = data.iloc[GCS_index, :]['Group'].map(lambda x: GCS_gb.idxmax(axis=1)[x])
 # Print number of missing values left
 # print('#Cabin_side missing values before:', CS_bef)
-# print('#Cabin_side missing values after:', data['Cabin_side'].isna().sum())
+# print('#Cabin_side missing values after:', input['Cabin_side'].isna().sum())
 print('1' * 100)  # TODO
 for data in data_cleaner:
 	# Joint distribution of Surname and Cabin side
@@ -376,11 +376,11 @@ for data in data_cleaner:
 	CS_bef = data['Cabin_side'].isna().sum()
 	data.loc[data['Cabin_side'].isna(), 'Cabin_deck'] = 'Z'
 # print('#Cabin side missing values before:', CS_bef)
-# print('#Cabin side missing value after:', data['Cabin_side'].isna().sum())
+# print('#Cabin side missing value after:', input['Cabin_side'].isna().sum())
 
 print("4" * 100)
 for data in data_cleaner:
-	# print(data['Cabin_deck'].value_counts())
+	# print(input['Cabin_deck'].value_counts())
 	CD_bef = data['Cabin_deck'].isna().sum()
 	GCD_index = data[data['Cabin_deck'].isna()][(data[data['Cabin_deck'].isna()]['Group']).
 		isin(GCD_gb.index)].index
@@ -389,7 +389,7 @@ for data in data_cleaner:
 		map(lambda x: GCD_gb.idxmax(axis=1)[x])
 # Print number of missing values left
 # print('#Cabin_deck missing values before:', CD_bef)
-# print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
+# print('#Cabin_deck missing values after:', input['Cabin_deck'].isna().sum())
 
 print("7" * 100)
 # TODO
@@ -430,10 +430,10 @@ for data in data_cleaner:
 	print('#Cabin_deck missing values before:', CD_bef)
 	print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
 print("8" * 100)
-# for data in data_cleaner:
+# for input in data_cleaner:
 #     plt.figure(figsize=(10, 4))
-#     sns.scatterplot(x=data['Cabin_number'], y=data['Group'],
-#                     c=LabelEncoder().fit_transform(data.loc[~data['Cabin_number'].isna(), 'Cabin_deck']), cmap='tab10')
+#     sns.scatterplot(x=input['Cabin_number'], y=input['Group'],
+#                     c=LabelEncoder().fit_transform(input.loc[~input['Cabin_number'].isna(), 'Cabin_deck']), cmap='tab10')
 #     plt.title('Cabin_number vs group colored by group')
 # plt.show()
 print('9' * 100)
@@ -480,16 +480,16 @@ for data in data_cleaner:
 	# # Fill missing values with mode
 	data.loc[data['VIP'].isna(), 'VIP'] = False
 # print('#VIP missing values before:', V_bef)
-# print('#VIP missing values after:', data['VIP'].isna().sum())
+# print('#VIP missing values after:', input['VIP'].isna().sum())
 # print('1' * 100)
 for data in data_cleaner:
 	data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].median().unstack().fillna(0)
 	# Missing values before
 	A_bef = data[exp_feats].isna().sum().sum()
 	# # Fill missing values using the median
-	# na_rows_A = data.loc[data['Age'].isna(), 'Age'].index
-	# data.loc[data['Age'].isna(), 'Age'] = \
-	#     data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(
+	# na_rows_A = input.loc[input['Age'].isna(), 'Age'].index
+	# input.loc[input['Age'].isna(), 'Age'] = \
+	#     input.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(
 	#         lambda x: x.fillna(x.median()))[na_rows_A]
 	na_rows_A = data.loc[data['Age'].isna(), 'Age'].index
 	# TODO
@@ -499,7 +499,7 @@ for data in data_cleaner:
 			na_rows_A]
 # # Print number of missing values left
 # print('#Age missing values before:', A_bef)
-# data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(lambda x: x.fillna(x.median()))[
+# input.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(lambda x: x.fillna(x.median()))[
 #     na_rows_A]
 
 print('2' * 100)
@@ -520,7 +520,7 @@ for data in data_cleaner:
 	data.loc[data['CryoSleep'].isna(), 'CryoSleep'] = \
 		data.groupby(['No_spending'])['CryoSleep'].transform(lambda x: x.fillna(pd.Series.mode(x)[0]))[na_rows_CSL]
 # print("#CryoSleep misisng values before:", CSL_bef)
-# print('#CryoSleep missing values after:', data['CryoSleep'].isna().sum())
+# print('#CryoSleep missing values after:', input['CryoSleep'].isna().sum())
 
 # TODO
 for data in data_cleaner:
@@ -529,7 +529,7 @@ for data in data_cleaner:
 	for col in exp_feats:
 		data.loc[(data[col].isna()) & (data['CryoSleep'] == True), col] = 0
 # print("#Expenditure missing values before", E_bef)
-# print("#Expenditure missing values after", data[exp_feats].isna().sum().sum())
+# print("#Expenditure missing values after", input[exp_feats].isna().sum().sum())
 print('-' * 100)
 
 for data in data_cleaner:
@@ -545,7 +545,7 @@ for data in data_cleaner:
 for data in data_cleaner:
 	data['Expenditure'] = data[exp_feats].sum(axis=1)
 	data['No_spending'] = (data['Expenditure'] == 0).astype(int)
-	# data.isna().sum()
+	# input.isna().sum()
 	for col in ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Expenditure']:
 		data[col] = np.log(1 + data[col])
 
@@ -553,11 +553,11 @@ for data in data_cleaner:
 '''
 ## 3.23 Convert Formats
 
-We will convert categorical data to dummy variables for mathematical analysis.
+We will convert categorical input to dummy variables for mathematical analysis.
  There are multiple ways to encode categorical variables;we will use the sklearn and pandas functions.
 
 In this step, we will also define our x (independent/features/explanatory/predictor/etc.) 
-and y (dependent/target/outcome/response/etc.) variables for data modeling.
+and y (dependent/target/outcome/response/etc.) variables for input modeling.
 
 ** Developer Documentation: **
 * [Categorical Encoding](http://pbpython.com/categorical-encoding.html)
@@ -581,7 +581,7 @@ data1_x = ['HomePlanet', 'CryoSleep',
 		   'Destination', 'Age', 'VIP',
 		   'RoomService', 'FoodCourt',
 		   'ShoppingMall', 'Spa',
-		   'VRDeck']  # Original data
+		   'VRDeck']  # Original input
 data1_x_calc = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Expenditure', 'No_spending',
 				'Group', 'Group_size', 'Solo', 'Cabin_number', 'Cabin_region1', 'Cabin_region2', 'Cabin_region3',
 				'Cabin_region4', 'Cabin_region5', 'Cabin_region6', 'Cabin_region7', 'Family_size', 'HomePlanet_Code',
@@ -754,7 +754,7 @@ for alg in MLA:
 MLA_compare.sort_values(by=['MLA Test Accuracy Mean'], ascending=False, inplace=True)
 # MLA_compare
 # barplot using https://seaborn.pydata.org/generated/seaborn.barplot.html
-# sns.barplot(x='MLA test Accuracy Mean', y='MLA name ', data=MLA_compare, color='m')
+# sns.barplot(x='MLA test Accuracy Mean', y='MLA name ', input=MLA_compare, color='m')
 # # prettify using pyplot: https://matplotlib.org/api/pyplot_api.html
 # plt.title('Machine Learning Algorithm Accuracy Score \n')
 # plt.xlabel('Accuracy Score ( % )')
@@ -799,7 +799,7 @@ print('\n Survival Decision Tree Cabin_side Code:\n', pivot_CryoSleep)
 # pivot_male = data1[data1.Sex=='male'].groupby(['Sex','Title'])['Transported'].mean()
 # print('\n\nSurvival Decision Tree w/Male Node: \n',pivot_male)
 
-# handmade data model using brain power (and Microsoft Excel Pivot Tables for quick calculations
+# handmade input model using brain power (and Microsoft Excel Pivot Tables for quick calculations
 def mytree(df):
 	# initialize table to store predictions
 	Model = pd.DataFrame(data={'Predict': []})
@@ -836,7 +836,7 @@ def mytree(df):
 	return Model
 
 
-# model data
+# model input
 Tree_Predict = mytree(data1)
 
 # TODO
@@ -1343,7 +1343,7 @@ print("Soft Voting w/Tuned Hyperparameters Training w/bin score mean: {:.2f}". f
 print("Soft Voting w/Tuned Hyperparameters Test w/bin score mean: {:.2f}". format(grid_soft_cv['test_score'].mean()*100))
 print("Soft Voting w/Tuned Hyperparameters Test w/bin score 3*std: +/- {:.2f}". format(grid_soft_cv['test_score'].std()*100*3))
 print('-'*10)
-#prepare data for modeling
+#prepare input for modeling
 print(data_val.info())
 print("-"*10)
 #data_val.sample(10)

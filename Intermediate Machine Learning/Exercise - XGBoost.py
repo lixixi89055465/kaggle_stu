@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# Read the data
+# Read the input
 X = pd.read_csv('../input/melbourne-housing-snapshot/train.csv', index_col='Id')
 X_test_full = pd.read_csv('../input/melbourne-housing-snapshot/test.csv', index_col='Id')
 

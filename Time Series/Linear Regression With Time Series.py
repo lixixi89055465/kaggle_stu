@@ -1,7 +1,7 @@
 import pandas as pd
 
 df = pd.read_csv(
-    "../input/ts-course-data/book_sales.csv",
+    "../input/ts-course-input/book_sales.csv",
     index_col='Date',
     parse_dates=['Date'],
 ).drop('Paperback', axis=1)
@@ -75,7 +75,7 @@ plot_params = dict(
     legend=False,
 )
 #
-data_dir = Path("../input/ts-course-data")
+data_dir = Path("../input/ts-course-input")
 tunnel = pd.read_csv(data_dir / "tunnel.csv", parse_dates=["Day"])
 print("0" * 100)
 

@@ -2,8 +2,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 #
-X_full = pd.read_csv('../input/home-data-for-ml-course/train.csv', index_col='Id')
-X_test_full = pd.read_csv('../input/home-data-for-ml-course/train.csv', index_col='Id')
+X_full = pd.read_csv('../input/home-input-for-ml-course/train.csv', index_col='Id')
+X_test_full = pd.read_csv('../input/home-input-for-ml-course/train.csv', index_col='Id')
 
 X_full.dropna(axis=0, subset=['SalePrice'], inplace=True)
 y = X_full.SalePrice
@@ -72,10 +72,10 @@ my_pipeline = Pipeline(steps=[('preprocessor', preprocessor),
                               ('model', model)
                               ])
 
-# Preprocessing of training data, fit model
+# Preprocessing of training input, fit model
 my_pipeline.fit(X_train, y_train)
 
-# Preprocessing of validation data, get predictions
+# Preprocessing of validation input, get predictions
 preds = my_pipeline.predict(X_valid)
 
 # Evaluate the model

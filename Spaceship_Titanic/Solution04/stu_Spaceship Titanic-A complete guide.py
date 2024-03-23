@@ -48,8 +48,8 @@ from lightgbm import LGBMClassifier
 from catboost import CatBoostClassifier
 from sklearn.naive_bayes import GaussianNB
 
-train = pd.read_csv('../data/train.csv')
-test = pd.read_csv('../data/test.csv')
+train = pd.read_csv('../input/train.csv')
+test = pd.read_csv('../input/test.csv')
 
 print('Train set shape:', train.shape)
 print('Test set shape:', test.shape)
@@ -73,7 +73,7 @@ plt.figure(figsize=(6, 6,))
 #
 # plt.figure(figsize=(10, 4))
 # # Histogram
-# sns.histplot(data=train, x='Age', hue='Transported', binwidth=1, kde=True)
+# sns.histplot(input=train, x='Age', hue='Transported', binwidth=1, kde=True)
 # plt.show()
 
 # Expenditure features
@@ -82,10 +82,10 @@ exp_feats = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
 # fig = plt.figure(figsize=(10, 20))
 # for i, var_name in enumerate(exp_feats):
 #     ax = fig.add_subplot(5, 2, 2 * i + 1)
-#     sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=False, hue='Transported')
+#     sns.histplot(input=train, x=var_name, axes=ax, bins=30, kde=False, hue='Transported')
 #     ax.set_title(var_name)
 #     ax = fig.add_subplot(5, 2, 2 * i + 2)
-#     sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=True, hue='Transported')
+#     sns.histplot(input=train, x=var_name, axes=ax, bins=30, kde=True, hue='Transported')
 #     plt.ylim([0, 100])
 #     ax.set_title(var_name)
 #
@@ -98,7 +98,7 @@ fig = plt.figure(figsize=(10, 16))
 #
 # for i, var_name in enumerate(cat_feats):
 #     ax = fig.add_subplot(4, 1, i + 1)
-#     sns.countplot(data=train, x=var_name, axes=ax, hue='Transported')
+#     sns.countplot(input=train, x=var_name, axes=ax, hue='Transported')
 #     ax.set_title(var_name)
 #
 # fig.tight_layout()
@@ -127,7 +127,7 @@ print('2' * 100)
 # Plot distribution of new features
 
 # plt.figure(figsize=(10, 4))
-# g = sns.countplot(data=train, x='Age_group', hue='Transported',
+# g = sns.countplot(input=train, x='Age_group', hue='Transported',
 #                   order=['Age_0-12', 'Age_13-17', 'Age_18-25', 'Age_26-30', 'Age_31-50', 'Age_51+'])
 # plt.title('Age group distribution')
 # plt.show()
@@ -142,18 +142,18 @@ exp_feats = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
 # test['No_spending'] = (test['Expenditure'] == 0).astype(int)
 # Plot distribution of new features
 
-train = pd.read_csv('../data/train01.csv')
-test = pd.read_csv('../data/test01.csv')
+train = pd.read_csv('../input/train01.csv')
+test = pd.read_csv('../input/test01.csv')
 # fig = plt.figure(figsize=(12, 4))
 # plt.subplot(1, 2, 1)
-# sns.histplot(data=train, x='Expenditure', hue='Transported', bins=200)
+# sns.histplot(input=train, x='Expenditure', hue='Transported', bins=200)
 #
 # plt.title('Total expenditure (truncated) ')
 # plt.ylim([0, 200])
 # plt.xlim([0, 20000])
 #
 # plt.subplot(1, 2, 2)
-# sns.countplot(data=train, x='No_spending', hue='Transported')
+# sns.countplot(input=train, x='No_spending', hue='Transported')
 # plt.title('No spending indicator')
 # fig.tight_layout()
 # plt.show()
@@ -164,8 +164,8 @@ test = pd.read_csv('../data/test01.csv')
 # train['Group_size'] = train['Group'].map(lambda x: pd.concat([train['Group'], test['Group']]).value_counts()[x])
 # test['Group_size']=test['Group'].map(lambda x:pd.concat([train['Group'],test['Group']]).value_counts()[x])
 # 将group 后的结果保存起来，下次直接读取文件
-# train.to_csv("../data/train01.csv",index=False)
-# test.to_csv("../data/test01.csv",index=False )
+# train.to_csv("../input/train01.csv",index=False)
+# test.to_csv("../input/test01.csv",index=False )
 
 
 # a = pd.concat([train['Group'], test['Group']])
@@ -176,11 +176,11 @@ test = pd.read_csv('../data/test01.csv')
 # fig=plt.figure(figsize=(12,4))
 # plt.figure(figsize=(20,4))
 # plt.subplot(1,2,1)
-# sns.histplot(data=train,x='Group',hue='Transported',binwidth=1)
+# sns.histplot(input=train,x='Group',hue='Transported',binwidth=1)
 # plt.title('Group')
 #
 # plt.subplot(1,2,2)
-# sns.countplot(data=train, x='Group_size', hue='Transported')
+# sns.countplot(input=train, x='Group_size', hue='Transported')
 # plt.title('Group size')
 # fig.tight_layout()
 # plt.show()
@@ -196,12 +196,12 @@ exp_feats = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
 # for i, var_name in enumerate(exp_feats):
 # 	# Left plot
 # 	ax = fig.add_subplot(5, 2, 2 * i + 1)
-# 	sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=False, hue='Transported')
+# 	sns.histplot(input=train, x=var_name, axes=ax, bins=30, kde=False, hue='Transported')
 # 	ax.set_title(var_name)
 #
 # 	# Right plot (truncated)
 # 	ax = fig.add_subplot(5, 2, 2 * i + 2)
-# 	sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=True, hue='Transported')
+# 	sns.histplot(input=train, x=var_name, axes=ax, bins=30, kde=True, hue='Transported')
 # 	plt.ylim([0, 100])
 # 	ax.set_title(var_name)
 # fig.tight_layout()  # Improves appearance a bit
@@ -214,7 +214,7 @@ cat_feats = ['HomePlanet', 'CryoSleep', 'Destination', 'VIP']
 # fig = plt.figure(figsize=(10, 16))
 # for i, var_name in enumerate(cat_feats):
 # 	ax = fig.add_subplot(4, 1, i + 1)
-# 	sns.countplot(data=train, x=var_name, axes=ax, hue='Transported')
+# 	sns.countplot(input=train, x=var_name, axes=ax, hue='Transported')
 # 	ax.set_title(var_name)
 # fig.tight_layout()  # Improves appearance a bit
 # plt.show()
@@ -231,7 +231,7 @@ print(train[qual_feats].head())
 
 # # New feature distribution
 # plt.figure(figsize=(10,4))
-# sns.countplot(data=train, x='Solo', hue='Transported')
+# sns.countplot(input=train, x='Solo', hue='Transported')
 # plt.title('Passenger travelling solo or not')
 # plt.ylim([0,3000])
 
@@ -265,12 +265,12 @@ print(train[qual_feats].head())
 # # Plot distribution of new features
 # fig=plt.figure(figsize=(10,12))
 # plt.subplot(3,1,1)
-# sns.countplot(data=train, x='Cabin_deck', hue='Transported', order=['A','B','C','D','E','F','G','T'])
+# sns.countplot(input=train, x='Cabin_deck', hue='Transported', order=['A','B','C','D','E','F','G','T'])
 # plt.title('Cabin deck')
 
 
 # plt.subplot(3,1,2)
-# sns.histplot(data=train, x='Cabin_number', hue='Transported',binwidth=20)
+# sns.histplot(input=train, x='Cabin_number', hue='Transported',binwidth=20)
 # plt.vlines(300, ymin=0, ymax=200, color='black')
 # plt.vlines(600, ymin=0, ymax=200, color='black')
 # plt.vlines(900, ymin=0, ymax=200, color='black')
@@ -281,7 +281,7 @@ print(train[qual_feats].head())
 # plt.xlim([0,2000])
 
 # plt.subplot(3,1,3)
-# sns.countplot(data=train, x='Cabin_side', hue='Transported')
+# sns.countplot(input=train, x='Cabin_side', hue='Transported')
 # plt.title('Cabin side')
 # fig.tight_layout()
 # plt.show()
@@ -314,7 +314,7 @@ Other notes: The cabin deck 'T' seems to be an outlier (there are only 5 samples
 # # Plot distribution of new features
 # plt.figure(figsize=(10,4))
 # train['Cabin_regions_plot']=(train['Cabin_region1']+2*train['Cabin_region2']+3*train['Cabin_region3']+4*train['Cabin_region4']+5*train['Cabin_region5']+6*train['Cabin_region6']+7*train['Cabin_region7']).astype(int)
-# sns.countplot(data=train, x='Cabin_regions_plot', hue='Transported')
+# sns.countplot(input=train, x='Cabin_regions_plot', hue='Transported')
 # plt.title('Cabin regions')
 # plt.show()
 # train.drop('Cabin_regions_plot', axis=1, inplace=True)
@@ -332,10 +332,10 @@ Other notes: The cabin deck 'T' seems to be an outlier (there are only 5 samples
 # test['Family_size'] = test['Surname'].map(lambda x: pd.concat([train['Surname'], test['Surname']]).value_counts()[x])
 
 # 将group 后的结果保存起来，下次直接读取文件
-# train.to_csv("../data/train02.csv",index=False)
-# test.to_csv("../data/test02.csv",index=False )
-train = pd.read_csv("../data/train02.csv")
-test = pd.read_csv("../data/test02.csv")
+# train.to_csv("../input/train02.csv",index=False)
+# test.to_csv("../input/test02.csv",index=False )
+train = pd.read_csv("../input/train02.csv")
+test = pd.read_csv("../input/test02.csv")
 
 # Put Nan's back in (we will fill these later)
 train.loc[train['Surname'] == 'Unknown', 'Surname'] = np.nan
@@ -349,7 +349,7 @@ test.drop('Name', axis=1, inplace=True)
 
 # # New feature distribution
 # plt.figure(figsize=(12,4))
-# sns.countplot(data=train, x='Family_size', hue='Transported')
+# sns.countplot(input=train, x='Family_size', hue='Transported')
 # plt.title('Family size')
 
 '''
@@ -380,7 +380,7 @@ mv['Percentage_missing'] = np.round(100 * mv['Number_missing'] / len(data), 2)
 # Countplot of number of missing values by passenger
 train['na_count'] = train.isna().sum(axis=1)
 # plt.figure(figsize=(10, 4))
-# sns.countplot(data=train, x='na_count', hue='Transported')
+# sns.countplot(input=train, x='na_count', hue='Transported')
 # plt.title('Number of missing entries by passenger')
 # train.drop('na_count', axis=1, inplace=True)
 
@@ -389,7 +389,7 @@ train['na_count'] = train.isna().sum(axis=1)
 Notes:
 
 Missing values are independent of the target and for the most part are isolated.
-Even though only 2% of the data is missing, about 25% of all passengers have at least 1 missing value.
+Even though only 2% of the input is missing, about 25% of all passengers have at least 1 missing value.
 PassengerId is the only (original) feature to not have any missing values.
 Insight:
 
@@ -402,7 +402,7 @@ Strategy
 
 The easiest way to deal with missing values is to just use the median for continuous features and 
 the mode for categorical features (see version 20 of this notebook). 
-This will work 'well enough' but if we want to maximise the accuracy of our models then we need to look for patterns within the missing data. The way to do this is by looking at the joint distribution of features, e.g. do passengers from the same group tend to come from the same family? There are obviously many combinations so we will just summarise the useful trends I and others have found.
+This will work 'well enough' but if we want to maximise the accuracy of our models then we need to look for patterns within the missing input. The way to do this is by looking at the joint distribution of features, e.g. do passengers from the same group tend to come from the same family? There are obviously many combinations so we will just summarise the useful trends I and others have found.
 
 HomePlanet and Group
 '''
@@ -708,7 +708,7 @@ print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
 # **CabinNumber and CabinDeck**
 # Scatterplot
 # plt.figure(figsize=(10,4))
-# sns.scatterplot(x=data['Cabin_number'], y=data['Group'], c=LabelEncoder().fit_transform(data.loc[~data['Cabin_number'].isna(),'Cabin_deck']), cmap='tab10')
+# sns.scatterplot(x=input['Cabin_number'], y=input['Group'], c=LabelEncoder().fit_transform(input.loc[~input['Cabin_number'].isna(),'Cabin_deck']), cmap='tab10')
 # plt.title('Cabin_number vs group coloured by group')
 
 # Missing values before
@@ -787,7 +787,7 @@ print('#Age missing values after:', data['Age'].isna().sum())
 # Age missing values before: 1410
 # Age missing values after: 0
 
-# Let's update the age_group feature using the new data.
+# Let's update the age_group feature using the new input.
 
 # Update age group feature
 data.loc[data['Age'] <= 12, 'Age_group'] = 'Age_0-12'
@@ -816,7 +816,7 @@ print('#CryoSleep missing values after:', data['CryoSleep'].isna().sum())
 
 # Age missing values before: 1410
 # Age missing values after: 0
-# Let's update the age_group feature using the new data.
+# Let's update the age_group feature using the new input.
 
 # Update age group feature
 data.loc[data['Age'] <= 12, 'Age_group'] = 'Age_0-12'
@@ -881,14 +881,14 @@ for col in exp_feats:
 print('#Expenditure missing values before:', E_bef)
 print('#Expenditure missing values after:', data[exp_feats].isna().sum().sum())
 
-# Finally, we can update the expenditure and no_spending features with these new data points.
+# Finally, we can update the expenditure and no_spending features with these new input points.
 # Update expenditure and no_spending
 data['Expenditure'] = data[exp_feats].sum(axis=1)
 data['No_spending'] = (data['Expenditure'] == 0).astype(int)
 print(data.isna().sum())
 # No missing values left! It was a lot of effort but it should improve the accuracy of our models.
 # Preprocessing
-# Split data back into train and test sets
+# Split input back into train and test sets
 # Train and test
 X = data[data['PassengerId'].isin(train['PassengerId'].values)].copy()
 X_test = data[data['PassengerId'].isin(test['PassengerId'].values)].copy()
@@ -926,10 +926,10 @@ for col in ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Expend
 numerical_cols = [cname for cname in X.columns if X[cname].dtype in ['int64', 'float64']]
 categorical_cols = [cname for cname in X.columns if X[cname].dtype == "object"]
 
-# Scale numerical data to have mean=0 and variance=1
+# Scale numerical input to have mean=0 and variance=1
 numerical_transformer = Pipeline(steps=[('scaler', StandardScaler())])
 
-# One-hot encode categorical data
+# One-hot encode categorical input
 categorical_transformer = Pipeline(
 	steps=[('onehot', OneHotEncoder(drop='if_binary', handle_unknown='ignore', sparse=False))])
 
@@ -950,8 +950,8 @@ print('Training set shape:', X.shape)
 # Training set shape: (8693, 36)
 
 # PCA
-# Just for fun, let's look at the transformed data in PCA space.
-# This gives a low dimensional representation of the data, which preserves local and global structure.
+# Just for fun, let's look at the transformed input in PCA space.
+# This gives a low dimensional representation of the input, which preserves local and global structure.
 pca = PCA(n_components=3)
 components = pca.fit_transform(X)
 total_var = pca.explained_variance_ratio_.sum() * 100
@@ -989,19 +989,19 @@ X_train, X_valid, y_train, y_valid = train_test_split(X, y, stratify=y, train_si
 Model selection
 To briefly mention the algorithms we will use,
 
-Logistic Regression: Unlike linear regression which uses Least Squares, this model uses Maximum Likelihood Estimation to fit a sigmoid-curve on the target variable distribution. The sigmoid/logistic curve is commonly used when the data is questions had binary output.
+Logistic Regression: Unlike linear regression which uses Least Squares, this model uses Maximum Likelihood Estimation to fit a sigmoid-curve on the target variable distribution. The sigmoid/logistic curve is commonly used when the input is questions had binary output.
 
-K-Nearest Neighbors (KNN): KNN works by selecting the majority class of the k-nearest neighbours, where the metric used is usually Euclidean distance. It is a simple and effective algorithm but can be sensitive by many factors, e.g. the value of k, the preprocessing done to the data and the metric used.
+K-Nearest Neighbors (KNN): KNN works by selecting the majority class of the k-nearest neighbours, where the metric used is usually Euclidean distance. It is a simple and effective algorithm but can be sensitive by many factors, e.g. the value of k, the preprocessing done to the input and the metric used.
 
-Support Vector Machine (SVM): SVM finds the optimal hyperplane that seperates the data in the feature space. Predictions are made by looking at which side of the hyperplane the test point lies on. Ordinary SVM assumes the data is linearly separable, which is not always the case. A kernel trick can be used when this assumption fails to transform the data into a higher dimensional space where it is linearly seperable. SVM is a popular algorithm because it is computationally effecient and produces very good results.
+Support Vector Machine (SVM): SVM finds the optimal hyperplane that seperates the input in the feature space. Predictions are made by looking at which side of the hyperplane the test point lies on. Ordinary SVM assumes the input is linearly separable, which is not always the case. A kernel trick can be used when this assumption fails to transform the input into a higher dimensional space where it is linearly seperable. SVM is a popular algorithm because it is computationally effecient and produces very good results.
 
-Random Forest (RF): RF is a reliable ensemble of decision trees, which can be used for regression or classification problems. Here, the individual trees are built via bagging (i.e. aggregation of bootstraps which are nothing but multiple train datasets created via sampling with replacement) and split using fewer features. The resulting diverse forest of uncorrelated trees exhibits reduced variance; therefore, is more robust towards change in data and carries its prediction accuracy to new data. It works well with both continuous & categorical data.
+Random Forest (RF): RF is a reliable ensemble of decision trees, which can be used for regression or classification problems. Here, the individual trees are built via bagging (i.e. aggregation of bootstraps which are nothing but multiple train datasets created via sampling with replacement) and split using fewer features. The resulting diverse forest of uncorrelated trees exhibits reduced variance; therefore, is more robust towards change in input and carries its prediction accuracy to new input. It works well with both continuous & categorical input.
 
 Extreme Gradient Boosting (XGBoost): XGBoost is similar to RF in that it is made up of an ensemble of decision-trees. The difference arises in how those trees as derived; XGboost uses extreme gradient boosting when optimising its objective function. It often produces the best results but is relatively slow compared to other gradient boosting algorithms.
 
 Light Gradient Boosting Machine (LGBM): LGBM works essentially the same as XGBoost but with a lighter boosting technique. It usually produces similar results to XGBoost but is significantly faster.
 
-Categorical Boosting (CatBoost): CatBoost is an open source algorithm based on gradient boosted decision trees. It supports numerical, categorical and text features. It works well with heterogeneous data and even relatively small data. Informally, it tries to take the best of both worlds from XGBoost and LGBM.
+Categorical Boosting (CatBoost): CatBoost is an open source algorithm based on gradient boosted decision trees. It supports numerical, categorical and text features. It works well with heterogeneous input and even relatively small input. Informally, it tries to take the best of both worlds from XGBoost and LGBM.
 
 Naive Bayes (NB): Naive Bayes learns how to classify samples by using Bayes' Theorem. It uses prior information to 'update' the probability of an event by incoorporateing this information according to Bayes' law. The algorithm is quite fast but a downside is that it assumes the input features are independent, which is not always the case.
 

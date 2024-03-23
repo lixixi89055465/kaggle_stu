@@ -19,7 +19,7 @@ originaldata = pd.read('建模数据.xlsx',index_col=0)
 def data_format(data):
 
     data = (data - data.min()) / (data.max() - data.min())  ### minmax_normalized
-  # data = (data - data.mean()) / data.std()  ### standarded_normalized
+  # input = (input - input.mean()) / input.std()  ### standarded_normalized
     data = np.array(data)##从矩阵形式转换数组形式
     return data
 x_all_normalize = data_format(originaldata)

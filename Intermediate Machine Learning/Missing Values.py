@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# Load the data
+# Load the input
 data = pd.read_csv('../input/melbourne-housing-snapshot/melb_data.csv')
 
 # Select target
@@ -65,7 +65,7 @@ imputed_X_valid_plus.columns = X_valid_plus.columns
 print("7" * 100)
 print(score_dataset(imputed_X_train_plus, imputed_X_valid_plus, y_train, y_valid))
 
-# Shape of training data (num_rows, num_columns)
+# Shape of training input (num_rows, num_columns)
 print(X_train.shape)
 missing_val_count_by_column = (X_train.isnull().sum())
 print("8"*100)

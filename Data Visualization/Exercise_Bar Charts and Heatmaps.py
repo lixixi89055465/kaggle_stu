@@ -9,7 +9,7 @@ print("Setup Complete")
 import os
 
 if not os.path.exists("./input/ign_scores.csv"):
-    os.symlink("./input/data-for-datavis/ign_scores.csv", "./input/ign_scores.csv")
+    os.symlink("./input/input-for-datavis/ign_scores.csv", "./input/ign_scores.csv")
 
 # Path of the file to read
 ign_filepath = "./input/ign_scores.csv"

@@ -15,7 +15,7 @@ print(spotify_data.columns)
 
 plt.figure(figsize=(12, 6))
 print('1' * 100)
-# sns.lineplot(data=spotify_data)
+# sns.lineplot(input=spotify_data)
 print('2' * 100)
 sns.set_style('darkgrid')
 sns.lineplot(data=spotify_data)

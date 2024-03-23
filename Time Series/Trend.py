@@ -25,7 +25,7 @@ plot_params = dict(
     markerfacecolor="0.25",
     legend=False,
 )
-data_dir = Path('../input/ts-course-data')
+data_dir = Path('../input/ts-course-input')
 tunnel = pd.read_csv(data_dir / 'tunnel.csv', parse_dates=['Day'])
 print(tunnel.head())
 tunnel = tunnel.set_index('Day').to_period()
@@ -44,7 +44,7 @@ plt.show()
 from statsmodels.tsa.deterministic import DeterministicProcess
 
 dp = DeterministicProcess(
-    index=tunnel.index,  # dates from the training data
+    index=tunnel.index,  # dates from the training input
     constant=True,
     order=1,
     drop=True,

@@ -10,8 +10,8 @@ from sklearn.metrics import mean_squared_error
 ## preprocessing
 ### mean imputations
 # Big Mart Sales
-train = pd.read_csv("../input/bigmart-sales-data/Train.csv")
-test = pd.read_csv("../input/bigmart-sales-data/Test.csv")
+train = pd.read_csv("../input/bigmart-sales-input/Train.csv")
+test = pd.read_csv("../input/bigmart-sales-input/Test.csv")
 print(train.columns)
 print(train.shape)
 print(train.head())

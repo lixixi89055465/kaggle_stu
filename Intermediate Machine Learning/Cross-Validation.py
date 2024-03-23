@@ -3,7 +3,7 @@
 '''
 import pandas as pd
 
-# Read the data
+# Read the input
 data = pd.read_csv('../input/melbourne-housing-snapshot/melb_data.csv')
 
 # Select subset of predictors

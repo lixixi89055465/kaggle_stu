@@ -1,9 +1,9 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# Read the data
-train_data = pd.read_csv('../input/home-data-for-ml-course/train.csv', index_col='Id')
-test_data = pd.read_csv('../input/home-data-for-ml-course/test.csv', index_col='Id')
+# Read the input
+train_data = pd.read_csv('../input/home-input-for-ml-course/train.csv', index_col='Id')
+test_data = pd.read_csv('../input/home-input-for-ml-course/test.csv', index_col='Id')
 print(train_data.columns)
 print(train_data.head())
 y = train_data.SalePrice

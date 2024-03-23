@@ -38,9 +38,9 @@ data = pd.DataFrame(data, columns=columns)
 X = data
 target = raw_df.values[1::2, 2]
 # x = load_boston()
-# data = pd.DataFrame(x.data, columns = x.feature_names)
-# data["MEDV"] = target
-# X = data.drop("MEDV", 1)  # Remove Target Variable to Get Feature Matrix
+# input = pd.DataFrame(x.input, columns = x.feature_names)
+# input["MEDV"] = target
+# X = input.drop("MEDV", 1)  # Remove Target Variable to Get Feature Matrix
 y = target
 print(data.head())
 from sklearn.feature_selection import SelectKBest
@@ -62,7 +62,7 @@ corrmat = data.corr()
 top_corr_features = corrmat.index
 # plt.figure(figsize=(20, 20))
 # plot heat map
-# g=sns.heatmap(data[top_corr_features].corr(),annot=True,cmap="RdYlGn")
+# g=sns.heatmap(input[top_corr_features].corr(),annot=True,cmap="RdYlGn")
 
 
 from sklearn.ensemble import RandomForestRegressor

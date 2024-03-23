@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 
 # Path of the file to read
-iowa_file_path = '../input/home-data-for-ml-course/train.csv'
+iowa_file_path = '../input/home-input-for-ml-course/train.csv'
 
 home_data = pd.read_csv(iowa_file_path)
 
@@ -16,7 +16,7 @@ y = home_data.SalePrice
 features = ['LotArea', 'YearBuilt', '1stFlrSF', '2ndFlrSF', 'FullBath', 'BedroomAbvGr', 'TotRmsAbvGrd']
 X = home_data[features]
 train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
-# Split into validating and training data
+# Split into validating and training input
 # Specify Model
 iowa_model = DecisionTreeRegressor(random_state=1)
 # Fit model

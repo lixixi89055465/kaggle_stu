@@ -40,8 +40,8 @@ from lightgbm import LGBMClassifier
 from catboost import CatBoostClassifier
 from sklearn.naive_bayes import GaussianNB
 
-train = pd.read_csv('../data/train.csv')
-test = pd.read_csv('../data/test.csv')
+train = pd.read_csv('../input/train.csv')
+test = pd.read_csv('../input/test.csv')
 
 print('Train set shape:', train.shape)
 print('Test set shape:', test.shape)
@@ -65,7 +65,7 @@ print(train.dtypes)
 
 plt.figure(figsize=(10, 4))
 # Histogram
-# sns.histplot(data=train, x='Age', hue='Transported', binwidth=1, kde=True)
+# sns.histplot(input=train, x='Age', hue='Transported', binwidth=1, kde=True)
 # plt.show()
 
 # Expenditure features
@@ -74,10 +74,10 @@ plt.figure(figsize=(10, 4))
 # fig = plt.figure(figsize=(10, 20))
 # for i, var_name in enumerate(exp_feats):
 #     ax = fig.add_subplot(5, 2, 2 * i + 1)
-#     sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=False, hue='Transported')
+#     sns.histplot(input=train, x=var_name, axes=ax, bins=30, kde=False, hue='Transported')
 #     ax.set_title(var_name)
 #     ax = fig.add_subplot(5, 2, 2 * i + 2)
-#     sns.histplot(data=train, x=var_name, axes=ax, bins=30, kde=True, hue='Transported')
+#     sns.histplot(input=train, x=var_name, axes=ax, bins=30, kde=True, hue='Transported')
 #     plt.ylim([0, 100])
 #     ax.set_title(var_name)
 #
@@ -90,7 +90,7 @@ plt.figure(figsize=(10, 4))
 #
 # for i, var_name in enumerate(cat_feats):
 #     ax = fig.add_subplot(4, 1, i + 1)
-#     sns.countplot(data=train, x=var_name, axes=ax, hue='Transported')
+#     sns.countplot(input=train, x=var_name, axes=ax, hue='Transported')
 #     ax.set_title(var_name)
 #
 # fig.tight_layout()
@@ -119,7 +119,7 @@ test.loc[(train['Age'] > 50), 'Age_group'] = 'Age_51+'
 # Plot distribution of new features
 
 # plt.figure(figsize=(10, 4))
-# g = sns.countplot(data=train, x='Age_group', hue='Transported',
+# g = sns.countplot(input=train, x='Age_group', hue='Transported',
 #                   order=['Age_0-12', 'Age_13-17', 'Age_18-25', 'Age_26-30', 'Age_31-50', 'Age_51+'])
 # plt.title('Age group distribution')
 # plt.show()
@@ -136,14 +136,14 @@ test['No_spending'] = (test['Expenditure']).astype(int)
 
 # fig = plt.figure(figsize=(12, 4))
 # plt.subplot(1, 2, 1)
-# sns.histplot(data=train, x='Expenditure', hue='Transported', bins=200)
+# sns.histplot(input=train, x='Expenditure', hue='Transported', bins=200)
 #
 # plt.title('Total expenditure (truncated) ')
 # plt.ylim([0, 200])
 # plt.xlim([0, 20000])
 #
 # plt.subplot(1, 2, 2)
-# sns.countplot(data=train, x='No_spending', hue='Transported')
+# sns.countplot(input=train, x='No_spending', hue='Transported')
 # plt.title('No spending indicator')
 # fig.tight_layout()
 # plt.show()

@@ -13,7 +13,7 @@ def get_mae(max_leaf_nodes, train_x, val_x, train_y, val_y):
 # Data Loading Code Runs At This Point
 import pandas as pd
 
-# Load data
+# Load input
 melbourne_file_path = '../input/melbourne-housing-snapshot/melb_data.csv'
 melbourne_data = pd.read_csv(melbourne_file_path)
 print(melbourne_data.head())

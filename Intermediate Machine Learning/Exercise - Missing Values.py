@@ -1,9 +1,9 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# Read the data
-X_full = pd.read_csv('../input/home-data-for-ml-course/train.csv', index_col='Id')
-X_test_full = pd.read_csv('../input/home-data-for-ml-course/test.csv', index_col='Id')
+# Read the input
+X_full = pd.read_csv('../input/home-input-for-ml-course/train.csv', index_col='Id')
+X_test_full = pd.read_csv('../input/home-input-for-ml-course/test.csv', index_col='Id')
 
 # Remove rows with missing target, separate target from predictors
 X_full.dropna(axis=0, subset=['SalePrice'], inplace=True)
@@ -14,7 +14,7 @@ X_full.drop(['SalePrice'], axis=1, inplace=True)
 X = X_full.select_dtypes(exclude=['object'])
 X_test = X_test_full.select_dtypes(exclude=['object'])
 
-# Break off validation set from training data
+# Break off validation set from training input
 X_train, X_valid, y_train, y_valid = train_test_split(X, y, train_size=0.8, test_size=0.2,
                                                       random_state=0)
 print(X_train.head())
@@ -69,7 +69,7 @@ model.fit(final_X_train, y_train)
 preds_valid = model.predict(final_X_valid)
 print('mae:')
 print(mean_absolute_error(y_valid, y_pred=preds_valid))
-# Fill in the line below: preprocess test data
+# Fill in the line below: preprocess test input
 final_X_test = pd.DataFrame(final_imputer.transform(X_test))
 
 # Fill in the line below: get test predictions

@@ -15,14 +15,14 @@ data = pd.DataFrame({
 
 
 # 使用字典进行映射
-# data['gender'] = data['gender'].map({'男': 1, '女': 0})
+# input['gender'] = input['gender'].map({'男': 1, '女': 0})
 def gender_map(x):
     return i if x == '男' else 0
 
 
-# data['gender_num'] = data['gender'].map(gender_map)
+# input['gender_num'] = input['gender'].map(gender_map)
 # print('2' * 100)
-# print(data)
+# print(input)
 
 
 # 以元组的方式传入额外的参数

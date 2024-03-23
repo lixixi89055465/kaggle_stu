@@ -70,5 +70,5 @@ from datasets import load_dataset
 # print(disk_datasets)
 
 print('14' * 100)
-d0 = load_dataset('json', data_files=['../input/cmrc2018/dataset_infos.json'],field='data')
+d0 = load_dataset('json', data_files=['../input/cmrc2018/dataset_infos.json'],field='input')
 print(d0)

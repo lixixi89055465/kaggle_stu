@@ -4,7 +4,7 @@ import numpy as np
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
-data_dir = Path('../input/ts-course-data/')
+data_dir = Path('../input/ts-course-input/')
 comp_dir = Path('../input/store-sales-time-series-forecasting')
 retail_sales = pd.read_csv(
     data_dir / 'us-retail-sales.csv',

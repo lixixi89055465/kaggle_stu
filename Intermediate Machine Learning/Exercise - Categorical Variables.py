@@ -1,8 +1,8 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-X = pd.read_csv('../input/home-data-for-ml-course/train.csv', index_col='Id')
-X_test = pd.read_csv('../input/home-data-for-ml-course/test.csv', index_col='Id')
+X = pd.read_csv('../input/home-input-for-ml-course/train.csv', index_col='Id')
+X_test = pd.read_csv('../input/home-input-for-ml-course/test.csv', index_col='Id')
 X.dropna(axis=0, subset=['SalePrice'], inplace=True)
 y = X.SalePrice
 X.drop(['SalePrice'], axis=1, inplace=True)
@@ -22,7 +22,7 @@ def score_dataset(X_train, X_valid, y_train, y_valid):
     return mean_absolute_error(y_valid, preds)
 
 
-# Categorical columns in the training data
+# Categorical columns in the training input
 object_cols = [col for col in X_train.columns if X_train[col].dtype == "object"]
 
 # Columns that can be safely ordinal encoded

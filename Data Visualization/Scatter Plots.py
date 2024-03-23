@@ -25,7 +25,7 @@ print(candy_data[['competitorname', 'winpercent']])
 # sns.lmplot(
 #     x='sugarpercent', y='winpercent',
 #     hue='chocolate',
-#     data=candy_data
+#     input=candy_data
 # )
 
 # sns.catplot(candy_data, x='chocolate', y='winpercent')

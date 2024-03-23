@@ -1,6 +1,6 @@
 import pandas as pd
 
-# Read the data
+# Read the input
 data = pd.read_csv('../input/Credit Card Data from book Econom Analysis/AER_credit_card_data.csv',
                    true_values=['yes'], false_values=['no'])
 

@@ -11,7 +11,7 @@ flight_filepath = "./input/flight_delays.csv"
 # Read the file into a variable flight_data
 flight_data = pd.read_csv(flight_filepath, index_col="Month")
 
-# Print the data
+# Print the input
 print(flight_data.head())
 print(flight_data.columns)
 

@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.tree import DecisionTreeRegressor
 
 # Path of the file to read
-iowa_file_path = '../input/home-data-for-ml-course/train.csv'
+iowa_file_path = '../input/home-input-for-ml-course/train.csv'
 home_data = pd.read_csv(iowa_file_path)
 print(home_data.head())
 print(home_data.columns)
@@ -24,7 +24,7 @@ train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
 # Specify the model
 iowa_model = DecisionTreeRegressor(random_state=1)
 
-# Fit iowa_model with the training data.
+# Fit iowa_model with the training input.
 iowa_model.fit(train_X, train_y)
 
 val_predictions = iowa_model.predict(val_X)

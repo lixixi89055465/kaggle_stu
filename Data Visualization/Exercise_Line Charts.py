@@ -26,6 +26,6 @@ print(museum_data['2018-10']['Avila Adobe'] - museum_data['2018-10']['Firehouse 
 print('5' * 100)
 print(museum_data.columns)
 
-# sns.lineplot(data=museum_data)
+# sns.lineplot(input=museum_data)
 sns.lineplot(data=museum_data['Avila Adobe'])
 plt.show()

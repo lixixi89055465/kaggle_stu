@@ -1,6 +1,6 @@
 import pandas as pd
 
-# Load data
+# Load input
 melbourne_file_path = '../input/melbourne-housing-snapshot/melb_data.csv'
 melbourne_data = pd.read_csv(melbourne_file_path)
 # Filter rows with missing values
@@ -15,7 +15,7 @@ X = melbourne_data[melbourne_features]
 
 from sklearn.model_selection import train_test_split
 
-# split data into training and validation data, for both features and target
+# split input into training and validation input, for both features and target
 # The split is based on a random number generator. Supplying a numeric value to
 # the random_state argument guarantees we get the same split every time we
 # run this script.

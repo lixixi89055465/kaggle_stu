@@ -108,7 +108,7 @@ def plot_periodogram(ts, detrend='linear', ax=None):
     return ax
 
 
-data_dir = Path("../input/ts-course-data")
+data_dir = Path("../input/ts-course-input")
 tunnel = pd.read_csv(data_dir / 'tunnel.csv', parse_dates=['Day'])
 tunnel = tunnel.set_index('Day').to_period('D')
 print(tunnel.head())

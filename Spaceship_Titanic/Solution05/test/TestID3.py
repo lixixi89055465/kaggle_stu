@@ -180,7 +180,7 @@ def classify(inputTree,featLabels,testVec):
     return classLabel
 def lenses_test():
     """使用决策树预测隐形眼镜类型"""
-    fr = open('./lenses/lenses.data')
+    fr = open('./lenses/lenses.input')
     lenses = [inst.strip().split('  ') for inst in fr.readlines()]
     lensesLabel = ['age','prescript','astigmatic','tearRate']
     lensesTree = createTree(lenses,lensesLabel)  # 创建树

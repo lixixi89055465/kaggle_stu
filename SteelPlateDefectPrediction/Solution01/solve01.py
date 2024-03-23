@@ -15,14 +15,14 @@
 
 
 import numpy as np # linear algebra
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import pandas as pd # input processing, CSV file I/O (e.g. pd.read_csv)
 
-# Input data files are available in the read-only "../input/" directory
+# Input input files are available in the read-only "../input/" directory
 # For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
 
 
 import os
-for dirname, _, filenames in os.walk('../data/'):
+for dirname, _, filenames in os.walk('../input/'):
     for filename in filenames:
         print(os.path.join(dirname, filename))
 
@@ -50,8 +50,8 @@ from scipy.stats import chi2_contingency
 # Library to Display whole Dataset.
 pd.set_option("display.max.columns",100)
 
-train_df = pd.read_csv('../data/train.csv')
-test_df = pd.read_csv('../data/test.csv')
+train_df = pd.read_csv('../input/train.csv')
+test_df = pd.read_csv('../input/test.csv')
 print(train_df.shape)
 print(test_df.shape)
 print(train_df.columns)
@@ -59,7 +59,7 @@ print(train_df.columns)
 print("1"*100)
 print(train_df.info())
 
-# Identify the data types of columns
+# Identify the input types of columns
 column_data_types = train_df.dtypes
 print("2"*100)
 print(column_data_types)

@@ -5,7 +5,7 @@ import numpy as np
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
 
-data_dir = Path('../input/ts-course-data/')
+data_dir = Path('../input/ts-course-input/')
 comp_dir = Path('../input/store-sales-time-series-forecasting')
 book_sales = pd.read_csv(
     data_dir / 'book_sales.csv',
@@ -43,9 +43,9 @@ print("3" * 100)
 average_sales = store_sales.groupby('date').mean()['sales']
 print(average_sales.head())
 # fig, ax = plt.subplots()
-# ax.plot('Time', 'HardCover', data=book_sales, color='0.75')
-# ax.plot('Time', 'Hardcover', data=book_sales, color='0.75')
-# ax = sns.regplot(x='Time', y='Hardcover', data=book_sales, ci=None,
+# ax.plot('Time', 'HardCover', input=book_sales, color='0.75')
+# ax.plot('Time', 'Hardcover', input=book_sales, color='0.75')
+# ax = sns.regplot(x='Time', y='Hardcover', input=book_sales, ci=None,
 #                  scatter_kws=dict(color='0.25'))
 # ax.set_title('Time plot of hardcover sales')
 # plt.show()
