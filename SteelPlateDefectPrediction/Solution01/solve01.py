@@ -528,41 +528,61 @@ result = model_prediction(LogisticRegression(), x_scaled, y6, n_splits=5, random
 print('5' * 100)
 print(result)
 
-result=model_prediction(LogisticRegression(), x_scaled, y7, n_splits=5, random_state=42)
+result = model_prediction(LogisticRegression(), x_scaled, y7, n_splits=5, random_state=42)
 print('6' * 100)
 print(result)
 
-'''def objective(trial):
-    max_depth = trial.suggest_int('max_depth', 3, 10)
-    n_estimators = trial.suggest_int('n_estimators', 100, 2000)
-    gamma = trial.suggest_float('gamma', 0, 1)
-    reg_alpha = trial.suggest_float('reg_alpha', 0, 2)
-    reg_lambda = trial.suggest_float('reg_lambda', 0, 2)
-    min_child_weight = trial.suggest_int('min_child_weight', 0, 10)
-    subsample = trial.suggest_float('subsample', 0, 1)
-    colsample_bytree = trial.suggest_float('colsample_bytree', 0, 1)
-    learning_rate = trial.suggest_float('learning_rate', 0.01, 1)
 
-    print('Training the model with', x.shape[1], 'features')
+def objective(trial):
+	max_depth = trial.suggest_int('max_depth', 3, 10)
+	n_estimators = trial.suggest_int('n_estimators', 100, 2000)
+	gamma = trial.suggest_float('gamma', 0, 1)
+	reg_alpha = trial.suggest_float('reg_alpha', 0, 2)
+	reg_lambda = trial.suggest_float('reg_lambda', 0, 2)
+	min_child_weight = trial.suggest_int('min_child_weight', 0, 10)
+	subsample = trial.suggest_float('subsample', 0, 1)
+	colsample_bytree = trial.suggest_float('colsample_bytree', 0, 1)
+	learning_rate = trial.suggest_float('learning_rate', 0.01, 1)
 
-    params = {'n_estimators': n_estimators,
-              'learning_rate': learning_rate,
-              'gamma': gamma,
-              'reg_alpha': reg_alpha,
-              'reg_lambda': reg_lambda,
-              'max_depth': max_depth,
-              'min_child_weight': min_child_weight,
-              'subsample': subsample,
-              'colsample_bytree': colsample_bytree,
-              'eval_metric':'logloss'}  # Using logloss for binary classification
+	print('Training the model with', x.shape[1], 'features')
 
-    clf = XGBClassifier(**params,
-                        booster='gbtree',
-                        objective='binary:logistic',  # Binary classification objective
-                        verbosity=0)
+	params = {'n_estimators': n_estimators,
+			  'learning_rate': learning_rate,
+			  'gamma': gamma,
+			  'reg_alpha': reg_alpha,
+			  'reg_lambda': reg_lambda,
+			  'max_depth': max_depth,
+			  'min_child_weight': min_child_weight,
+			  'subsample': subsample,
+			  'colsample_bytree': colsample_bytree,
+			  'eval_metric': 'logloss'}  # Using logloss for binary classification
 
-    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    cv_results = cross_val_score(clf, x, y7, cv=cv, scoring='roc_auc')  # Using roc_auc scoring
+	clf = XGBClassifier(**params,
+						booster='gbtree',
+						objective='binary:logistic',  # Binary classification objective
+						verbosity=0)
 
-    validation_score = np.mean(cv_results)
-    return validation_score'''
+	cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+	cv_results = cross_val_score(clf, x, y7, cv=cv, scoring='roc_auc')  # Using roc_auc scoring
+
+	validation_score = np.mean(cv_results)
+	return validation_score
+
+
+study = optuna.create_study(direction="maximize")
+study.optimize(objective, n_trials=25)
+best_params = study.best_params
+print("Best Hyperparameters y7:", best_params)
+xgb_best_params_for_y1 = {'max_depth': 5, \
+						  'n_estimators': 1627, \
+						  'gamma': 0.8952807768735265,
+						  'reg_alpha': 1.6314226873472901, \
+						  'reg_lambda': 1.7229132141868826, \
+						  'min_child_weight': 9,
+						  'subsample': 0.9885054042421748, \
+						  'colsample_bytree': 0.22439719563481197, \
+						  'learning_rate': 0.10650804734533341}
+xgb_model_for_y1 = XGBClassifier(**xgb_best_params_for_y1)
+result=xgb_model_for_y1.fit( x, y1)
+print('7'*100)
+print(result)
