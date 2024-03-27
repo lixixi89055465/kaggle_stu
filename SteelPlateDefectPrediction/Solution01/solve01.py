@@ -383,24 +383,24 @@ x_train_scaled, x_test_scaled, y_train, y_test = \
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 
-pca=PCA()
+pca = PCA()
 pca.fit(x_scaled)
-explained_variance_ratio=pca.explained_variance_ratio_
-cumulative_variance_ratio=explained_variance_ratio.cumsum()
+explained_variance_ratio = pca.explained_variance_ratio_
+cumulative_variance_ratio = explained_variance_ratio.cumsum()
 # plt.plot(cumulative_variance_ratio)
 # plt.xlabel('Number of Components')
 # plt.ylabel('Cumulative Explained Variance')
 # plt.show()
 ## PCA- Transformation
-#pca=PCA(n_components=20)
-#pca
+# pca=PCA(n_components=20)
+# pca
 
-#Scaled Data
-#x_scaled=pca.fit_transform(x_scaled)
-#x_train1 = pca.transform(x_train1)
-#Scaled data
-#test_df_scaled=pca.transform(test_df_scaled)
-#x_test1 = pca.transform(x_test1)
+# Scaled Data
+# x_scaled=pca.fit_transform(x_scaled)
+# x_train1 = pca.transform(x_train1)
+# Scaled data
+# test_df_scaled=pca.transform(test_df_scaled)
+# x_test1 = pca.transform(x_test1)
 
 # Machine learning algorithms
 from sklearn.tree import DecisionTreeClassifier
@@ -409,27 +409,27 @@ from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import cross_val_score
-from sklearn.ensemble import RandomForestClassifier,\
-	AdaBoostClassifier,GradientBoostingClassifier,\
+from sklearn.ensemble import RandomForestClassifier, \
+	AdaBoostClassifier, GradientBoostingClassifier, \
 	VotingClassifier
 from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
-from catboost import CatBoostClassifier,Pool
+from catboost import CatBoostClassifier, Pool
 import tensorflow
 from tensorflow import keras
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense,BatchNormalization,Dropout
+from tensorflow.keras.layers import Dense, BatchNormalization, Dropout
 import os
 from sklearn.base import ClassifierMixin
-from sklearn.model_selection import StratifiedKFold,cross_val_predict
+from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from sklearn.multiclass import OneVsRestClassifier
 # from scikeras.wrappers import KerasClassifier
 
-#for hypertuning
+# for hypertuning
 
 import optuna
 from collections import Counter
-from sklearn.model_selection import RandomizedSearchCV,GridSearchCV,RepeatedStratifiedKFold
+from sklearn.model_selection import RandomizedSearchCV, GridSearchCV, RepeatedStratifiedKFold
 
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import recall_score
@@ -438,7 +438,131 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.metrics import roc_auc_score
-from sklearn.metrics  import cohen_kappa_score
-#TODO
-from sklearn.metrics import balanced_accuracy_score
-from sklearn.metrics import roc_curve,auc
+from sklearn.metrics import cohen_kappa_score
+from sklearn.metrics import balanced_accuracy_score  # for Gini-mean
+from sklearn.metrics import roc_curve, auc
+
+
+def model_prediction(model, x, y, n_splits=5, random_state=42):
+	skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+	training_score = []
+	testing_score = []
+	precision = []
+	recall = []
+	f1_score_ = []
+	roc_auc_scores = []
+	x = pd.DataFrame(x)
+	for train_index, test_index in skf.split(x, y):
+		x_train, x_test = x.iloc[train_index], x.iloc[test_index]
+		y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+		model.fit(x_train, y_train)
+		x_train_pred = model.predict(x_train)
+		y_test_pred = model.predict(x_test)
+		a = accuracy_score(y_train, x_train_pred) * 100
+		b = accuracy_score(y_test, y_test_pred) * 100
+		c = precision_score(y_test, y_test_pred, average='weighted')
+		d = recall_score(y_test, y_test_pred, average='weighted')
+		e = f1_score(y_test, y_test_pred, average='weighted')
+		# Calculate AUC-ROC score
+		roc_auc = roc_auc_score(y_test, model.predict_proba(x_test)[:, 1])
+		roc_auc_scores.append(roc_auc)
+
+		training_score.append(a)
+		testing_score.append(b)
+		precision.append(c)
+		recall.append(d)
+		f1_score_.append(e)
+
+	print("\n------------------------------------------------------------------------")
+	print(f"Mean Accuracy_Score of {model} model on Training Data is:", np.mean(training_score))
+	print(f"Mean Accuracy_Score of {model} model on Testing Data is:", np.mean(testing_score))
+	print(f"Mean Precision Score of {model} model is:", np.mean(precision))
+	print(f"Mean Recall Score of {model} model is:", np.mean(recall))
+	print(f"Mean f1 Score of {model} model is:", np.mean(f1_score_))
+	print(f"Mean AUC-ROC Score of {model} model is:", np.mean(roc_auc_scores))
+
+	print("\n------------------------------------------------------------------------")
+	print(f"Classification Report of {model} model is:")
+	y_pred_all = cross_val_predict(model, x, y, cv=skf)
+	print(classification_report(y, y_pred_all))
+
+	print("\n------------------------------------------------------------------------")
+	print(f"Plotting ROC-AUC curve for {model} model:")
+	mean_fpr = np.linspace(0, 1, 100)
+	tprs = []
+	for train_index, test_index in skf.split(x, y):
+		x_train, x_test = x.iloc[train_index], x.iloc[test_index]
+		y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+		probas_ = model.fit(x_train, y_train).predict_proba(x_test)
+		fpr, tpr, thresholds = roc_curve(y_test, probas_[:, 1])
+		tprs.append(np.interp(mean_fpr, fpr, tpr))
+	mean_tpr = np.mean(tprs, axis=0)
+	mean_tpr[-1] = 1.0
+	mean_auc = auc(mean_fpr, mean_tpr)
+	plt.plot(mean_fpr, mean_tpr, color='b', label=f'Mean ROC (AUC={mean_auc:.2f}')
+	plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='change', alpha=.8)
+	plt.xlabel('False Positive Rate')
+	plt.ylabel('True Positive Rate')
+	plt.title(f'ROC - AUC Curve for {model} Model')
+	plt.legend(loc='lower right')
+	plt.show()
+
+
+result = model_prediction(LogisticRegression(), x_scaled, y1, n_splits=5, random_state=42)
+print('0' * 100)
+print(result)
+result = model_prediction(LogisticRegression(), x_scaled, y2, n_splits=5, random_state=42)
+print('1' * 100)
+print(result)
+result = model_prediction(LogisticRegression(), x_scaled, y3, n_splits=5, random_state=42)
+print('2' * 100)
+print(result)
+result = model_prediction(LogisticRegression(), x_scaled, y4, n_splits=5, random_state=42)
+print('3' * 100)
+print(result)
+result = model_prediction(LogisticRegression(), x_scaled, y5, n_splits=5, random_state=42)
+print('4' * 100)
+print(result)
+
+result = model_prediction(LogisticRegression(), x_scaled, y6, n_splits=5, random_state=42)
+print('5' * 100)
+print(result)
+
+result=model_prediction(LogisticRegression(), x_scaled, y7, n_splits=5, random_state=42)
+print('6' * 100)
+print(result)
+
+'''def objective(trial):
+    max_depth = trial.suggest_int('max_depth', 3, 10)
+    n_estimators = trial.suggest_int('n_estimators', 100, 2000)
+    gamma = trial.suggest_float('gamma', 0, 1)
+    reg_alpha = trial.suggest_float('reg_alpha', 0, 2)
+    reg_lambda = trial.suggest_float('reg_lambda', 0, 2)
+    min_child_weight = trial.suggest_int('min_child_weight', 0, 10)
+    subsample = trial.suggest_float('subsample', 0, 1)
+    colsample_bytree = trial.suggest_float('colsample_bytree', 0, 1)
+    learning_rate = trial.suggest_float('learning_rate', 0.01, 1)
+
+    print('Training the model with', x.shape[1], 'features')
+
+    params = {'n_estimators': n_estimators,
+              'learning_rate': learning_rate,
+              'gamma': gamma,
+              'reg_alpha': reg_alpha,
+              'reg_lambda': reg_lambda,
+              'max_depth': max_depth,
+              'min_child_weight': min_child_weight,
+              'subsample': subsample,
+              'colsample_bytree': colsample_bytree,
+              'eval_metric':'logloss'}  # Using logloss for binary classification
+
+    clf = XGBClassifier(**params,
+                        booster='gbtree',
+                        objective='binary:logistic',  # Binary classification objective
+                        verbosity=0)
+
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    cv_results = cross_val_score(clf, x, y7, cv=cv, scoring='roc_auc')  # Using roc_auc scoring
+
+    validation_score = np.mean(cv_results)
+    return validation_score'''
