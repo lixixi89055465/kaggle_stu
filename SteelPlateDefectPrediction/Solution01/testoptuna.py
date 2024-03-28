@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 # @Time : 2024/3/27 23:25
 # @Author : nanji
-# @Site : https://zhuanlan.zhihu.com/p/159506313
+# @Site : https://zhuanlan.zhihu.com/p/159506313 ; https://github.com/optuna/optuna-examples
 # @File : testoptuna.py
 # @Software: PyCharm 
 # @Comment : 
 import optuna
-
+import warnings
+warnings.filterwarnings('ignore')
 def objective(trial):
     x = trial.suggest_uniform('x', -10, 10)
     y = trial.suggest_uniform('y', -10, 10)
