@@ -570,7 +570,7 @@ def objective(trial):
 
 
 study = optuna.create_study(direction="maximize")
-study.optimize(objective, n_trials=25)
+study.optimize(objective, n_trials=25, n_jobs=8)
 best_params = study.best_params
 print("Best Hyperparameters y7:", best_params)
 xgb_best_params_for_y1 = {'max_depth': 5, \
@@ -583,6 +583,593 @@ xgb_best_params_for_y1 = {'max_depth': 5, \
 						  'colsample_bytree': 0.22439719563481197, \
 						  'learning_rate': 0.10650804734533341}
 xgb_model_for_y1 = XGBClassifier(**xgb_best_params_for_y1)
-result=xgb_model_for_y1.fit( x, y1)
-print('7'*100)
+result = xgb_model_for_y1.fit(x, y1)
+print('7' * 100)
 print(result)
+
+# feature importance
+
+feature_importance = xgb_model_for_y1.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+
+xgb_best_params_for_y2 = {'max_depth': 4, 'n_estimators': 623, \
+						  'gamma': 0.8519204218831254, \
+						  'reg_alpha': 1.2439917683504533, \
+						  'reg_lambda': 1.4590567435160746, \
+						  'min_child_weight': 8, \
+						  'subsample': 0.40710690255500565, \
+						  'colsample_bytree': 0.2267807727315173, \
+						  'learning_rate': 0.04570427430948454}
+xgb_model_for_y2 = XGBClassifier(**xgb_best_params_for_y2)
+# feature importance
+feature_importance = xgb_model_for_y2.feature_importances_
+feature_importance_df = pd.DataFrame({"Feature": x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+xgb_best_params_for_y3 = {'max_depth': 5, 'n_estimators': 1680, 'gamma': 0.6923689614425462,
+						  'reg_alpha': 0.9189470702166882, 'reg_lambda': 1.5117758160539976, 'min_child_weight': 9,
+						  'subsample': 0.6940678483755448, 'colsample_bytree': 0.8761358304654752,
+						  'learning_rate': 0.011025136150862678}
+xgb_model_for_y3 = XGBClassifier(**xgb_best_params_for_y3)
+xgb_model_for_y3.fit(x, y3)
+# feature importances
+feature_importance = xgb_model_for_y3.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+
+xgb_best_params_for_y4 = {'max_depth': 6, 'n_estimators': 401, 'gamma': 0.3226754521662682,
+						  'reg_alpha': 0.35015352024357355, 'reg_lambda': 1.455091751574945, 'min_child_weight': 2,
+						  'subsample': 0.6613340923578201, 'colsample_bytree': 0.6369472068920922,
+						  'learning_rate': 0.02173505504016533}
+xgb_model_for_y4 = XGBClassifier(**xgb_best_params_for_y4)
+xgb_model_for_y4.fit(x, y4)
+
+# feature importances
+feature_importance = xgb_model_for_y4.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+
+xgb_best_params_for_y5 = {'max_depth': 8, 'n_estimators': 1586, 'gamma': 0.32950059377825075,
+						  'reg_alpha': 1.9609119815708795, 'reg_lambda': 1.528942899424126, 'min_child_weight': 0,
+						  'subsample': 0.2571147836064856, 'colsample_bytree': 0.24989821475746465,
+						  'learning_rate': 0.01350991516826753}
+xgb_model_for_y5 = XGBClassifier(**xgb_best_params_for_y5)
+xgb_model_for_y5.fit(x, y5)
+# feature importances
+feature_importance = xgb_model_for_y5.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+
+xgb_best_params_for_y6 = {'max_depth': 3, 'n_estimators': 1965, 'gamma': 0.7461420398485773,
+						  'reg_alpha': 0.6331839468092292, 'reg_lambda': 1.7474555338548388, 'min_child_weight': 3,
+						  'subsample': 0.44572949961178254, 'colsample_bytree': 0.44437417147066066,
+						  'learning_rate': 0.013061101850914858}
+xgb_model_for_y6 = XGBClassifier(**xgb_best_params_for_y6)
+xgb_model_for_y6.fit(x, y6)
+# feature importances
+feature_importance = xgb_model_for_y6.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+xgb_best_params_for_y7 = {'max_depth': 4, 'n_estimators': 663, 'gamma': 0.6429564571848232,
+						  'reg_alpha': 0.3267006339507057, 'reg_lambda': 0.04658361960102192, 'min_child_weight': 6,
+						  'subsample': 0.9939674566310442, 'colsample_bytree': 0.1435958193323451,
+						  'learning_rate': 0.24960789830790053}
+xgb_model_for_y7 = XGBClassifier(**xgb_best_params_for_y7)
+xgb_model_for_y7.fit(x, y7)
+
+# feature importances
+feature_importance = xgb_model_for_y7.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+model_prediction(XGBClassifier(**xgb_best_params_for_y1), x, y1, n_splits=5, random_state=42)
+
+model_prediction(XGBClassifier(**xgb_best_params_for_y2), x, y2, n_splits=5, random_state=42)
+model_prediction(XGBClassifier(**xgb_best_params_for_y3), x, y3, n_splits=5, random_state=42)
+model_prediction(XGBClassifier(**xgb_best_params_for_y4), x, y4, n_splits=5, random_state=42)
+model_prediction(XGBClassifier(**xgb_best_params_for_y5), x, y5, n_splits=5, random_state=42)
+model_prediction(XGBClassifier(**xgb_best_params_for_y6), x, y6, n_splits=5, random_state=42)
+model_prediction(XGBClassifier(**xgb_best_params_for_y7), x, y7, n_splits=5, random_state=42)
+
+'''def objective(trial):
+    learning_rate = trial.suggest_float('learning_rate', 0.01, 0.1)
+    iterations = trial.suggest_int('iterations', 100, 5000)
+    depth = trial.suggest_int('depth', 3, 10)
+    colsample_bylevel = trial.suggest_float('colsample_bylevel', 0.5, 1.0)
+    l2_leaf_reg = trial.suggest_float('l2_leaf_reg', 0.0, 2.0)
+    border_count = trial.suggest_int('border_count', 32, 255)
+
+    print('Training the model with', x.shape[1], 'features')
+
+    params = {
+        'learning_rate': learning_rate,
+        'iterations': iterations,
+        'depth': depth,
+        'colsample_bylevel': colsample_bylevel,
+        'l2_leaf_reg': l2_leaf_reg,
+        'border_count': border_count,
+    }
+
+    clf = CatBoostClassifier(**params, eval_metric='AUC', task_type="CPU", verbose=300, early_stopping_rounds=50)
+
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    cv_results = cross_validate(clf, x, y7, cv=cv, scoring='roc_auc')
+
+    validation_score = np.mean(cv_results['test_score'])
+
+    return validation_score'''
+# Set up Optuna study
+# study = optuna.create_study(direction='maximize')
+# study.optimize(objective, n_trials=20)
+
+# Get the best hyperparameters
+# best_params = study.best_params
+# print("Best Hyperparameters for y7:", best_params)
+catboost_best_params_for_y1 = {'learning_rate': 0.0293790855184329, 'iterations': 1481, 'depth': 3,
+							   'colsample_bylevel': 0.5711312763952309, 'l2_leaf_reg': 1.5994222344635594,
+							   'border_count': 208}
+cb_model_for_y1 = CatBoostClassifier(**catboost_best_params_for_y1)
+cb_model_for_y1.fit(x, y1)
+# feature importances
+feature_importance = cb_model_for_y1.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+catboost_best_params_for_y2 = {'learning_rate': 0.03857054239913968, 'iterations': 206, 'depth': 10,
+							   'colsample_bylevel': 0.5393784309306074, 'l2_leaf_reg': 1.3906029897172827,
+							   'border_count': 231}
+cb_model_for_y2 = CatBoostClassifier(**catboost_best_params_for_y2)
+cb_model_for_y2.fit(x, y2)
+
+catboost_best_params_for_y3 = {'learning_rate': 0.05819735650442166, 'iterations': 165, 'depth': 6,
+							   'colsample_bylevel': 0.960964834849099, 'l2_leaf_reg': 0.6700019633321236,
+							   'border_count': 189}
+
+cb_model_for_y3 = CatBoostClassifier(**catboost_best_params_for_y3)
+cb_model_for_y3.fit(x, y3)
+
+# feature importances
+feature_importance = cb_model_for_y3.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+catboost_best_params_for_y4 = {'learning_rate': 0.032940739491683975, 'iterations': 407, 'depth': 8,
+							   'colsample_bylevel': 0.6333926050478358, 'l2_leaf_reg': 1.1045970003458674,
+							   'border_count': 130}
+
+cb_model_for_y4 = CatBoostClassifier(**catboost_best_params_for_y4)
+cb_model_for_y4.fit(x, y4)
+# feature importances
+feature_importance = cb_model_for_y4.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+
+catboost_best_params_for_y5 = {'learning_rate': 0.07936470052548467, 'iterations': 135, 'depth': 8,
+							   'colsample_bylevel': 0.8032026164713476, 'l2_leaf_reg': 0.7783270167485883,
+							   'border_count': 247}
+cb_model_for_y5 = CatBoostClassifier(**catboost_best_params_for_y5)
+cb_model_for_y5.fit(x, y5)
+# feature importances
+feature_importance = cb_model_for_y5.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+
+catboost_best_params_for_y6 = {'learning_rate': 0.010315180165549727, 'iterations': 1156, 'depth': 9,
+							   'colsample_bylevel': 0.6160311869329463, 'l2_leaf_reg': 1.1668408958633865,
+							   'border_count': 179}
+cb_model_for_y6 = CatBoostClassifier(**catboost_best_params_for_y6)
+cb_model_for_y6.fit(x, y6)
+
+# feature importances
+feature_importance = cb_model_for_y6.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+catboost_best_params_for_y7 = {'learning_rate': 0.025827131598767934, 'iterations': 848, 'depth': 3,
+							   'colsample_bylevel': 0.74491431963177, 'l2_leaf_reg': 0.12688953370416511,
+							   'border_count': 189}
+cb_model_for_y7 = CatBoostClassifier(**catboost_best_params_for_y7)
+cb_model_for_y7.fit(x, y7)
+# feature importances
+feature_importance = cb_model_for_y7.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+'''def objective(trial):
+    params = {
+        'objective': 'binary',
+        'metric': 'auc',
+        'verbosity': -1,
+        'boosting_type': 'gbdt',
+        'lambda_l1': 0.0,
+        'lambda_l2': 0.0,
+        'num_leaves': trial.suggest_int('num_leaves', 10, 200),
+        'colsample_bytree': trial.suggest_float('colsample_bytree', 0.1, 1.0),
+        'subsample': trial.suggest_float('subsample', 0.1, 1.0),
+        'bagging_freq': trial.suggest_int('bagging_freq', 1, 10),
+        'min_child_samples': trial.suggest_int('min_child_samples', 5, 100),
+        'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.1)
+    }
+
+    print('Training the model with', x.shape[1], 'features')
+
+    lgb_classifier = LGBMClassifier(**params)
+
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    cv_results = cross_val_score(lgb_classifier, x, y7, cv=cv, scoring='roc_auc')
+
+    validation_score = np.mean(cv_results)
+
+    return validation_score'''
+
+# Set up Optuna study
+# study = optuna.create_study(direction='maximize')
+# study.optimize(objective, n_trials=100)
+
+# Get the best hyperparameters
+# best_params = study.best_params
+# print("Best Hyperparameters for y7:", best_params)
+
+lgbm_best_params_for_y1 = {'num_leaves': 10, 'colsample_bytree': 0.4938794627384321,
+						   'subsample': 0.8742780567743516,
+						   'bagging_freq': 8, 'min_child_samples': 71,
+						   'learning_rate': 0.07912118780949727}
+lgbm_model_for_y1 = LGBMClassifier(**lgbm_best_params_for_y1)
+lgbm_model_for_y1.fit( x, y1)
+
+# feature importances
+feature_importance = lgbm_model_for_y1.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+
+lgbm_best_params_for_y2 = {'num_leaves': 21, 'colsample_bytree': 0.4151347339206033, 'subsample': 0.8370319196132707, 'bagging_freq': 6, 'min_child_samples': 29, 'learning_rate': 0.04847995943398712}
+
+lgbm_model_for_y2 = LGBMClassifier(**lgbm_best_params_for_y2)
+lgbm_model_for_y2.fit( x, y2)
+
+# feature importances
+feature_importance = lgbm_model_for_y2.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+
+lgbm_best_params_for_y3 = {'num_leaves': 100, 'colsample_bytree': 0.5087492462560602, 'subsample': 0.4411107602895591, 'bagging_freq': 1, 'min_child_samples': 62, 'learning_rate': 0.038454266176433355}
+lgbm_model_for_y3 = LGBMClassifier(**lgbm_best_params_for_y3)
+lgbm_model_for_y3.fit( x, y3)
+
+# feature importances
+feature_importance = lgbm_model_for_y3.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+lgbm_best_params_for_y4 = {'num_leaves': 131, 'colsample_bytree': 0.5697305625366826, 'subsample': 0.8109563189916542, 'bagging_freq': 4, 'min_child_samples': 19, 'learning_rate': 0.05213996016102166}
+lgbm_model_for_y4 = LGBMClassifier(**lgbm_best_params_for_y4)
+lgbm_model_for_y4.fit( x, y4)
+# feature importances
+feature_importance = lgbm_model_for_y4.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+lgbm_best_params_for_y5 = {'num_leaves': 91, 'colsample_bytree': 0.1639450170074021, 'subsample': 0.5341894798705625, 'bagging_freq': 4, 'min_child_samples': 47, 'learning_rate': 0.018293880009565062}
+
+
+lgbm_model_for_y5 = LGBMClassifier(**lgbm_best_params_for_y5)
+lgbm_model_for_y5.fit( x, y5)
+
+# feature importances
+feature_importance = lgbm_model_for_y5.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+lgbm_best_params_for_y6 =  {'num_leaves': 22, 'colsample_bytree': 0.667438994216906, 'subsample': 0.8090648564857341, 'bagging_freq': 1, 'min_child_samples': 93, 'learning_rate': 0.06318737564630748}
+lgbm_model_for_y6 = LGBMClassifier(**lgbm_best_params_for_y6)
+lgbm_model_for_y6.fit( x, y6)
+# feature importances
+feature_importance = lgbm_model_for_y6.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+
+lgbm_best_params_for_y7 = {'num_leaves': 16, 'colsample_bytree': 0.5430173377906267, 'subsample': 0.9060940434087468, 'bagging_freq': 2, 'min_child_samples': 46, 'learning_rate': 0.04345358731901847}
+lgbm_model_for_y7 = LGBMClassifier(**lgbm_best_params_for_y7)
+lgbm_model_for_y7.fit( x, y7)
+# feature importances
+feature_importance = lgbm_model_for_y7.feature_importances_
+feature_importance_df = pd.DataFrame({'Feature': x.columns, 'Importance': feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+
+ensemble_model_for_y1 = VotingClassifier(
+    estimators=[
+        ('xgb', xgb_model_for_y1),
+        ('catboost',cb_model_for_y1),
+        ('LGBM', lgbm_model_for_y1)
+    ],
+    voting='soft',
+    flatten_transform=True,
+	n_jobs=16
+)
+
+# Use AUC-ROC as the scoring parameter
+auc_roc_scores = cross_val_score(ensemble_model_for_y1, x, y1, cv=5, scoring='roc_auc')
+
+print("AUC-ROC scores for each fold:", auc_roc_scores)
+print("Average AUC-ROC:", auc_roc_scores.mean())
+
+
+ensemble_model_for_y1.fit(x,y1)
+Pastry = ensemble_model_for_y1.predict_proba(test_df)
+Pastry = Pastry[:,1]
+Pastry
+
+ensemble_model_for_y2 = VotingClassifier(
+    estimators=[
+        ('xgb', xgb_model_for_y2),
+        ('catboost',cb_model_for_y2),
+        ('LGBM', lgbm_model_for_y2)
+    ],
+    voting='soft',
+    flatten_transform=True,
+	n_jobs=16
+)
+
+# Use AUC-ROC as the scoring parameter
+auc_roc_scores = cross_val_score(ensemble_model_for_y2, x, y2, cv=5, scoring='roc_auc')
+
+print("AUC-ROC scores for each fold:", auc_roc_scores)
+print("Average AUC-ROC:", auc_roc_scores.mean())
+
+ensemble_model_for_y2.fit(x,y2)
+Z_Scratch = ensemble_model_for_y2.predict_proba(test_df)
+Z_Scratch = Z_Scratch[:,1]
+Z_Scratch
+
+ensemble_model_for_y3 = VotingClassifier(
+    estimators=[
+        ('xgb', xgb_model_for_y3),
+        ('catboost',cb_model_for_y3),
+        ('LGBM', lgbm_model_for_y3)
+    ],
+    voting='soft',
+    flatten_transform=True
+)
+
+# Use AUC-ROC as the scoring parameter
+auc_roc_scores = cross_val_score(ensemble_model_for_y3, x, y3, cv=5, scoring='roc_auc')
+
+print("AUC-ROC scores for each fold:", auc_roc_scores)
+print("Average AUC-ROC:", auc_roc_scores.mean())
+ensemble_model_for_y3.fit(x,y3)
+
+K_Scatch = ensemble_model_for_y3.predict_proba(test_df)
+K_Scatch = K_Scatch[:,1]
+K_Scatch
+
+ensemble_model_for_y4 = VotingClassifier(
+    estimators=[
+        ('xgb', xgb_model_for_y4),
+        ('catboost',cb_model_for_y4),
+        ('LGBM', lgbm_model_for_y4)
+    ],
+    voting='soft',
+    flatten_transform=True,
+	n_jobs=16
+)
+
+# Use AUC-ROC as the scoring parameter
+auc_roc_scores = cross_val_score(ensemble_model_for_y4, x, y4, cv=5, scoring='roc_auc')
+
+print("AUC-ROC scores for each fold:", auc_roc_scores)
+print("Average AUC-ROC:", auc_roc_scores.mean())
+ensemble_model_for_y4.fit(x,y4)
+Stains = ensemble_model_for_y4.predict_proba(test_df)
+Stains = Stains[:,1]
+Stains
+
+ensemble_model_for_y5 = VotingClassifier(
+    estimators=[
+        ('xgb', xgb_model_for_y5),
+        ('catboost',cb_model_for_y5),
+        ('LGBM', lgbm_model_for_y5)
+    ],
+    voting='soft',
+    flatten_transform=True
+)
+
+# Use AUC-ROC as the scoring parameter
+auc_roc_scores = cross_val_score(ensemble_model_for_y5, x, y5, cv=5, scoring='roc_auc')
+
+print("AUC-ROC scores for each fold:", auc_roc_scores)
+print("Average AUC-ROC:", auc_roc_scores.mean())
+ensemble_model_for_y5.fit(x,y5)
+Dirtiness = ensemble_model_for_y5.predict_proba(test_df)
+Dirtiness = Dirtiness[:,1]
+Dirtiness
+
+ensemble_model_for_y6 = VotingClassifier(
+    estimators=[
+        ('xgb', xgb_model_for_y6),
+        ('catboost',cb_model_for_y6),
+        ('LGBM', lgbm_model_for_y6)
+    ],
+    voting='soft',
+    flatten_transform=True
+)
+
+# Use AUC-ROC as the scoring parameter
+auc_roc_scores = cross_val_score(ensemble_model_for_y6, x, y6, cv=5, scoring='roc_auc')
+
+print("AUC-ROC scores for each fold:", auc_roc_scores)
+print("Average AUC-ROC:", auc_roc_scores.mean())
+ensemble_model_for_y6.fit(x,y6)
+Bumps = ensemble_model_for_y6.predict_proba(test_df)
+Bumps = Bumps[:,1]
+Bumps
+ensemble_model_for_y7 = VotingClassifier(
+    estimators=[
+        ('xgb', xgb_model_for_y7),
+        ('catboost',cb_model_for_y7),
+        ('LGBM', lgbm_model_for_y7)
+    ],
+    voting='soft',
+    flatten_transform=True
+)
+
+# Use AUC-ROC as the scoring parameter
+auc_roc_scores = cross_val_score(ensemble_model_for_y7, x, y7, cv=5, scoring='roc_auc')
+
+print("AUC-ROC scores for each fold:", auc_roc_scores)
+print("Average AUC-ROC:", auc_roc_scores.mean())
+
+ensemble_model_for_y7.fit(x,y7)
+Other_Faults = ensemble_model_for_y7.predict_proba(test_df)
+Other_Faults = Other_Faults[:,1]
+Other_Faults
+
+sample_submission = pd.read_csv('/kaggle/input/playground-series-s4e3/sample_submission.csv')
+sample_submission
+sample_submission['Pastry'] = Pastry
+sample_submission['Z_Scratch'] = Z_Scratch
+sample_submission['K_Scatch'] = K_Scatch
+sample_submission['Stains'] = Stains
+sample_submission['Dirtiness'] = Dirtiness
+sample_submission['Bumps'] = Bumps
+sample_submission['Other_Faults'] = Other_Faults
+sample_submission
+
+sample_submission.to_csv("submission.csv", index=False)
+
+
+
+
+
