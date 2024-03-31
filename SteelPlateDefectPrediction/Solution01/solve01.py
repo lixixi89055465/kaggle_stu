@@ -34,9 +34,9 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-sns.set(style="white", font_scale=1.5)
-sns.set(rc={"axes.facecolor": "#FFFAF0", "figure.facecolor": "#FFFAF0"})
-sns.set_context("poster", font_scale=.7)
+# sns.set(style="white", font_scale=1.5)
+# sns.set(rc={"axes.facecolor": "#FFFAF0", "figure.facecolor": "#FFFAF0"})
+# sns.set_context("poster", font_scale=.7)
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -107,27 +107,27 @@ train_df['Fault_Type'] = train_df[
 	.idxmax(axis=1)
 print('2' * 100)
 
-# 1. Visualizing the Distribution of each Fault_Type class¶
-plt.figure(figsize=(17, 6))
-plt.subplot(1, 2, 1)
-Fault_Type_counts = train_df["Fault_Type"].value_counts()
-sns.barplot(x=Fault_Type_counts.index, y=Fault_Type_counts.values, palette='Set2')
-plt.title("Distribution of Fault_Type Classes", fontweight="black", size=14, pad=15)
-for i, v in enumerate(Fault_Type_counts.values):
-    plt.text(i, v, v, ha="center", fontsize=14)
-
-plt.xticks(rotation=90)
-# Visualization to show distribution of Fault_Type classes in percentage
-
-plt.subplot(1, 2, 2)
-colors = sns.color_palette('Set2', len(Fault_Type_counts))
-plt.pie(Fault_Type_counts, labels=Fault_Type_counts.index, autopct="%.2f%%", textprops={"size": 14},
-        colors=colors, startangle=90)
-center_circle = plt.Circle((0, 0), 0.3, fc='white')
-fig = plt.gcf()
-fig.gca().add_artist(center_circle)
-plt.title("Distribution of Fault_Type Classes", fontweight="black", size=14, pad=15)
-plt.show()
+# # 1. Visualizing the Distribution of each Fault_Type class¶
+# plt.figure(figsize=(17, 6))
+# plt.subplot(1, 2, 1)
+# Fault_Type_counts = train_df["Fault_Type"].value_counts()
+# sns.barplot(x=Fault_Type_counts.index, y=Fault_Type_counts.values, palette='Set2')
+# plt.title("Distribution of Fault_Type Classes", fontweight="black", size=14, pad=15)
+# for i, v in enumerate(Fault_Type_counts.values):
+#     plt.text(i, v, v, ha="center", fontsize=14)
+#
+# plt.xticks(rotation=90)
+# # Visualization to show distribution of Fault_Type classes in percentage
+#
+# plt.subplot(1, 2, 2)
+# colors = sns.color_palette('Set2', len(Fault_Type_counts))
+# plt.pie(Fault_Type_counts, labels=Fault_Type_counts.index, autopct="%.2f%%", textprops={"size": 14},
+#         colors=colors, startangle=90)
+# center_circle = plt.Circle((0, 0), 0.3, fc='white')
+# fig = plt.gcf()
+# fig.gca().add_artist(center_circle)
+# plt.title("Distribution of Fault_Type Classes", fontweight="black", size=14, pad=15)
+# plt.show()
 
 #  Inference:
 # Pastry have 11.88% distribution
@@ -147,29 +147,29 @@ numerical_features = ['X_Minimum', 'X_Maximum', 'Y_Minimum', 'Y_Maximum', 'Pixel
 					  'Orientation_Index', 'Luminosity_Index', 'SigmoidOfAreas']
 
 # Set the figure size and arrange plots horizontally in pairs
-fig, axes = plt.subplots(nrows=(len(numerical_features) + 2) // 3, ncols=3, figsize=(30, 40))
-# Flatten the axes array for easy indexing
-axes = axes.flatten()
+# fig, axes = plt.subplots(nrows=(len(numerical_features) + 2) // 3, ncols=3, figsize=(30, 40))
+# # Flatten the axes array for easy indexing
+# axes = axes.flatten()
 
 # Loop through the selected columns and create histograms with density
-for i, col in enumerate(numerical_features):
-    sns.histplot(data=train_df, x=col, hue='Fault_Type', \
-				 multiple="stack", bins=20, \
-				 kde=True, palette='viridis',\
-				 ax=axes[i])
-
-    axes[i].set_title(f'Histogram with Density for {col}')
-    axes[i].set_xlabel(col)
-    axes[i].set_ylabel('Density')
+# for i, col in enumerate(numerical_features):
+#     sns.histplot(data=train_df, x=col, hue='Fault_Type', \
+# 				 multiple="stack", bins=20, \
+# 				 kde=True, palette='viridis',\
+# 				 ax=axes[i])
+#
+#     axes[i].set_title(f'Histogram with Density for {col}')
+#     axes[i].set_xlabel(col)
+#     axes[i].set_ylabel('Density')
 
 
 # Remove any empty subplots if the number of columns is odd
-if len(numerical_features) % 3 != 0:
-    for j in range(len(numerical_features) % 3, 3):
-        fig.delaxes(axes[-j - 1])
-
-plt.tight_layout()
-plt.show()
+# if len(numerical_features) % 3 != 0:
+#     for j in range(len(numerical_features) % 3, 3):
+#         fig.delaxes(axes[-j - 1])
+#
+# plt.tight_layout()
+# plt.show()
 '''
 From these plots we can make the following conclusions about the features' distributions:
 
@@ -206,7 +206,6 @@ a = transform(test_df)
 print(a.shape)
 # Featutre Engineering and data preparation
 df = train_df.copy()
-
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 import statsmodels.api as sm
 
@@ -216,6 +215,7 @@ vif["Variable"] = df.columns
 vif["VIF"] = [variance_inflation_factor(df.values, i) for i in range(df.shape[1])]
 print('1' * 100)
 # print(vif)
+
 highly_correlated_variable = []
 for index, row in vif.iterrows():
 	if row['VIF'] > 6.5:
@@ -238,7 +238,7 @@ def generate_features(X):
 	# Relative Perimeter Feature
 	X['Relative_Perimeter'] = X['X_Perimeter'] / (X['X_Perimeter'] + X['Y_Perimeter'] + epsilon)
 	# Circularity Feature
-	# X['Circularity'] = X['Pixels_Areas'] / (X['X_Perimeter'] ** 2)
+	X['Circularity'] = X['Pixels_Areas'] / (X['X_Perimeter'] ** 2)
 	# Symmetry Index Feature
 	# X['Symmetry_Index'] = np.abs(X['X_Distance'] - X['Y_Distance']) / (X['X_Distance'] + X['Y_Distance'] + epsilon)
 	# Color Contrast Feature
@@ -261,7 +261,8 @@ def generate_features(X):
 	# X['Average_Luminosity'] = (X['Sum_of_Luminosity'] + X['Minimum_of_Luminosity']) / 2
 
 	# Normalized Steel Thickness Feature
-	# X['Normalized_Steel_Thickness'] = (X['Steel_Plate_Thickness'] - X['Steel_Plate_Thickness'].min()) / (X['Steel_Plate_Thickness'].max() - X['Steel_Plate_Thickness'].min())
+	# X['Normalized_Steel_Thickness'] = (X['Steel_Plate_Thickness'] - X['Steel_Plate_Thickness'].min())
+	# 				/ (X['Steel_Plate_Thickness'].max() - X['Steel_Plate_Thickness'].min())
 
 	# Logarithmic Features
 	# X['Log_Perimeter'] = np.log(X['X_Perimeter'] + X['Y_Perimeter'] + epsilon)
@@ -269,17 +270,17 @@ def generate_features(X):
 	# X['Log_Aspect_Ratio'] = np.log(X['Aspect_Ratio'] ** 2 + epsilon)
 
 	# Statistical Features
-	# X['Combined_Index'] = X['Orientation_Index'] * X['Luminosity_Index']
-	# X['Sigmoid_Areas'] = 1 / (1 + np.exp(-X['LogOfAreas'] + epsilon))
+	X['Combined_Index'] = X['Orientation_Index'] * X['Orientation_Index']
+	X['Sigmoid_Areas'] = 1 / (1 + np.exp(-X['LogOfAreas'] + epsilon))
 	return X
 
 
 # print('3'*100)
-# a=generate_features(train_df)
-# print(a.shape)
-# print('4'*100)
-# b=generate_features(test_df)
-# print(b.shape)
+a=generate_features(train_df)
+print(a.shape)
+print('4'*100)
+b=generate_features(test_df)
+print(b.shape)
 
 train_df = train_df.drop(highly_correlated_variable, axis=1)
 test_df = test_df.drop(highly_correlated_variable, axis=1)
