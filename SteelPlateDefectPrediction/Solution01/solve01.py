@@ -288,7 +288,7 @@ test_df = test_df.drop(highly_correlated_variable, axis=1)
 from sklearn.preprocessing import LabelEncoder
 
 label = LabelEncoder()
-train_df['Fault_Type'] = label.fit_transform(train_df[['Fault_Type']])
+train_df['Fault_Type'] = label.fit_transform(train_df['Fault_Type'])
 label_mapping = dict(zip(label.classes_, label.transform(label.classes_)))
 print('Label Mapping:')
 print(label_mapping)
@@ -338,7 +338,7 @@ x = train_df.drop(['Pastry', 'Z_Scratch', \
 				   'Other_Faults', 'Fault_Type'], axis=1)
 
 # Computing Class Weights¶
-'''from sklearn.utils.class_weight import compute_class_weight
+from sklearn.utils.class_weight import compute_class_weight
 # Convert y to a NumPy array if it's not already one
 arr = np.array(y)
 
@@ -356,7 +356,6 @@ class_weights = compute_class_weight('balanced',
 # Create a dictionary of class weights
 class_weights_dict = dict(zip(unique_classes_list, class_weights))
 print(class_weights_dict)
-'''
 class_weights_dict = {0: 0.5766795691181325, \
 					  1: 5.660972017673049, \
 					  2: 0.8002248407378107, \
