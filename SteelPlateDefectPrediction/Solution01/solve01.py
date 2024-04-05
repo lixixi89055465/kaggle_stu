@@ -570,6 +570,8 @@ study = optuna.create_study(direction="maximize")
 study.optimize(objective, n_trials=25, n_jobs=16)
 best_params = study.best_params
 print("Best Hyperparameters y7:", best_params)
+
+
 xgb_best_params_for_y1 = {'max_depth': 5, \
 						  'n_estimators': 1627, \
 						  'gamma': 0.8952807768735265,
@@ -607,6 +609,7 @@ xgb_best_params_for_y2 = {'max_depth': 4, 'n_estimators': 623, \
 						  'colsample_bytree': 0.2267807727315173, \
 						  'learning_rate': 0.04570427430948454}
 xgb_model_for_y2 = XGBClassifier(**xgb_best_params_for_y2)
+xgb_model_for_y2.fit( x, y2)
 # feature importance
 feature_importance = xgb_model_for_y2.feature_importances_
 feature_importance_df = pd.DataFrame({"Feature": x.columns, 'Importance': feature_importance})
@@ -768,11 +771,26 @@ plt.xlabel('Importance')
 plt.ylabel('')
 sns.despine(left=True, bottom=True)
 plt.show()
+
 catboost_best_params_for_y2 = {'learning_rate': 0.03857054239913968, 'iterations': 206, 'depth': 10,
 							   'colsample_bylevel': 0.5393784309306074, 'l2_leaf_reg': 1.3906029897172827,
 							   'border_count': 231}
 cb_model_for_y2 = CatBoostClassifier(**catboost_best_params_for_y2)
 cb_model_for_y2.fit(x, y2)
+
+feature_importance=cb_model_for_y2.feature_importances_
+feature_importance_df=pd.DataFrame({'Feature':x.columns,
+									'Importance':feature_importance})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+plt.figure(figsize=(7, 7))
+sns.barplot(x='Importance', y='Feature', data=feature_importance_df)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('')
+sns.despine(left=True, bottom=True)
+plt.show()
+
+
 
 catboost_best_params_for_y3 = {'learning_rate': 0.05819735650442166, 'iterations': 165, 'depth': 6,
 							   'colsample_bylevel': 0.960964834849099, 'l2_leaf_reg': 0.6700019633321236,
@@ -792,6 +810,7 @@ plt.xlabel('Importance')
 plt.ylabel('')
 sns.despine(left=True, bottom=True)
 plt.show()
+
 catboost_best_params_for_y4 = {'learning_rate': 0.032940739491683975, 'iterations': 407, 'depth': 8,
 							   'colsample_bylevel': 0.6333926050478358, 'l2_leaf_reg': 1.1045970003458674,
 							   'border_count': 130}
@@ -844,6 +863,7 @@ plt.xlabel('Importance')
 plt.ylabel('')
 sns.despine(left=True, bottom=True)
 plt.show()
+
 catboost_best_params_for_y7 = {'learning_rate': 0.025827131598767934, 'iterations': 848, 'depth': 3,
 							   'colsample_bylevel': 0.74491431963177, 'l2_leaf_reg': 0.12688953370416511,
 							   'border_count': 189}
@@ -860,6 +880,8 @@ plt.xlabel('Importance')
 plt.ylabel('')
 sns.despine(left=True, bottom=True)
 plt.show()
+
+
 '''def objective(trial):
     params = {
         'objective': 'binary',
@@ -946,6 +968,7 @@ plt.xlabel('Importance')
 plt.ylabel('')
 sns.despine(left=True, bottom=True)
 plt.show()
+
 lgbm_best_params_for_y4 = {'num_leaves': 131, 'colsample_bytree': 0.5697305625366826, 'subsample': 0.8109563189916542, 'bagging_freq': 4, 'min_child_samples': 19, 'learning_rate': 0.05213996016102166}
 lgbm_model_for_y4 = LGBMClassifier(**lgbm_best_params_for_y4)
 lgbm_model_for_y4.fit( x, y4)
@@ -960,6 +983,9 @@ plt.xlabel('Importance')
 plt.ylabel('')
 sns.despine(left=True, bottom=True)
 plt.show()
+
+
+
 lgbm_best_params_for_y5 = {'num_leaves': 91, 'colsample_bytree': 0.1639450170074021, 'subsample': 0.5341894798705625, 'bagging_freq': 4, 'min_child_samples': 47, 'learning_rate': 0.018293880009565062}
 
 
@@ -977,6 +1003,8 @@ plt.xlabel('Importance')
 plt.ylabel('')
 sns.despine(left=True, bottom=True)
 plt.show()
+
+
 lgbm_best_params_for_y6 =  {'num_leaves': 22, 'colsample_bytree': 0.667438994216906, 'subsample': 0.8090648564857341, 'bagging_freq': 1, 'min_child_samples': 93, 'learning_rate': 0.06318737564630748}
 lgbm_model_for_y6 = LGBMClassifier(**lgbm_best_params_for_y6)
 lgbm_model_for_y6.fit( x, y6)
@@ -1050,7 +1078,6 @@ print("Average AUC-ROC:", auc_roc_scores.mean())
 ensemble_model_for_y2.fit(x,y2)
 Z_Scratch = ensemble_model_for_y2.predict_proba(test_df)
 Z_Scratch = Z_Scratch[:,1]
-Z_Scratch
 
 ensemble_model_for_y3 = VotingClassifier(
     estimators=[
@@ -1089,6 +1116,7 @@ auc_roc_scores = cross_val_score(ensemble_model_for_y4, x, y4, cv=5, scoring='ro
 
 print("AUC-ROC scores for each fold:", auc_roc_scores)
 print("Average AUC-ROC:", auc_roc_scores.mean())
+
 ensemble_model_for_y4.fit(x,y4)
 Stains = ensemble_model_for_y4.predict_proba(test_df)
 Stains = Stains[:,1]
