@@ -13,6 +13,8 @@
 # For example, here's several helpful packages to load
 '''
 
+import warnings
+warnings.filterwarnings('ignore')
 import numpy as np  # linear algebra
 import pandas as pd  # input processing, CSV file I/O (e.g. pd.read_csv)
 
@@ -501,38 +503,31 @@ def model_prediction(model, x, y, n_splits=5, random_state=42):
 	mean_tpr = np.mean(tprs, axis=0)
 	mean_tpr[-1] = 1.0
 	mean_auc = auc(mean_fpr, mean_tpr)
-	plt.plot(mean_fpr, mean_tpr, color='b', label=f'Mean ROC (AUC={mean_auc:.2f}')
-	plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='change', alpha=.8)
-	plt.xlabel('False Positive Rate')
-	plt.ylabel('True Positive Rate')
-	plt.title(f'ROC - AUC Curve for {model} Model')
-	plt.legend(loc='lower right')
-	plt.show()
+	# plt.plot(mean_fpr, mean_tpr, color='b', label=f'Mean ROC (AUC={mean_auc:.2f}')
+	# plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='change', alpha=.8)
+	# plt.xlabel('False Positive Rate')
+	# plt.ylabel('True Positive Rate')
+	# plt.title(f'ROC - AUC Curve for {model} Model')
+	# plt.legend(loc='lower right')
+	# plt.show()
 
 
-result = model_prediction(LogisticRegression(), x_scaled, y1, n_splits=5, random_state=42)
+model_prediction(LogisticRegression(), x_scaled, y1, n_splits=5, random_state=42)
 print('0' * 100)
-print(result)
-result = model_prediction(LogisticRegression(), x_scaled, y2, n_splits=5, random_state=42)
+model_prediction(LogisticRegression(), x_scaled, y2, n_splits=5, random_state=42)
 print('1' * 100)
-print(result)
-result = model_prediction(LogisticRegression(), x_scaled, y3, n_splits=5, random_state=42)
+model_prediction(LogisticRegression(), x_scaled, y3, n_splits=5, random_state=42)
 print('2' * 100)
-print(result)
-result = model_prediction(LogisticRegression(), x_scaled, y4, n_splits=5, random_state=42)
+model_prediction(LogisticRegression(), x_scaled, y4, n_splits=5, random_state=42)
 print('3' * 100)
-print(result)
-result = model_prediction(LogisticRegression(), x_scaled, y5, n_splits=5, random_state=42)
+model_prediction(LogisticRegression(), x_scaled, y5, n_splits=5, random_state=42)
 print('4' * 100)
-print(result)
 
-result = model_prediction(LogisticRegression(), x_scaled, y6, n_splits=5, random_state=42)
+model_prediction(LogisticRegression(), x_scaled, y6, n_splits=5, random_state=42)
 print('5' * 100)
-print(result)
 
-result = model_prediction(LogisticRegression(), x_scaled, y7, n_splits=5, random_state=42)
+model_prediction(LogisticRegression(), x_scaled, y7, n_splits=5, random_state=42)
 print('6' * 100)
-print(result)
 
 
 def objective(trial):
@@ -572,7 +567,7 @@ def objective(trial):
 
 
 study = optuna.create_study(direction="maximize")
-study.optimize(objective, n_trials=25, n_jobs=8)
+study.optimize(objective, n_trials=25, n_jobs=16)
 best_params = study.best_params
 print("Best Hyperparameters y7:", best_params)
 xgb_best_params_for_y1 = {'max_depth': 5, \
@@ -713,8 +708,9 @@ plt.xlabel('Importance')
 plt.ylabel('')
 sns.despine(left=True, bottom=True)
 plt.show()
-model_prediction(XGBClassifier(**xgb_best_params_for_y1), x, y1, n_splits=5, random_state=42)
 
+
+model_prediction(XGBClassifier(**xgb_best_params_for_y1), x, y1, n_splits=5, random_state=42)
 model_prediction(XGBClassifier(**xgb_best_params_for_y2), x, y2, n_splits=5, random_state=42)
 model_prediction(XGBClassifier(**xgb_best_params_for_y3), x, y3, n_splits=5, random_state=42)
 model_prediction(XGBClassifier(**xgb_best_params_for_y4), x, y4, n_splits=5, random_state=42)
