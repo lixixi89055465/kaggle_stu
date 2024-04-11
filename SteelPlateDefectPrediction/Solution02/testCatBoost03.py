@@ -32,17 +32,19 @@ X_test = test_df
 from catboost import CatBoostClassifier, Pool, metrics, cv
 from sklearn.metrics import accuracy_score
 
+categorical_features_indices=['Pclass','Embarked','SibSp','Parch']
+
+
 model = CatBoostClassifier(
-	custom_loss=[metrics.Accuracy()], \
-	random_state=42, \
-	logging_level='silent' \
-	)
-categorical_features_indices=['Pclass','Embarked']
+    custom_loss=[metrics.Accuracy()], # 该指标可以计算logloss，并且在该规模的数据集上更加光滑
+    random_seed=42,
+    logging_level='Silent'
+)
 # 模型训练
 model.fit(
-	X_train,y_train,
-	# cat_features=categorical_features_indices,
-	eval_set=(X_val, y_val),
-	plot=True
-
-)
+    X_train, y_train,
+    cat_features=categorical_features_indices,
+    eval_set=(X_val, y_val),
+#     logging_level='Verbose',  # you can uncomment this for text output
+    plot=True
+);

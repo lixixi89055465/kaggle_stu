@@ -12,6 +12,7 @@ train_data = np.random.randint(0, 100, size=(100, 10))
 train_label = np.random.randint(0, 2, size=(100))
 test_data = np.random.randint(0, 100, size=(50, 10))
 
+
 model = cb.CatBoostClassifier(iterations=2, \
 							  depth=2, \
 							  learning_rate=0.5, \
