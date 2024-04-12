@@ -16,6 +16,28 @@ from sklearn.datasets import load_boston
 import pandas as pd
 import numpy as np
 import warnings
+from prettytable import PrettyTable
+import seaborn as sns
+sns.set(style='darkgrid', font_scale=1.4)
+from tqdm import tqdm
+from tqdm.notebook import tqdm as tqdm_notebook
+tqdm_notebook.get_lock().locks = []
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 warnings.filterwarnings('ignore')
 
