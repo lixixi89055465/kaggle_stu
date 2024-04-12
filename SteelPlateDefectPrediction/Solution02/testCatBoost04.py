@@ -24,3 +24,33 @@ print(X.shape)
 print('Label :{}'.format(set(y)))
 print('1'*100)
 print('Zero count= {} ,One count= {}'.format(len(y)-sum(y),sum(y)))
+
+dataset_dir = './amazon'
+if not os.path.exists(dataset_dir):
+	os.makedirs(dataset_dir)
+
+train_df.to_csv(
+	os.path.join(dataset_dir, 'train.csv'),
+	index=False, sep=',', header=True
+)
+test_df.to_csv(
+	os.path.join(dataset_dir, 'test.csv'),
+	index=False, sep=',', header=True
+)
+
+from catboost.utils import create_cd
+
+feature_names = dict()
+for column, name in enumerate(train_df):
+	if column == 0:
+		continue
+	feature_names[column - 1] = name
+
+create_cd(
+	label=0,
+	cat_features=list(range(1, train_df.columns.shape[0])),
+	feature_names=feature_names,
+	output_path=os.path.join(dataset_dir, 'train.cd')
+)
+
+
