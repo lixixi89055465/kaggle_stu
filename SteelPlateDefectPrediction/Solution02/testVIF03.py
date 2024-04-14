@@ -23,7 +23,15 @@ print('1'*100)
 print(correlation_matric)
 import matplotlib.pyplot as plt
 import seaborn as sns
-plt.figure(figsize=(6,5))
-sns.heatmap(correlation_matric,annot=True)
-plt.title('correlation matrix')
+# plt.figure(figsize=(6,5))
+# sns.heatmap(correlation_matric,annot=True)
+# plt.title('correlation matrix')
+
+import numpy as np
+
+correlation_matric=bmi.corr()
+eigenvalues=np.linalg.eigvals(correlation_matric)
+
+print('2'*100)
+print(eigenvalues.shape)
 plt.show()
