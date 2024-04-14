@@ -18,40 +18,37 @@ import numpy as np
 import warnings
 from prettytable import PrettyTable
 import seaborn as sns
+
 sns.set(style='darkgrid', font_scale=1.4)
 from tqdm import tqdm
 from tqdm.notebook import tqdm as tqdm_notebook
+
 tqdm_notebook.get_lock().locks = []
 import concurrent.futures
 from copy import deepcopy
 
 from functools import partial
 from itertools import combinations
+from sklearn.feature_selection import f_classif
+
+from sklearn.preprocessing import LabelEncoder, StandardScaler, \
+	MinMaxScaler, PowerTransformer, FunctionTransformer
+from sklearn import metrics
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
+from itertools import combinations
+from sklearn.impute import SimpleImputer
+import xgboost as xg
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import mean_squared_error, \
+	mean_squared_log_error, \
+	roc_auc_score, \
+	accuracy_score, \
+	f1_score,\
+	precision_recall_curve,\
+	log_loss
+from sklearn.cluster import KMeans
+from yellowbrick.cluster import KElbowVisualizer
+from gap_statistic.optimalK import OptimalK
 
 
-print('0'*100)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-warnings.filterwarnings('ignore')
-
-data, target = load_boston()['data'], load_boston()['target']
-df = pd.concat(
-	[pd.DataFrame(data, columns=[str('features' + str(i)) for i in range(13)]),
-	 pd.DataFrame(target, columns=['target'])], axis=1)
-
-df1 = df.where(df != 0, np.nan)
-print(df1.isnull().sum())
-print('0'*100)
-msno.matrix(df1, labels=True)
