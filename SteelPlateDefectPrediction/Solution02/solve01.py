@@ -50,5 +50,13 @@ from sklearn.metrics import mean_squared_error, \
 from sklearn.cluster import KMeans
 from yellowbrick.cluster import KElbowVisualizer
 from gap_statistic.optimalK import OptimalK
+from scipy import stats
+import statsmodels.api as sm
 
+from scipy.stats import ttest_ind
+from scipy.stats import boxcox
+
+import math
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.base import BaseEstimator, TransformerMixin
 
