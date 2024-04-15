@@ -80,6 +80,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from catboost import CatBoost,CatBoostRegressor,CatBoostClassifier
 from sklearn.svm import NuSVC,SVC
-
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.impute import KNNImputer
+from sklearn.linear_model import LogisticRegression
 
 
