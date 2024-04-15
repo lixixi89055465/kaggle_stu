@@ -66,6 +66,20 @@ import xgboost as xgb
 import lightgbm as lgb
 from category_encoders import OneHotEncoder, OrdinalEncoder, CountEncoder, CatBoostEncoder
 from imblearn.under_sampling import RandomUnderSampler
+from sklearn.model_selection import StratifiedKFold,KFold
+from sklearn.ensemble import RandomForestClassifier,\
+	HistGradientBoostingClassifier,\
+	GradientBoostingClassifier,\
+	ExtraTreesClassifier,\
+	AdaBoostClassifier
+
+from imblearn.ensemble import BalancedRandomForestClassifier
+from sklearn.datasets import make_classification
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+from catboost import CatBoost,CatBoostRegressor,CatBoostClassifier
+from sklearn.svm import NuSVC,SVC
 
 
 
