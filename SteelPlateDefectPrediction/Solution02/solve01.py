@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Time : 2024/4/5 16:04
 # @Author : nanji
-# @Site : https://www.kaggle.com/code/arunklenin/ps4e3-steel-plate-fault-prediction-multilabel
+# @Site :
+# https://www.kaggle.com/code/arunklenin/ps4e3-steel-plate-fault-prediction-multilabel
 # @File : solve01.py
 # @Software: PyCharm 
 # @Comment : PS4E3 | Steel Plate Fault Prediction |Multilabel
@@ -84,4 +85,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.impute import KNNImputer
 from sklearn.linear_model import LogisticRegression
 
+from sklearn.neural_network import MLPClassifier
 
+from catboost import Pool
