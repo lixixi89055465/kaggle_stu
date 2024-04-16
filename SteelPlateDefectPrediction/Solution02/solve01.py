@@ -45,8 +45,8 @@ from sklearn.metrics import mean_squared_error, \
 	mean_squared_log_error, \
 	roc_auc_score, \
 	accuracy_score, \
-	f1_score,\
-	precision_recall_curve,\
+	f1_score, \
+	precision_recall_curve, \
 	log_loss
 from sklearn.cluster import KMeans
 from yellowbrick.cluster import KElbowVisualizer
@@ -67,11 +67,11 @@ import xgboost as xgb
 import lightgbm as lgb
 from category_encoders import OneHotEncoder, OrdinalEncoder, CountEncoder, CatBoostEncoder
 from imblearn.under_sampling import RandomUnderSampler
-from sklearn.model_selection import StratifiedKFold,KFold
-from sklearn.ensemble import RandomForestClassifier,\
-	HistGradientBoostingClassifier,\
-	GradientBoostingClassifier,\
-	ExtraTreesClassifier,\
+from sklearn.model_selection import StratifiedKFold, KFold
+from sklearn.ensemble import RandomForestClassifier, \
+	HistGradientBoostingClassifier, \
+	GradientBoostingClassifier, \
+	ExtraTreesClassifier, \
 	AdaBoostClassifier
 
 from imblearn.ensemble import BalancedRandomForestClassifier
@@ -79,12 +79,21 @@ from sklearn.datasets import make_classification
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
-from catboost import CatBoost,CatBoostRegressor,CatBoostClassifier
-from sklearn.svm import NuSVC,SVC
+from catboost import CatBoost, CatBoostRegressor, CatBoostClassifier
+from sklearn.svm import NuSVC, SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.impute import KNNImputer
 from sklearn.linear_model import LogisticRegression
-
 from sklearn.neural_network import MLPClassifier
-
 from catboost import Pool
+import re
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.decomposition import PCA
+from sklearn.decomposition import TruncatedSVD
+# Suppress warnings
+import warnings
+
+warnings.filterwarnings('ignore')
+import pandas as pd
+
+pd.pandas.set_option('display.max_columns', None)
