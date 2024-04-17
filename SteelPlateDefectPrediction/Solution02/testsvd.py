@@ -5,7 +5,7 @@
 # @File : testsvd.py
 # @Software: PyCharm 
 # @Comment :
-from numpy import array, zeros
+from numpy import array, zeros, diag
 from scipy.linalg import svd
 
 A = array([
@@ -17,3 +17,13 @@ print(A)
 
 U, s, VT = svd(A)
 Sigma = zeros((A.shape[0], A.shape[1]))
+Sigma[:A.shape[0], :A.shape[0]] = diag(s)
+n_elements = 2
+Sigma = Sigma[:, :n_elements]
+VT = VT[:n_elements, :]
+B = U.dot(Sigma.dot(VT))
+print(B)
+T = U.dot(Sigma)
+print(T)
+T = A.dot(VT.T)
+print(T)
