@@ -255,5 +255,59 @@ def cat_encoding(train, test, target):
 			train_copy, test_copy = OHE(train_copy, test_copy, [feature], target)
 		else:
 			train_copy, test_copy = high_freq_ohe(train_copy, test_copy, [feature], target, n_limit=5)
-		train_copy=train_copy.drop(columns=[feature])
+		train_copy = train_copy.drop(columns=[feature])
+		test_copy = test_copy.drop(columns=[feature])
+		kf = KFold(n_splits=5, shuffle=True, random_state=42)
+		auc_scores = []
+		for f in temp_cols:
+			X = train_copy[[f]].values
+			y = train_copy[target].astype(int).values
+			auc = []
+			for train_idx, val_idx in kf.split(X, y):
+				x_train, y_train = X[train_idx], y[train_idx]
+				x_val, y_val = X[val_idx], y[val_idx]
+				model = HistGradientBoostingClassifier(max_iter=300, \
+													   learning_rate=0.02, \
+													   max_depth=6, \
+													   random_state=42)
+				y_pred = model.predict_proba(x_val)[:, 1]
+				auc.append((f, np.mean(auc)))
+			best_col, best_auc = sorted(auc_scores, key=lambda x: x[1], reverse=True)[0]
+			corr = train_copy[temp_cols].corr(method='pearson')
+		best_col,best_auc=sorted(auc_scores,key=lambda x:x[1],reverse=True)[0]
+		corr=train_copy[temp_cols].corr(method='pearson')
+		corr_with_best_col=corr[best_col]
+		cols_to_drop=[f for f in temp_cols if corr_with_best_col[f]>0.5
+					  and f!=best_col]
+		final_selection=[f for f in temp_cols if f not in cols_to_drop]
+		if cols_to_drop:
+			train_copy=train_copy.drop(columns=cols_to_drop)
+			test_copy=test_copy.drop(columns=cols_to_drop)
+		table.add_row([feature,best_col,best_auc])
+	return train_copy,test_copy
 
+class Splitter:
+	def __init__(self,test_size=0.2,kfold=True,n_splits=5):
+		self.test_size=test_size
+		self.kfold=kfold
+		self.n_splits=n_splits
+	def split_data(self,X,y,random_state_list):
+		if self.kfold:
+			for random_state in random_state_list:
+				kf=KFold(n_splits=self.n_splits,random_state=random_state,shuffle=True )
+				for train_index,val_index in kf.split(X,y):
+					X_train,X_val=X.iloc[train_index],X.iloc[val_index]
+					y_train,y_val=y.iloc[train_index],y.iloc[val_index]
+					yield X_train,X_val,y_train,y_val
+
+class Classifier:
+	def __init__(self,n_estimators=100,device='cpu',random_state=0):
+		self.n_estimators=n_estimators
+		self.device=device
+		self.random_state=random_state
+		self.models=self._define_model()
+		self.len_models=len(self.models)
+	def _define_model(self):
+		xgb_params={
+
+		}
