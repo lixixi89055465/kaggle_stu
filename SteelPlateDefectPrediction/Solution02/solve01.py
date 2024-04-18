@@ -123,6 +123,8 @@ colors = ['blue', 'orange', 'green']
 num_plots = len(cont_cols)
 num_cols = 3
 num_rows = -(-num_plots // num_cols)
+
+
 # fig, axes = plt.subplots(num_rows, num_cols, \
 # 						 figsize=(21, 5 * num_rows))
 # Adjust the figure size as needed
@@ -197,4 +199,61 @@ for col in cat_cols:
 		common = list(set(test[col].unique()) & set(train[col].unique()))
 		train[f'{col}_cat'] = train[col].apply(nearst_val)
 		test[f'{col}_cat'] = test[col].apply(nearst_val)
+
+
+def high_freq_ohe(train, test, extra_cols, target, n_limit=50):
+	'''
+	  If you wish to apply one hot encoding on a feature with so many unique values, then this can be applied,
+	  where it takes a maximum of n categories and drops the rest of them treating as rare categories
+	  '''
+	train_copy = train.copy()
+	test_copy = test.copy()
+	ohe_cols = []
+	for col in extra_cols:
+		dict1 = train_copy[col].value_counts().to_dict()
+		orderd = dict(sorted(dict1.items(), key=lambda x: x[1], reverse=True))
+		rare_keys = list([*orderd.keys()][n_limit:])
+		ext_keys = [f[0] for f in orderd.items() if f[1] < 50]
+		rare_key_map = dict(zip(rare_keys, np.full(len(rare_keys), 9999)))
+		train_copy[col]
+		train_copy[col].replace(rare_key_map)
+		test_copy[col] = test_copy[col].replace(rare_key_map)
+	train_copy, test_copy = OHE(train_copy, test_copy, extra_cols, target)
+	drop_cols = [f for f in train_copy.columns if '9999' in f or train_copy[f].nunique() == 1]
+	train_copy = train_copy.drop(columns=drop_cols)
+	test_copy = test_copy.drop(columns=drop_cols)
+	return train_copy, test_copy
+
+
+def cat_encoding(train, test, target):
+	global overall_best_score
+	global overall_best_col
+	table = PrettyTable()
+	table.field_names = ['Feature', 'Encoded Features', 'Log Loss Score']
+	train_copy = train.copy()
+	test_copy = test.copy()
+	train_dum = train.copy()
+	for feature in cat_cols_updated:
+		#         print(feature)
+		#         cat_labels = train_dum.groupby([feature])[target].mean().sort_values().index
+		#         cat_labels2 = {k: i for i, k in enumerate(cat_labels, 0)}
+		#         train_copy[feature + "_target"] = train[feature].map(cat_labels2)
+		#         test_copy[feature + "_target"] = test[feature].map(cat_labels2)
+		dic = train[feature].value_counts().to_dict()
+		train_copy[feature + '_count'] = train[feature].map(dic)
+		test_copy[feature + '_count'] = test[feature].map(dic)
+		dic2 = train[feature].value_counts().to_dict()
+		list1 = np.arange(len(dic2.values()))
+		dic3 = dict(zip(list(dic2.keys()), list1))
+		train_copy[feature + '_count_label'] = train[feature].replace(dic3).astype(float)
+		test_copy[feature + '_count_label'] = test[feature].replace(dic3).astype(float)
+
+		temp_cols = [feature + '_count', feature + '_count_label']
+		if train_copy[feature].nunique() <= 5:
+			train_copy[feature] = train_copy[feature].astype(str) + '_' + feature
+			test_copy[feature] = test_copy[feature].astype(str) + '_' + feature
+			train_copy, test_copy = OHE(train_copy, test_copy, [feature], target)
+		else:
+			train_copy, test_copy = high_freq_ohe(train_copy, test_copy, [feature], target, n_limit=5)
+		train_copy=train_copy.drop(columns=[feature])
 
