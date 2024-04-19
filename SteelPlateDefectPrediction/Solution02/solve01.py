@@ -274,40 +274,289 @@ def cat_encoding(train, test, target):
 				auc.append((f, np.mean(auc)))
 			best_col, best_auc = sorted(auc_scores, key=lambda x: x[1], reverse=True)[0]
 			corr = train_copy[temp_cols].corr(method='pearson')
-		best_col,best_auc=sorted(auc_scores,key=lambda x:x[1],reverse=True)[0]
-		corr=train_copy[temp_cols].corr(method='pearson')
-		corr_with_best_col=corr[best_col]
-		cols_to_drop=[f for f in temp_cols if corr_with_best_col[f]>0.5
-					  and f!=best_col]
-		final_selection=[f for f in temp_cols if f not in cols_to_drop]
+		best_col, best_auc = sorted(auc_scores, key=lambda x: x[1], reverse=True)[0]
+		corr = train_copy[temp_cols].corr(method='pearson')
+		corr_with_best_col = corr[best_col]
+		cols_to_drop = [f for f in temp_cols if corr_with_best_col[f] > 0.5
+						and f != best_col]
+		final_selection = [f for f in temp_cols if f not in cols_to_drop]
 		if cols_to_drop:
-			train_copy=train_copy.drop(columns=cols_to_drop)
-			test_copy=test_copy.drop(columns=cols_to_drop)
-		table.add_row([feature,best_col,best_auc])
-	return train_copy,test_copy
+			train_copy = train_copy.drop(columns=cols_to_drop)
+			test_copy = test_copy.drop(columns=cols_to_drop)
+		table.add_row([feature, best_col, best_auc])
+	return train_copy, test_copy
+
 
 class Splitter:
-	def __init__(self,test_size=0.2,kfold=True,n_splits=5):
-		self.test_size=test_size
-		self.kfold=kfold
-		self.n_splits=n_splits
-	def split_data(self,X,y,random_state_list):
+	def __init__(self, test_size=0.2, kfold=True, n_splits=5):
+		self.test_size = test_size
+		self.kfold = kfold
+		self.n_splits = n_splits
+
+	def split_data(self, X, y, random_state_list):
 		if self.kfold:
 			for random_state in random_state_list:
-				kf=KFold(n_splits=self.n_splits,random_state=random_state,shuffle=True )
-				for train_index,val_index in kf.split(X,y):
-					X_train,X_val=X.iloc[train_index],X.iloc[val_index]
-					y_train,y_val=y.iloc[train_index],y.iloc[val_index]
-					yield X_train,X_val,y_train,y_val
+				kf = KFold(n_splits=self.n_splits, random_state=random_state, shuffle=True)
+				for train_index, val_index in kf.split(X, y):
+					X_train, X_val = X.iloc[train_index], X.iloc[val_index]
+					y_train, y_val = y.iloc[train_index], y.iloc[val_index]
+					yield X_train, X_val, y_train, y_val
+
 
 class Classifier:
-	def __init__(self,n_estimators=100,device='cpu',random_state=0):
-		self.n_estimators=n_estimators
-		self.device=device
-		self.random_state=random_state
-		self.models=self._define_model()
-		self.len_models=len(self.models)
+	def __init__(self, n_estimators=100, device='cpu', random_state=0):
+		self.n_estimators = n_estimators
+		self.device = device
+		self.random_state = random_state
+		self.models = self._define_model()
+		self.len_models = len(self.models)
+
 	def _define_model(self):
-		xgb_params={
+		xgb_params = {
+			'n_estimators': self.n_estimators,
+			'learning_rate': 0.1,
+			'max_depth': 4,
+			'subsample': 0.8,
+			'colsample_bytree': 0.1,
+			'n_jobs': -1,
+			'eval_metric': 'logloss',
+			'objective': 'binary:logistic',
+			'tree_method': 'hist',
+			'verbosity': 0,
+			'random_state': self.random_state,
+			#             'class_weight':class_weights_dict,
+		}
+		if self.device == 'gpu':
+			xgb_params['tree_method'] = 'gpu_hist'
+			xgb_params['predictor'] = 'gpu_predictor'
+		xgb_params2 = xgb_params.copy()
+		xgb_params2['subsample'] = 0.5
+		xgb_params2['max_depth'] = 9
+		xgb_params2['learning_rate'] = 0.045
+		xgb_params2['colsample_bytree'] = 0.3
+
+		xgb_params3 = xgb_params.copy()
+		xgb_params3['subsample'] = 0.6
+		xgb_params3['max_depth'] = 6
+		xgb_params3['learning_rate'] = 0.02
+		xgb_params3['colsample_bytree'] = 0.7
+
+		xgb_params4 = xgb_params.copy()
+		xgb_params4['subsample'] = 0.5943421542786502
+		xgb_params4['max_depth'] = 6
+		xgb_params4['learning_rate'] = 0.109
+		xgb_params4['colsample_bytree'] = 0.5595039093313848
+		lgb_params = {
+			'n_estimators': self.n_estimators,
+			'max_depth': 8,
+			'learning_rate': 0.02,
+			'subsample': 0.20,
+			'colsample_bytree': 0.56,
+			'reg_alpha': 0.25,
+			'reg_lambda': 5e-08,
+			'objective': 'binary',
+			'boosting_type': 'gbdt',
+			'device': self.device,
+			'random_state': self.random_state,
+			'verbose': -1,
+			#             'class_weight':class_weights_dict,
+		}
+		lgb_params2 = {
+			'n_estimators': self.n_estimators,
+			'max_depth': 5,
+			'learning_rate': 0.015,
+			'subsample': 0.50,
+			'colsample_bytree': 0.1,
+			'reg_alpha': 0.07608657669988828,
+			'reg_lambda': 0.2255036530113883,
+			'objective': 'binary',
+			'boosting_type': 'gbdt',
+			'device': self.device,
+			'random_state': self.random_state,
+		}
+		lgb_params3 = lgb_params.copy()
+		lgb_params3['subsample'] = 0.9
+		lgb_params3['reg_lambda'] = 0.3461495211744402
+		lgb_params3['reg_alpha'] = 0.3095626288582237
+		lgb_params3['max_depth'] = 8
+		lgb_params3['learning_rate'] = 0.007
+		lgb_params3['colsample_bytree'] = 0.5
+
+		lgb_params4 = lgb_params2.copy()
+		lgb_params4['subsample'] = 0.3
+		lgb_params4['reg_lambda'] = 0.49406951573373614
+		lgb_params4['reg_alpha'] = 0.16269100796945424
+		lgb_params4['max_depth'] = 9
+		lgb_params4['learning_rate'] = 0.117
+		lgb_params4['colsample_bytree'] = 0.3
+		cb_params = {
+			'iterations': self.n_estimators,
+			'depth': 13,
+			'learning_rate': 0.015,
+			'l2_leaf_reg': 0.5,
+			'random_strength': 0.1,
+			'max_bin': 200,
+			'od_wait': 65,
+			'one_hot_max_size': 50,
+			'grow_policy': 'Depthwise',
+			'bootstrap_type': 'Bernoulli',
+			'od_type': 'Iter',
+			'eval_metric': 'AUC',
+			'loss_function': 'Logloss',
+			'task_type': self.device.upper(),
+			'random_state': self.random_state,
+		}
+		cb_sym_params = cb_params.copy()
+		cb_sym_params['grow_policy'] = 'SymmetricTree'
+		cb_loss_params = cb_params.copy()
+		cb_loss_params['grow_policy'] = 'Lossguide'
+
+		cb_params2 = cb_params.copy()
+		cb_params2['learning_rate'] = 0.01
+		cb_params2['depth'] = 8
+		cb_params3 = {
+			'iterations': self.n_estimators,
+			'random_strength': 0.5783342241486167,
+			'one_hot_max_size': 10,
+			'max_bin': 150,
+			'learning_rate': 0.177,
+			'l2_leaf_reg': 0.705662073971363,
+			'grow_policy': 'SymmetricTree',
+			'depth': 5,
+			'max_bin': 200,
+			'od_wait': 65,
+			'bootstrap_type': 'Bayesian',
+			'od_type': 'Iter',
+			'eval_metric': 'AUC',
+			'loss_function': 'Logloss',
+			'task_type': self.device.upper(),
+			'random_state': self.random_state,
+		}
+		cb_params4 = cb_params.copy()
+		cb_params4['learning_rate'] = 0.01
+		cb_params4['depth'] = 12
+		dt_params = {'min_samples_split': 30, 'min_samples_leaf': 10, 'max_depth': 8, 'criterion': 'gini'}
+		models = {
+			'xgb': xgb.XGBClassifier(**xgb_params),
+			#            'xgb2': xgb.XGBClassifier(**xgb_params2),
+			#            'xgb3': xgb.XGBClassifier(**xgb_params3),
+			#            'xgb4': xgb.XGBClassifier(**xgb_params4),
+			#            'lgb': lgb.LGBMClassifier(**lgb_params),
+			#             'lgb2': lgb.LGBMClassifier(**lgb_params2),
+			#             'lgb3': lgb.LGBMClassifier(**lgb_params3),
+			#             'lgb4': lgb.LGBMClassifier(**lgb_params4),
+			'cat': CatBoostClassifier(**cb_params),
+			#            'cat2': CatBoostClassifier(**cb_params2),
+			#             'cat3': CatBoostClassifier(**cb_params3),
+			#             'cat4': CatBoostClassifier(**cb_params4),
+			"cat_sym": CatBoostClassifier(**cb_sym_params),
+			#             "cat_loss": CatBoostClassifier(**cb_loss_params),
+			#             'hist_gbm' : HistGradientBoostingClassifier (max_iter=300, learning_rate=0.001,  max_leaf_nodes=80,
+			#            max_depth=6,random_state=self.random_state),#class_weight=class_weights_dict,
+			#             'gbdt': GradientBoostingClassifier(max_depth=6,  n_estimators=1000,random_state=self.random_state),
+			#             'lr': LogisticRegression(),
+			#             'rf': RandomForestClassifier(max_depth= 9,max_features= 'auto',min_samples_split= 10,
+			#                                                           min_samples_leaf= 4,  n_estimators=500,random_state=self.random_state),
+			#            'svc': SVC(gamma="auto", probability=True),
+			#             'knn': KNeighborsClassifier(n_neighbors=5),
+			#             'mlp': MLPClassifier(random_state=self.random_state, max_iter=1000),
+			#             'etr':ExtraTreesClassifier(min_samples_split=55, min_samples_leaf= 15, max_depth=10,
+			#                                        n_estimators=200,random_state=self.random_state),
+			#             'dt' :DecisionTreeClassifier(**dt_params,random_state=self.random_state),
+			#             'ada': AdaBoostClassifier(random_state=self.random_state),
 
 		}
+		return models
+
+
+class OptunaWeights:
+	def __init__(self, random_state, n_trials=5000):
+		self.study = None
+		self.weights = None
+		self.random_state = random_state
+		self.n_trials = n_trials
+
+	def _objective(self, trial, y_true, y_preds):
+		weights = [trial.suggest_float(f'weight{n}', 0, 1) for n in range(len(y_preds))]
+		weighted_pred = np.average(np.array(y_preds).T, axis=1, weights=weights)
+		auc_score = roc_auc_score(y_true, weighted_pred)
+		log_loss_score = log_loss(y_true, weighted_pred)
+		return auc_score
+
+	def fit(self, y_true, y_preds):
+		optuna.logging.set_verbosity(optuna.logging.ERROR)
+		sampler = optuna.samplers.CmaEsSampler(seed=self.random_state)
+		pruner = optuna.pruners.HyperbandPruner()
+		self.study = optuna.create_study(sampler=sampler, \
+										 pruner=pruner, \
+										 study_name='OptunaWeights', \
+										 direction='maximize')
+		objective_partial = partial(self._objective, \
+									y_true=y_true, \
+									y_preds=y_preds)
+		self.study.optimize(objective_partial, n_trials=self.n_trials)
+		self.weights = [self.study.best_params[f'weight{n}'] for n in range(len(y_preds))]
+
+	def predict(self, y_preds):
+		assert self.weights is not None, 'OptunaWeights error, must be fitted before .'
+		weighted_pred = np.average(np.array(y_preds).T, axis=1, weights=self.weights)
+		return weighted_pred
+
+	def fit_predict(self, y_true, y_preds):
+		self.fit(y_true, y_preds)
+		return self.predict(y_preds)
+
+	def weights(self):
+		return self.weights
+import gc
+
+def fit_model(X_train, X_test, y_train):
+	kfold = True
+	n_splits = 1 if not kfold else 5
+	random_state = 2023
+	random_state_list = [42]
+	n_estimators = 9999
+	early_stopping_rounds = 300
+	verbose = False
+	splitter = Splitter(kfold, kfold, n_splits=n_splits)
+	test_predss = np.zeros(X_test.shape[0])
+	y_train_pred = y_train.copy()
+	ensemble_score = []
+	weights = []
+	trained_models = {'xgb': [], 'lgb': []}
+	for i, (X_train_, X_val, y_train_, y_val) in enumerate(
+			splitter.split_data(X_train, y_train, random_state_list=random_state_list)):
+		n = i % n_splits
+		m = i // n_splits
+		classifier = Classifier(n_estimators, device, random_state)
+		models = classifier.models
+		oof_preds = []
+		test_preds = []
+		for name, model in models.items():
+			if ('cat' in name) or ("lgb" in name) or ("xgb" in name):
+				if 'lgb' in name:  # categorical_feature=cat_features
+					model.fit(X_train_, y_train_, eval_set=[(X_val, y_val)])
+				elif 'cat' in name:
+					model.fit(X_train_, y_train_, eval_set=[(X_val, y_val)], \
+							  early_stopping_rounds=early_stopping_rounds, \
+							  verbose=verbose)
+				else:
+					model.fit(X_train_, y_train_)
+				test_pred = model.predict_proba(X_test)[:, 1]
+				y_val_pred = models.predict_proba(X_val)[:, 1]
+				score = roc_auc_score(y_val, y_val_pred.reshape(-1, 1))
+				#         score = accuracy_score(y_val, acc_cutoff_class(y_val, y_val_pred))
+				print(f'{name} [FOLD-{n} SEED-{random_state_list[m]}] ROC AUC score: {score:.5f}')
+				oof_preds.append(y_val_pred)
+				test_preds.append(test_pred)
+				if name in trained_models.keys():
+					trained_models[f'{name}'].append(deepcopy(models))
+			optweights = OptunaWeights(random_state=random_state)
+			y_val_pred = optweights.fit_predict(y_val.values, oof_preds)
+			score = roc_auc_score(y_val, y_val_pred.reshape(-1, 1))
+			print(f'Ensemble [FOLD -{n} seed - {random_state_list[m]}------------->ROC AUC score {score:.5f}')
+			ensemble_score.append(score)
+			weights.append(optweights.weights)
+			test_preds += optweights.predict(test_preds) / (n_splits * len(random_state_list))
+			y_train_pred.loc[y_val.index] = np.array(y_val_pred)
+			gc.collect()
