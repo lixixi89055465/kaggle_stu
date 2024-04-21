@@ -179,12 +179,13 @@ def OHE(train_df, test_df, cols, target):
 	return train_ohe, test_ohe
 
 
+# TODO new category
 cat_cols = [f for f in test.columns if test[f].nunique() / test.shape[0] * 100 < 5 and test[f].nunique() > 2]
-test[cat_cols].nunique()
+print(test[cat_cols].nunique())
 
 
-def nearst_val(target):
-	return min(common, key=lambda x: abs(x - target))
+# def nearst_val(target):
+# 	return min(common, key=lambda x: abs(x - target))
 
 
 global cat_cols_updated
@@ -195,10 +196,21 @@ for col in cat_cols:
 	cat_cols_updated.append(f'{col}_cat')
 	uncommon = list(
 		(set(test[col].unique()) | set(train[col].unique())) - (set(test[col].unique()) & set(train[col].unique())))
-	if uncommon:
-		common = list(set(test[col].unique()) & set(train[col].unique()))
-		train[f'{col}_cat'] = train[col].apply(nearst_val)
-		test[f'{col}_cat'] = test[col].apply(nearst_val)
+	# if uncommon:
+	# 	common = list(set(test[col].unique()) & set(train[col].unique()))
+		# train[f'{col}_cat'] = train[col].apply(nearst_val)
+		# test[f'{col}_cat'] = test[col].apply(nearst_val)
+
+import os
+
+train_path = '../input/train_cat.csv'
+test_path = '../input/test_cat.csv'
+if not os.path.exists(train_path):
+	train.to_csv(train_path)
+	test.to_csv(test_path)
+train = pd.read_csv(train_path)
+test = pd.read_csv(test_path)
+print('0' * 100)
 
 
 def high_freq_ohe(train, test, extra_cols, target, n_limit=50):
@@ -215,8 +227,8 @@ def high_freq_ohe(train, test, extra_cols, target, n_limit=50):
 		rare_keys = list([*orderd.keys()][n_limit:])
 		ext_keys = [f[0] for f in orderd.items() if f[1] < 50]
 		rare_key_map = dict(zip(rare_keys, np.full(len(rare_keys), 9999)))
-		train_copy[col]
-		train_copy[col].replace(rare_key_map)
+
+		train_copy[col] = train_copy[col].replace(rare_key_map)
 		test_copy[col] = test_copy[col].replace(rare_key_map)
 	train_copy, test_copy = OHE(train_copy, test_copy, extra_cols, target)
 	drop_cols = [f for f in train_copy.columns if '9999' in f or train_copy[f].nunique() == 1]
@@ -508,7 +520,10 @@ class OptunaWeights:
 
 	def weights(self):
 		return self.weights
+
+
 import gc
+
 
 def fit_model(X_train, X_test, y_train):
 	kfold = True
@@ -560,3 +575,90 @@ def fit_model(X_train, X_test, y_train):
 			test_preds += optweights.predict(test_preds) / (n_splits * len(random_state_list))
 			y_train_pred.loc[y_val.index] = np.array(y_val_pred)
 			gc.collect()
+		# Calculate the mean ROC AUC  score of the ensemble
+		mean_score = np.mean(ensemble_score)
+		std_score = np.std(ensemble_score)
+		print(f'Ensemble ROC AUC score {mean_score:.5f} + {std_score:.5f}')
+		print('---- Model WEights')
+		mean_weights = np.mean(weights, axis=0)
+		std_weights = np.std(weights, axis=0)
+		for name, mean_weight, std_weight in zip(models.keys(), mean_weights, std_weights):
+			print(f'{name} : {mean_weight:.5f} + {std_weight:.5f}')
+		print(f'Overall OFF Preds AUC SCORE {roc_auc_score(y_train, y_train_pred)}')
+		print('-' * 100)
+		return test_predss
+
+
+def post_processor(train, test):
+	cols = test.columns.tolist()
+	train_cop = train_copy()
+	test_cop = test.copy()
+	drop_cols = []
+	for i, feature in enumerate(cols):
+		for j in range(i + 1, len(cols)):
+			if sum(abs(train_cop[feature] - train_cop[cols[j]])) == 0:
+				if cols[j] not in drop_cols:
+					drop_cols.append(cols[j])
+	print(drop_cols)
+	train_cop.drop(columns=drop_cols, inplace=True)
+	test_cop.drop(columns=drop_cols, inplace=True)
+	return train_cop, test_cop
+
+
+submission = pd.read_csv("../input/sample_submission.csv")
+submission.head()
+
+count = 0
+for col in target:
+	train_temp = train[test.columns.tolist() + [col]]
+	test_temp = test.copy()
+	train_temp, test_temp = cat_encoding(train_temp, test_temp, col)
+	final_features = test.columns.tolist()
+	sc = StandardScaler()
+	train_scaled = train_temp.copy()
+	test_scaled = test_temp.copy()
+
+	train_scaled[final_features] = sc.fit_transform(train[final_features])
+	test_scaled[final_features] = sc.transform(test[final_features])
+
+	train_cop, test_cop = train_scaled, test_scaled
+	X_train = train_cop.drop(columns=[col])
+	y_train = train_cop[col]
+
+	X_test = test_cop.copy()
+	test_predss = fit_model(X_train, X_test, y_train)
+	submission[col] = test_predss
+	count += 1
+	print(f'Column {col} ,loop # {count}')
+
+submission.to_csv("submission_pure.csv", index=False)
+submission.head()
+
+sub1 = pd.read_csv("/kaggle/input/multiclass-feature-engineering-thoughts/submission.csv")
+sub2 = pd.read_csv("/kaggle/input/ps4e03-multi-class-lightgbm/submission.csv")
+sub_list = [sub1, sub2, submission]
+weights = [1, 1, 1]
+weighted_list = [item for sublist, weight in zip(sub_list, weights) for item in [sublist] * weight]
+
+
+def ensemble_mean(sub_list, cols, mean="AM"):
+	sub_out = sub_list[0].copy()
+	if mean == "AM":
+		for col in cols:
+			sub_out[col] = sum(df[col] for df in sub_list) / len(sub_list)
+	elif mean == "GM":
+		for df in sub_list[1:]:
+			for col in cols:
+				sub_out[col] *= df[col]
+		for col in cols:
+			sub_out[col] = (sub_out[col]) ** (1 / len(sub_list))
+	elif mean == 'HM':
+		for col in cols:
+			sub_out[col] = len(sub_list) / sum(1 / df[col] for df in sub_list)
+	sub_out[cols] = sub_out[cols].div(sub_out[cols].sum(axis=1), axis=0)
+	return sub_out
+
+
+sub_ensemble = ensemble_mean(weighted_list, target, mean='AM')
+sub_ensemble.to_csv('submission.csv', index=False)
+print(sub_ensemble.head())
