@@ -225,7 +225,7 @@ def high_freq_ohe(train, test, extra_cols, target, n_limit=50):
 		dict1 = train_copy[col].value_counts().to_dict()
 		orderd = dict(sorted(dict1.items(), key=lambda x: x[1], reverse=True))
 		rare_keys = list([*orderd.keys()][n_limit:])
-		ext_keys = [f[0] for f in orderd.items() if f[1] < 50]
+		# ext_keys = [f[0] for f in orderd.items() if f[1] < 50]
 		rare_key_map = dict(zip(rare_keys, np.full(len(rare_keys), 9999)))
 
 		train_copy[col] = train_copy[col].replace(rare_key_map)
@@ -276,16 +276,17 @@ def cat_encoding(train, test, target):
 			y = train_copy[target].astype(int).values
 			auc = []
 			for train_idx, val_idx in kf.split(X, y):
-				x_train, y_train = X[train_idx], y[train_idx]
+				X_train, y_train = X[train_idx], y[train_idx]
 				x_val, y_val = X[val_idx], y[val_idx]
 				model = HistGradientBoostingClassifier(max_iter=300, \
 													   learning_rate=0.02, \
 													   max_depth=6, \
-													   random_state=42)
+													   random_state=42 )
+				model.fit(X_train,y_train)
 				y_pred = model.predict_proba(x_val)[:, 1]
-				auc.append((f, np.mean(auc)))
-			best_col, best_auc = sorted(auc_scores, key=lambda x: x[1], reverse=True)[0]
-			corr = train_copy[temp_cols].corr(method='pearson')
+				auc.append(roc_auc_score(y_val,y_pred))
+			auc_scores.append(auc)
+
 		best_col, best_auc = sorted(auc_scores, key=lambda x: x[1], reverse=True)[0]
 		corr = train_copy[temp_cols].corr(method='pearson')
 		corr_with_best_col = corr[best_col]
