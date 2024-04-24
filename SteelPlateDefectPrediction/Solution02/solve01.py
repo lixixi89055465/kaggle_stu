@@ -183,7 +183,6 @@ def OHE(train_df, test_df, cols, target):
 cat_cols = [f for f in test.columns if test[f].nunique() / test.shape[0] * 100 < 5 and test[f].nunique() > 2]
 print(test[cat_cols].nunique())
 
-
 # def nearst_val(target):
 # 	return min(common, key=lambda x: abs(x - target))
 
@@ -196,10 +195,10 @@ for col in cat_cols:
 	cat_cols_updated.append(f'{col}_cat')
 	uncommon = list(
 		(set(test[col].unique()) | set(train[col].unique())) - (set(test[col].unique()) & set(train[col].unique())))
-	# if uncommon:
-	# 	common = list(set(test[col].unique()) & set(train[col].unique()))
-		# train[f'{col}_cat'] = train[col].apply(nearst_val)
-		# test[f'{col}_cat'] = test[col].apply(nearst_val)
+# if uncommon:
+# 	common = list(set(test[col].unique()) & set(train[col].unique()))
+# train[f'{col}_cat'] = train[col].apply(nearst_val)
+# test[f'{col}_cat'] = test[col].apply(nearst_val)
 
 import os
 
@@ -246,11 +245,12 @@ def cat_encoding(train, test, target):
 	test_copy = test.copy()
 	train_dum = train.copy()
 	for feature in cat_cols_updated:
-		#         print(feature)
-		#         cat_labels = train_dum.groupby([feature])[target].mean().sort_values().index
-		#         cat_labels2 = {k: i for i, k in enumerate(cat_labels, 0)}
-		#         train_copy[feature + "_target"] = train[feature].map(cat_labels2)
-		#         test_copy[feature + "_target"] = test[feature].map(cat_labels2)
+		print(feature)
+		cat_labels = train_dum.groupby([feature])[target].mean().sort_values().index
+		cat_labels2 = {k: i for i, k in enumerate(cat_labels, 0)}
+		train_copy[feature + "_target"] = train[feature].map(cat_labels2)
+		test_copy[feature + "_target"] = test[feature].map(cat_labels2)
+		print('0'*100)
 		dic = train[feature].value_counts().to_dict()
 		train_copy[feature + '_count'] = train[feature].map(dic)
 		test_copy[feature + '_count'] = test[feature].map(dic)
@@ -266,7 +266,11 @@ def cat_encoding(train, test, target):
 			test_copy[feature] = test_copy[feature].astype(str) + '_' + feature
 			train_copy, test_copy = OHE(train_copy, test_copy, [feature], target)
 		else:
-			train_copy, test_copy = high_freq_ohe(train_copy, test_copy, [feature], target, n_limit=5)
+			train_copy, test_copy = high_freq_ohe(train_copy, \
+												  test_copy, \
+												  [feature], \
+												  target, \
+												  n_limit=5)
 		train_copy = train_copy.drop(columns=[feature])
 		test_copy = test_copy.drop(columns=[feature])
 		kf = KFold(n_splits=5, shuffle=True, random_state=42)
@@ -281,13 +285,17 @@ def cat_encoding(train, test, target):
 				model = HistGradientBoostingClassifier(max_iter=300, \
 													   learning_rate=0.02, \
 													   max_depth=6, \
-													   random_state=42 )
-				model.fit(X_train,y_train)
-				y_pred = model.predict_proba(x_val)[:, 1]
-				auc.append(roc_auc_score(y_val,y_pred))
+													   random_state=42)
+				model.fit(X_train, y_train)
+				# y_pred = model.predict_proba(x_val)[:, 1]
+				y_pred = model.predict_proba(x_val)
+				y_pred = y_pred[:, 1]
+				auc.append(roc_auc_score(y_val, y_pred))
 			auc_scores.append(auc)
 
-		best_col, best_auc = sorted(auc_scores, key=lambda x: x[1], reverse=True)[0]
+		# best_col, best_auc = sorted(auc_scores, key=lambda x: x[1], reverse=True)[0]
+		a = sorted(auc_scores, key=lambda x: x[1], reverse=True)
+		best_col, best_auc = np.asarray(a)[:,0]
 		corr = train_copy[temp_cols].corr(method='pearson')
 		corr_with_best_col = corr[best_col]
 		cols_to_drop = [f for f in temp_cols if corr_with_best_col[f] > 0.5
