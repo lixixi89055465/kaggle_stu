@@ -291,11 +291,11 @@ def cat_encoding(train, test, target):
 				y_pred = model.predict_proba(x_val)
 				y_pred = y_pred[:, 1]
 				auc.append(roc_auc_score(y_val, y_pred))
-			auc_scores.append(auc)
+			auc_scores.append((f,np.mean(auc)))
 
-		# best_col, best_auc = sorted(auc_scores, key=lambda x: x[1], reverse=True)[0]
-		a = sorted(auc_scores, key=lambda x: x[1], reverse=True)
-		best_col, best_auc = np.asarray(a)[:,0]
+		best_col, best_auc = sorted(auc_scores, key=lambda x: x[1], reverse=True)[0]
+		# a = sorted(auc_scores, key=lambda x: x[1], reverse=True)
+		# best_col, best_auc = np.asarray(a)[:,0]
 		corr = train_copy[temp_cols].corr(method='pearson')
 		corr_with_best_col = corr[best_col]
 		cols_to_drop = [f for f in temp_cols if corr_with_best_col[f] > 0.5
