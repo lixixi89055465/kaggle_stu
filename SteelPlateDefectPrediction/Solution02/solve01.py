@@ -250,7 +250,7 @@ def cat_encoding(train, test, target):
 		cat_labels2 = {k: i for i, k in enumerate(cat_labels, 0)}
 		train_copy[feature + "_target"] = train[feature].map(cat_labels2)
 		test_copy[feature + "_target"] = test[feature].map(cat_labels2)
-		print('0'*100)
+		print('0' * 100)
 		dic = train[feature].value_counts().to_dict()
 		train_copy[feature + '_count'] = train[feature].map(dic)
 		test_copy[feature + '_count'] = test[feature].map(dic)
@@ -291,7 +291,7 @@ def cat_encoding(train, test, target):
 				y_pred = model.predict_proba(x_val)
 				y_pred = y_pred[:, 1]
 				auc.append(roc_auc_score(y_val, y_pred))
-			auc_scores.append((f,np.mean(auc)))
+			auc_scores.append((f, np.mean(auc)))
 
 		best_col, best_auc = sorted(auc_scores, key=lambda x: x[1], reverse=True)[0]
 		# a = sorted(auc_scores, key=lambda x: x[1], reverse=True)
