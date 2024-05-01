@@ -643,8 +643,8 @@ for col in target:
 submission.to_csv("submission_pure.csv", index=False)
 submission.head()
 
-sub1 = pd.read_csv("/kaggle/input/multiclass-feature-engineering-thoughts/submission.csv")
-sub2 = pd.read_csv("/kaggle/input/ps4e03-multi-class-lightgbm/submission.csv")
+sub1 = pd.read_csv("../input/multiclass-feature-engineering-thoughts/submission.csv")
+sub2 = pd.read_csv("../input/ps4e03-multi-class-lightgbm/submission.csv")
 sub_list = [sub1, sub2, submission]
 weights = [1, 1, 1]
 weighted_list = [item for sublist, weight in zip(sub_list, weights) for item in [sublist] * weight]
