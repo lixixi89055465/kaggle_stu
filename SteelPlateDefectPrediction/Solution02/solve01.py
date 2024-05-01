@@ -558,7 +558,7 @@ def fit_model(X_train, X_test, y_train):
 		test_preds = []
 		for name, model in models.items():
 			if ('cat' in name) or ("lgb" in name) or ("xgb" in name):
-				if 'lgb' in name:  # categorical_feature=cat_features
+				if 'lgb' in name:  # categorical_feature=c test_predss at_features
 					model.fit(X_train_, y_train_, eval_set=[(X_val, y_val)])
 				elif 'cat' in name:
 					model.fit(X_train_, y_train_, eval_set=[(X_val, y_val)], \
@@ -581,7 +581,7 @@ def fit_model(X_train, X_test, y_train):
 			print(f'Ensemble [FOLD -{n} seed - {random_state_list[m]}------------->ROC AUC score {score:.5f}')
 			ensemble_score.append(score)
 			weights.append(optweights.weights)
-			test_preds += optweights.predict(test_preds) / (n_splits * len(random_state_list))
+			test_predss += optweights.predict(test_preds) / (n_splits * len(random_state_list))
 			y_train_pred.loc[y_val.index] = np.array(y_val_pred)
 			gc.collect()
 		# Calculate the mean ROC AUC  score of the ensemble

@@ -11,5 +11,13 @@ from sklearn.feature_selection import chi2
 
 iris = load_iris()
 X, y = iris.data, iris.target
+print('0'*100)
+print(X.shape)
+print(X[:5])
+print('1'*100)
 X_new = SelectKBest(chi2, k=2).fit_transform(X, y)
-print(X_new)
+print(X_new.shape)
+print(X_new[:5])
+
+
+
