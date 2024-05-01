@@ -33,9 +33,9 @@ def objective(trial):
 	}
 	model = LGBMClassifier(**params)
 	model.fit(X_train, y_train)
-	# y_pred=model.predict_proba(X_val)
-	# loss=log_loss(y_val,y_pred)
-	# return loss
+	y_pred=model.predict_proba(X_val)
+	loss=log_loss(y_val,y_pred)
+	return loss
 
 
 study = optuna.create_study(direction='maximize')
