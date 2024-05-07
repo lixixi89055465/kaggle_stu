@@ -15,19 +15,32 @@ import matplotlib.pyplot as plt
 import missingno as msno
 from prettytable import PrettyTable
 import seaborn as sns
-sns.set(style='darkgrid',font_scale=1.4)
+
+sns.set(style='darkgrid', font_scale=1.4)
 from tqdm import tqdm
 from tqdm.notebook import tqdm as tqdm_notebook
-tqdm_notebook.get_lock().locks=[]
+
+tqdm_notebook.get_lock().locks = []
 import concurrent.futures
 from copy import deepcopy
 from functools import partial
 from itertools import combinations
 import random
-from random import randint,uniform
+from random import randint, uniform
 import gc
 from sklearn.feature_selection import f_classif
-from sklearn.preprocessing import LabelEncoder,StandardScaler,MinMaxScaler,\
-	PowerTransformer,FunctionTransformer
-SelectKBest
+from sklearn.preprocessing import LabelEncoder, StandardScaler, MinMaxScaler, \
+	PowerTransformer, FunctionTransformer
+from sklearn import metrics
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
+from itertools import combinations
+import random
+import gc
+from sklearn.feature_selection import f_classif
+from sklearn.preprocessing import LabelEncoder,\
+	StandardScaler,\
+	MinMaxScaler,\
+	PowerTransformer,\
+	FunctionTransformer
 

@@ -5,9 +5,10 @@
 # @File : testPowerTransformer.py
 # @Software: PyCharm 
 # @Comment : 
-import warnings
-
-warnings.filterwarnings('ignore')
+# import warnings
+# warnings.filterwarnings('ignore')
+import numpy, warnings
+numpy.warnings = warnings
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score
