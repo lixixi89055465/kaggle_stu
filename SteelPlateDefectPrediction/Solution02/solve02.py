@@ -44,3 +44,9 @@ from sklearn.metrics import mean_squared_log_error,\
 	accuracy_score,\
 	f1_score,\
 	precision_recall_curve,log_loss
+from sklearn.cluster import KMeans
+from yellowbrick.cluster import KElbowVisualizer
+from gap_statistic.optimalK import OptimalK
+from scipy import stats
+import statsmodels.api as sm
+
