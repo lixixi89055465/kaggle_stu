@@ -49,4 +49,10 @@ from yellowbrick.cluster import KElbowVisualizer
 from gap_statistic.optimalK import OptimalK
 from scipy import stats
 import statsmodels.api as sm
+from sklearn.base import BaseEstimator,TransformerMixin
+
+import optuna
+import xgboost as xgb
+import lightgbm as lgb
+from category_encoders import OneHotEncoder,OrdinalEncoder,CountEncoder,CatBoostEncoder
 
