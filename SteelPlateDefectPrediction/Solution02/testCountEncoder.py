@@ -21,15 +21,31 @@ data = pd.DataFrame({'ID': [1, 2, 3, 4, 5, 6, 7, 8], \
 
 print('\nOriginal Dataset:\n', data)
 
-ce_1 = ce.OrdinalEncoder(cols=['Grade', 'Education'],
-mapping = [
-	{
-		'col': 'Grade', \
-		'mapping': {None: 0, 'Low': 1, 'Medium': 2, 'High': 3} \
-		}, \
-	{
-		'col': 'Education', \
-		'mapping': {None: 0, 'HighSchool': 1, 'Bachelor': 2, 'Master': 3, 'PhD': 4} \
-		}
-]).fit_transform(data)
-print('\nOrdinalEncoder Return the transformed dataset:\n', ce_1)
+# ce_1 = ce.OrdinalEncoder(cols=['Grade', 'Education'],
+# mapping = [
+# 	{
+# 		'col': 'Grade', \
+# 		'mapping': {None: 0, 'Low': 1, 'Medium': 2, 'High': 3} \
+# 		}, \
+# 	{
+# 		'col': 'Education', \
+# 		'mapping': {None: 0, 'HighSchool': 1, 'Bachelor': 2, 'Master': 3, 'PhD': 4} \
+# 		}
+# ]).fit_transform(data)
+# print('\nOrdinalEncoder Return the transformed dataset:\n', ce_1)
+
+# ce_2 = ce.OneHotEncoder(cols=['BloodType'], use_cat_names=True).fit_transform(data)
+# ce_2 = ce.OneHotEncoder(cols=['BloodType'], use_cat_names=False).fit_transform(data)
+# print('1'*100)
+# print('\n OneHotEncoder Return the transformed dataset :\n', ce_2)
+print('3' * 100)
+# print(data.value_counts('BloodType'))
+# ce_3=ce.BinaryEncoder(cols=['BloodType']).fit_transform(data)
+# print('2'*100)
+# print('\nBinaryEncoder Return the transformed dataset:\n', ce_3)
+# print(data.value_counts('Education'))
+# ce_5 = ce.HashingEncoder(cols=['Education']).fit_transform(data)
+# print('\nReturn the transformed dataset:\n', ce_5)
+ce_6_1=ce.BaseNEncoder(cols=['BloodType'],base=3).fit_transform(data)
+print('\nBaseNEncoder Return the transformed dataset 1(base=3):\n', ce_6_1)
+
