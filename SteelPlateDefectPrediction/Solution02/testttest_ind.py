@@ -7,5 +7,16 @@
 # @Comment : 
 
 import sys
-a = "hello world"
-print(sys.getrefcount(a))
+import scipy.stats  as stats
+A=stats.norm.rvs(loc=1,scale=1,size=(100))
+B=stats.norm.rvs(loc=3,scale=1,size=(100))
+r1=stats.levene(A,B)
+print(r1)
+print('0'*100)
+r2=stats.ttest_ind(A,B,equal_var=False)
+print(r2)
+
+
+
+
+
