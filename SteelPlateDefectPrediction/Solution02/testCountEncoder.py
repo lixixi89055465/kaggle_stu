@@ -9,6 +9,7 @@
 
 import category_encoders as ce
 import pandas as pd
+from statsmodels.formula.api import ols
 
 data = pd.DataFrame({'ID': [1, 2, 3, 4, 5, 6, 7, 8], \
 					 'Sex': ['F', 'M', 'M', 'F', 'M', None, 'F', 'M'], \
@@ -46,6 +47,28 @@ print('3' * 100)
 # print(data.value_counts('Education'))
 # ce_5 = ce.HashingEncoder(cols=['Education']).fit_transform(data)
 # print('\nReturn the transformed dataset:\n', ce_5)
-ce_6_1=ce.BaseNEncoder(cols=['BloodType'],base=3).fit_transform(data)
-print('\nBaseNEncoder Return the transformed dataset 1(base=3):\n', ce_6_1)
+# ce_6_1=ce.BaseNEncoder(cols=['BloodType'],base=3).fit_transform(data)
+# print('\nBaseNEncoder Return the transformed dataset 1(base=3):\n', ce_6_1)
 
+# ce_6_2 = ce.BaseNEncoder(cols=['BloodType'], base=4).fit_transform(data)
+# print('6'*100)
+# print('\nBaseNEncoder Return the transformed dataset 1(base=3):\n', ce_6_2)
+
+# ce_7 = ce.SumEncoder(cols=['Education']).fit_transform(data)
+# print('\nSumEncoder Return the transformed dataset:\n', ce_7)
+# lr = ols('Income ~ Education_0 + Education_1 + Education_2',data=ce_7).fit()
+# print(lr.summary())
+
+# from statsmodels.formula.api import ols
+# lr = ols('Income ~ Education_0 + Education_1 + Education_2', data=ce_7).fit()
+# print(lr.summary())
+
+# ce_8 = ce.BackwardDifferenceEncoder(cols=['Education']).fit_transform(data)
+# print('\nBackwardDifferenceEncoder Return the transformed dataset:\n', ce_8)
+# lr = ols('Income ~ Education_0 + Education_1 + Education_2',data=ce_8).fit()
+# print(lr.summary())
+
+ce_9 = ce.HelmertEncoder(cols=['Education']).fit_transform(data)
+print('\nHelmertEncoder Return the transformed dataset:\n', ce_9)
+lr = ols('Income ~ Education_0 + Education_1 + Education_2', data=ce_9).fit()
+print(lr.summary())
