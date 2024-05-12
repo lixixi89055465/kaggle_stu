@@ -60,3 +60,12 @@ from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier, \
 	GradientBoostingClassifier, ExtraTreesClassifier, AdaBoostClassifier
 from imblearn.ensemble import BalancedRandomForestClassifier
+from sklearn.datasets import make_classification
+from sklearn.naive_bayes import GaussianNB
+from sklearn.experimental import enable_hist_gradient_boosting
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+from catboost import CatBoost, CatBoostRegressor, CatBoostClassifier
+from sklearn.svm import NuSVC, SVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.impute import KNNImputer
