@@ -108,6 +108,8 @@ colors = ['blue', 'orange', 'green']
 num_plots = len(cont_cols)
 num_cols = 3
 num_rows = -(-num_plots // num_cols)
+
+
 # fig, axes = plt.subplots(num_rows, num_cols, figsize=(21, 5 * num_rows))  # Adjust the figure size as needed
 
 # for i, feature in enumerate(cont_cols):
@@ -151,20 +153,49 @@ def OHE(train_df, test_df, cols, target):
 		combined = pd.concat([combined, one_hot], axis="columns")
 		combined = combined.loc[:, ~combined.columns.duplicated()]
 
-cat_cols = [f for f in test.columns if test[f].nunique()/test.shape[0]*100<5 and test[f].nunique()>2 ]
+
+cat_cols = [f for f in test.columns if test[f].nunique() / test.shape[0] * 100 < 5 and test[f].nunique() > 2]
 print(test[cat_cols].nunique())
+
+
 def nearest_val(target):
-    return min(common, key=lambda x: abs(x - target))
+	return min(common, key=lambda x: abs(x - target))
 
 
 global cat_cols_updated
-cat_cols_updated=[]
+cat_cols_updated = []
 for col in cat_cols:
-    train[f"{col}_cat"]=train[col]
-    test[f"{col}_cat"]=test[col]
-    cat_cols_updated.append(f"{col}_cat")
-    uncommon=list((set(test[col].unique())| set(train[col].unique()))-(set(test[col].unique())& set(train[col].unique())))
-    if uncommon:
-        common=list(set(test[col].unique())& set(train[col].unique()))
-        train[f"{col}_cat"]=train[col].apply(nearest_val)
-        test[f"{col}_cat"]=test[col].apply(nearest_val)
+	train[f"{col}_cat"] = train[col]
+	test[f"{col}_cat"] = test[col]
+	cat_cols_updated.append(f"{col}_cat")
+	uncommon = list(
+		(set(test[col].unique()) | set(train[col].unique())) - (set(test[col].unique()) & set(train[col].unique())))
+	if uncommon:
+		common = list(set(test[col].unique()) & set(train[col].unique()))
+		train[f"{col}_cat"] = train[col].apply(nearest_val)
+		test[f"{col}_cat"] = test[col].apply(nearest_val)
+
+
+def high_freq_ohe(train, test, extra_cols, target, n_limit=50):
+	pass
+
+
+def cat_encoding(train, test, target):
+	global overall_best_score
+	global overall_best_score
+	table = PrettyTable()
+	table.field_names = ['Feature', 'Encoded Features', 'Log Loss Score']
+	train_copy = train.copy()
+	test_copy = test.copy()
+	train_dum = train.copy()
+	for feature in cat_cols_updated:
+		pass
+
+
+submission = pd.read_csv("/kaggle/input/playground-series-s4e3/sample_submission.csv")
+submission.head()
+count = 0
+for col in target:
+	train_temp = train[test.columns.tolist() + col]
+	test_temp = test.copy()
+	train_temp, test_temp = cat_encoding(train_temp, test_temp, col)
