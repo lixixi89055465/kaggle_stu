@@ -50,7 +50,9 @@ from gap_statistic.optimalK import OptimalK
 from scipy import stats
 import statsmodels.api as sm
 from sklearn.base import BaseEstimator, TransformerMixin
+import seaborn as sns
 
+sns.set(style='darkgrid', font_scale=1.4)
 import optuna
 import xgboost as xgb
 import lightgbm as lgb
@@ -69,3 +71,100 @@ from catboost import CatBoost, CatBoostRegressor, CatBoostClassifier
 from sklearn.svm import NuSVC, SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.impute import KNNImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.neural_network import MLPClassifier
+from catboost import Pool
+import re
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import PCA
+from sklearn.decomposition import TruncatedSVD
+# Suppress warnings
+import warnings
+
+warnings.filterwarnings('ignore')
+import pandas as pd
+
+pd.pandas.set_option('display.max_columns', None)
+
+train = pd.read_csv('../input/train.csv')
+test = pd.read_csv('../input/test.csv')
+original = pd.read_csv("../input/SteelPlatesFaults.csv")
+
+train.drop(columns=["id"], inplace=True)
+test.drop(columns=["id"], inplace=True)
+
+train_copy = train.copy()
+test_copy = test.copy()
+original_copy = original.copy()
+
+print(original.shape)
+device = 'cpu'
+train = pd.concat([train, original], axis=0)
+train.reset_index(inplace=True, drop=True)
+target = ['Pastry', 'Z_Scratch', 'K_Scatch', 'Stains', 'Dirtiness', 'Bumps', 'Other_Faults']
+# print(original.head())
+cont_cols = test.columns
+colors = ['blue', 'orange', 'green']
+num_plots = len(cont_cols)
+num_cols = 3
+num_rows = -(-num_plots // num_cols)
+# fig, axes = plt.subplots(num_rows, num_cols, figsize=(21, 5 * num_rows))  # Adjust the figure size as needed
+
+# for i, feature in enumerate(cont_cols):
+# 	row = i // num_cols
+# 	col = i % num_cols
+# 	ax = axes[row, col] if num_rows > 1 else axes[col]
+# 	sns.histplot(train_copy[feature], \
+# 				 kde=True, color=colors[0], \
+# 				 label='Train', alpha=0.5, bins=30, ax=ax)
+# 	sns.histplot(test_copy[feature], \
+# 				 kde=True, color=colors[1], \
+# 				 label='Test', alpha=0.5, bins=30, ax=ax)
+# 	sns.histplot(original[feature], \
+# 				 kde=True, color=colors[2], \
+# 				 label='Original', alpha=0.5, bins=30, ax=ax)
+# 	ax.set_title(f'Distribution of {feature}')
+# 	ax.set_xlabel(feature)
+# 	ax.set_ylabel('Frequency')
+# 	ax.legend()
+
+
+# if num_plots % num_cols != 0:
+#     for j in range(num_plots % num_cols, num_cols):
+#         axes[-1, j].axis('off')
+
+# plt.tight_layout()
+# plt.savefig('1.png')
+def OHE(train_df, test_df, cols, target):
+	'''
+	   Function for one hot encoding, it first combined the data so that no category
+	   is missed and
+	   the category with least frequency can be dropped because of redunancy
+	   '''
+	combined = pd.concat([train_df, test_df], axis=0)
+	for col in cols:
+		one_hot = pd.get_dummies(combined[col]).astype(int)
+		counts = combined[col].value_counts()
+		min_count_category = counts.idxmin()
+		one_hot = one_hot.drop(min_count_category, axis=1)
+		one_hot.columns = [str(f) + col for f in one_hot.columns]
+		combined = pd.concat([combined, one_hot], axis="columns")
+		combined = combined.loc[:, ~combined.columns.duplicated()]
+
+cat_cols = [f for f in test.columns if test[f].nunique()/test.shape[0]*100<5 and test[f].nunique()>2 ]
+print(test[cat_cols].nunique())
+def nearest_val(target):
+    return min(common, key=lambda x: abs(x - target))
+
+
+global cat_cols_updated
+cat_cols_updated=[]
+for col in cat_cols:
+    train[f"{col}_cat"]=train[col]
+    test[f"{col}_cat"]=test[col]
+    cat_cols_updated.append(f"{col}_cat")
+    uncommon=list((set(test[col].unique())| set(train[col].unique()))-(set(test[col].unique())& set(train[col].unique())))
+    if uncommon:
+        common=list(set(test[col].unique())& set(train[col].unique()))
+        train[f"{col}_cat"]=train[col].apply(nearest_val)
+        test[f"{col}_cat"]=test[col].apply(nearest_val)
