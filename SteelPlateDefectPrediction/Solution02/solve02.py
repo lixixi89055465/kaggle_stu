@@ -189,13 +189,72 @@ def cat_encoding(train, test, target):
 	test_copy = test.copy()
 	train_dum = train.copy()
 	for feature in cat_cols_updated:
-		pass
+		# print(feature)
+		# cat_labels = train_dum.groupby([feature])[target].mean().sort_values().index
+		# cat_labels2 = {k: i for i, k in enumerate(cat_labels, 0)}
+		# train_copy[feature + '_target'] = train[feature].map(cat_labels2)
+		# test_copy[feature + '_target'] = test[feature].map(cat_labels2)
+		dic = train[feature].value_counts().to_dict()
+		train_copy[feature + '_count'] = train[feature].map(dict)
+		test_copy[feature + '_count'] = test[feature].map(dic)
+		dic2 = train[feature].value_counts().to_dict()
+		list1 = np.arange(len(dic2.values()))
+		dic3 = dict(zip(list(dic2.keys()), list1))
+		train_copy[feature + '_count_label'] = train[feature].replace(dic3).astype(int)
+		test_copy[feature + '_count_label'] = test[feature].replace(dic3).astype(int)
+		temp_cols = [feature + '_count', feature + '_count_label']
+		if train_copy[feature].nunique() <= 5:
+			train_copy[feature] = train_copy[feature].astype(str) + "_" + feature
+			test_copy[feature] = test_copy[feature].astype(str) + "_" + feature
+			train_copy, test_copy = OHE(train_copy, test_copy, [feature], target)
+		else:
+			train_copy, test_copy = high_freq_ohe(train_copy, test_copy, [feature], target, n_limit=5)
+		train_copy = train_copy.drop(columns=[feature])
+		test_copy = test_copy.drop(columns=[feature])
+		kf = KFold(n_splits=5, shuffle=True, random_state=42)
+		auc_scores = []
+		for f in temp_cols:
+			X = train_copy[[f]].values
+			y = train_copy[target].astype(int).values
+			auc = []
+			for train_idx, val_idx in kf.split(X, y):
+				X_train, y_train = X[train_idx], y[train_idx]
+				x_val, y_val = X[val_idx], y[val_idx]
+				model = HistGradientBoostingClassifier(max_iter=300, \
+													   learning_rate=0.02, \
+													   max_depth=6, \
+													   random_state=42)
+				model.fit(X_train, y_train)
+				y_pred = model.predict_proba(x_val)[:, 1]
+				auc.append(roc_auc_score(y_val, y_pred))
+			auc_scores.append((f, np.mean(auc)))
+		best_col, best_auc = sorted(auc_scores, key=lambda x: x[1], reverse=True)[0]
+		corr = train_copy[temp_cols].corr(method='pearson')
+		corr_with_best_col = corr[best_col]
+		cols_to_drop = [f for f in temp_cols if corr_with_best_col[f] > 0.5 and f != best_col]
+		final_selection = [f for f in temp_cols if f not in cols_to_drop]
+		if cols_to_drop:
+			train_copy = train_copy.drop(columns=cols_to_drop)
+			test_copy = test_copy.drop(columns=cols_to_drop)
+		table.add_row([feature, best_col, best_auc])
+	#         print(feature)
+	#     print(table)
+	return train_copy, test_copy
 
 
-submission = pd.read_csv("/kaggle/input/playground-series-s4e3/sample_submission.csv")
+submission = pd.read_csv("../input/sample_submission.csv")
 submission.head()
 count = 0
 for col in target:
-	train_temp = train[test.columns.tolist() + col]
+	train_temp = train[test.columns.tolist() + [col]]
 	test_temp = test.copy()
 	train_temp, test_temp = cat_encoding(train_temp, test_temp, col)
+	final_features = test.columns.tolist()
+	sc = StandardScaler()
+	train_scaled = train_temp.copy()
+	test_scaled = test_temp.copy()
+
+	train_scaled[final_features] = sc.fit_transform(train[final_features])
+	test_scaled[final_features] = sc.transform(test[final_features])
+	train_cop, test_cop = train_scaled, test_scaled
+	X_train = train_cop.drop(columns=[col])
