@@ -582,6 +582,7 @@ def fit_model(X_train, X_test, y_train):
 			ensemble_score.append(score)
 			print("optweights.weights().shape:")
 			print(optweights.weights)
+			weights.append(optweights.weights)
 			test_predss += optweights.predict(test_preds) / (n_splits * len(random_state_list))
 			y_train_pred.loc[y_val.index] = np.array(y_val_pred)
 			gc.collect()
