@@ -566,38 +566,40 @@ def fit_model(X_train, X_test, y_train):
 							  verbose=verbose)
 				else:
 					model.fit(X_train_, y_train_)
-				test_pred = model.predict_proba(X_test)[:, 1]
-				y_val_pred = model.predict_proba(X_val)[:, 1]
-				score = roc_auc_score(y_val, y_val_pred.reshape(-1, 1))
-				#         score = accuracy_score(y_val, acc_cutoff_class(y_val, y_val_pred))
-				print(f'{name} [FOLD-{n} SEED-{random_state_list[m]}] ROC AUC score: {score:.5f}')
-				oof_preds.append(y_val_pred)
-				test_preds.append(test_pred)
-				if name in trained_models.keys():
-					trained_models[f'{name}'].append(deepcopy(models))
-			optweights = OptunaWeights(random_state=random_state)
-			y_val_pred = optweights.fit_predict(y_val.values, oof_preds)
+			else:
+				model.fit(X_train_, y_train_)
+			test_pred = model.predict_proba(X_test)[:, 1]
+			y_val_pred = model.predict_proba(X_val)[:, 1]
 			score = roc_auc_score(y_val, y_val_pred.reshape(-1, 1))
-			print(f'Ensemble [FOLD -{n} seed - {random_state_list[m]}------------->ROC AUC score {score:.5f}')
-			ensemble_score.append(score)
-			print("optweights.weights().shape:")
-			print(optweights.weights)
-			weights.append(optweights.weights)
-			test_predss += optweights.predict(test_preds) / (n_splits * len(random_state_list))
-			y_train_pred.loc[y_val.index] = np.array(y_val_pred)
-			gc.collect()
-		# Calculate the mean ROC AUC  score of the ensemble
-		mean_score = np.mean(ensemble_score)
-		std_score = np.std(ensemble_score)
-		print(f'Ensemble ROC AUC score {mean_score:.5f} + {std_score:.5f}')
-		print('---- Model WEights')
-		mean_weights = np.mean(weights, axis=0)
-		std_weights = np.std(weights, axis=0)
-		for name, mean_weight, std_weight in zip(models.keys(), mean_weights, std_weights):
-			print(f'{name} : {mean_weight:.5f} + {std_weight:.5f}')
-		print(f'Overall OFF Preds AUC SCORE {roc_auc_score(y_train, y_train_pred)}')
-		print('-' * 100)
-		return test_predss
+			#         score = accuracy_score(y_val, acc_cutoff_class(y_val, y_val_pred))
+			print(f'{name} [FOLD-{n} SEED-{random_state_list[m]}] ROC AUC score: {score:.5f}')
+			oof_preds.append(y_val_pred)
+			test_preds.append(test_pred)
+			if name in trained_models.keys():
+				trained_models[f'{name}'].append(deepcopy(models))
+		optweights = OptunaWeights(random_state=random_state)
+		y_val_pred = optweights.fit_predict(y_val.values, oof_preds)
+		score = roc_auc_score(y_val, y_val_pred.reshape(-1, 1))
+		print(f'Ensemble [FOLD -{n} seed - {random_state_list[m]}------------->ROC AUC score {score:.5f}')
+		ensemble_score.append(score)
+		print("optweights.weights().shape:")
+		print(optweights.weights)
+		weights.append(optweights.weights)
+		test_predss += optweights.predict(test_preds) / (n_splits * len(random_state_list))
+		y_train_pred.loc[y_val.index] = np.array(y_val_pred)
+		gc.collect()
+	# Calculate the mean ROC AUC  score of the ensemble
+	mean_score = np.mean(ensemble_score)
+	std_score = np.std(ensemble_score)
+	print(f'Ensemble ROC AUC score {mean_score:.5f} + {std_score:.5f}')
+	print('---- Model WEights')
+	mean_weights = np.mean(weights, axis=0)
+	std_weights = np.std(weights, axis=0)
+	for name, mean_weight, std_weight in zip(models.keys(), mean_weights, std_weights):
+		print(f'{name} : {mean_weight:.5f} + {std_weight:.5f}')
+	print(f'Overall OFF Preds AUC SCORE {roc_auc_score(y_train, y_train_pred)}')
+	print('-' * 100)
+	return test_predss
 
 
 def post_processor(train, test):

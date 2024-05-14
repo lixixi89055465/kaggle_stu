@@ -177,7 +177,30 @@ for col in cat_cols:
 
 
 def high_freq_ohe(train, test, extra_cols, target, n_limit=50):
-	pass
+	'''
+	 If you wish to apply one hot encoding on a feature with so many unique values,
+	  then this can be applied, where it takes a maximum of n categories and drops the rest of them treating as rare categories
+	'''
+	train_copy = train.copy()
+	test_copy = test.copy()
+	ohe_cols = []
+	for col in extra_cols:
+		dict1 = train_copy[col].value_counts().to_dict()
+		ordered = dict(sorted(dict1.items(), key=lambda x: x[1], reverse=True))
+		rare_keys = list([*ordered.keys()][n_limit:])
+		ext_keys = [f[0] for f in ordered.items() if f[1] < 50]
+		rare_key_map = dict(zip(rare_keys, np.full(len(rare_keys), 9999)))
+
+		train_copy[col] = train_copy[col].replace(rare_key_map)
+		test_copy[col] = test_copy.replace(rare_key_map)
+	train_copy, test_copy = OHE(train_copy, test_copy, extra_cols, target)
+	drop_cols = [f for f in train_copy.columns \
+				 if '9999' in f or train_copy[f].nunique() == 1]
+
+	train_copy = train_copy.drop(columns=drop_cols)
+	test_copy = test_copy.drop(columns=drop_cols)
+
+	return train_copy,test_copy
 
 
 def cat_encoding(train, test, target):
