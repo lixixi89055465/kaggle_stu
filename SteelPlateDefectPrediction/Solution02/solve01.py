@@ -458,33 +458,34 @@ class Classifier:
 		cb_params4['depth'] = 12
 		dt_params = {'min_samples_split': 30, 'min_samples_leaf': 10, 'max_depth': 8, 'criterion': 'gini'}
 		models = {
-			'xgb': xgb.XGBClassifier(**xgb_params),
-			#            'xgb2': xgb.XGBClassifier(**xgb_params2),
-			#            'xgb3': xgb.XGBClassifier(**xgb_params3),
-			#            'xgb4': xgb.XGBClassifier(**xgb_params4),
-			#            'lgb': lgb.LGBMClassifier(**lgb_params),
-			#             'lgb2': lgb.LGBMClassifier(**lgb_params2),
-			#             'lgb3': lgb.LGBMClassifier(**lgb_params3),
-			#             'lgb4': lgb.LGBMClassifier(**lgb_params4),
+			# 'xgb': xgb.XGBClassifier(**xgb_params),
+			# 'xgb2': xgb.XGBClassifier(**xgb_params2),
+			# 'xgb3': xgb.XGBClassifier(**xgb_params3),
+			# 'xgb4': xgb.XGBClassifier(**xgb_params4),
+			'lgb': lgb.LGBMClassifier(**lgb_params),
+			'lgb2': lgb.LGBMClassifier(**lgb_params2),
+			'lgb3': lgb.LGBMClassifier(**lgb_params3),
+			'lgb4': lgb.LGBMClassifier(**lgb_params4),
 			'cat': CatBoostClassifier(**cb_params),
-			#            'cat2': CatBoostClassifier(**cb_params2),
-			#             'cat3': CatBoostClassifier(**cb_params3),
-			#             'cat4': CatBoostClassifier(**cb_params4),
+			'cat2': CatBoostClassifier(**cb_params2),
+			'cat3': CatBoostClassifier(**cb_params3),
+			'cat4': CatBoostClassifier(**cb_params4),
 			"cat_sym": CatBoostClassifier(**cb_sym_params),
-			#             "cat_loss": CatBoostClassifier(**cb_loss_params),
-			#             'hist_gbm' : HistGradientBoostingClassifier (max_iter=300, learning_rate=0.001,  max_leaf_nodes=80,
-			#            max_depth=6,random_state=self.random_state),#class_weight=class_weights_dict,
-			#             'gbdt': GradientBoostingClassifier(max_depth=6,  n_estimators=1000,random_state=self.random_state),
-			#             'lr': LogisticRegression(),
-			#             'rf': RandomForestClassifier(max_depth= 9,max_features= 'auto',min_samples_split= 10,
-			#                                                           min_samples_leaf= 4,  n_estimators=500,random_state=self.random_state),
-			#            'svc': SVC(gamma="auto", probability=True),
-			#             'knn': KNeighborsClassifier(n_neighbors=5),
-			#             'mlp': MLPClassifier(random_state=self.random_state, max_iter=1000),
-			#             'etr':ExtraTreesClassifier(min_samples_split=55, min_samples_leaf= 15, max_depth=10,
-			#                                        n_estimators=200,random_state=self.random_state),
-			#             'dt' :DecisionTreeClassifier(**dt_params,random_state=self.random_state),
-			#             'ada': AdaBoostClassifier(random_state=self.random_state),
+			"cat_loss": CatBoostClassifier(**cb_loss_params),
+			'hist_gbm': HistGradientBoostingClassifier(max_iter=300, learning_rate=0.001, max_leaf_nodes=80,
+													   max_depth=6, random_state=self.random_state),
+			# class_weight=class_weights_dict,
+			'gbdt': GradientBoostingClassifier(max_depth=6, n_estimators=1000, random_state=self.random_state),
+			'lr': LogisticRegression(),
+			'rf': RandomForestClassifier(max_depth=9, max_features='auto', min_samples_split=10,
+										 min_samples_leaf=4, n_estimators=500, random_state=self.random_state),
+			'svc': SVC(gamma="auto", probability=True),
+			'knn': KNeighborsClassifier(n_neighbors=5),
+			'mlp': MLPClassifier(random_state=self.random_state, max_iter=1000),
+			'etr': ExtraTreesClassifier(min_samples_split=55, min_samples_leaf=15, max_depth=10,
+										n_estimators=200, random_state=self.random_state),
+			'dt': DecisionTreeClassifier(**dt_params, random_state=self.random_state),
+			'ada': AdaBoostClassifier(random_state=self.random_state),
 
 		}
 		return models
@@ -557,8 +558,11 @@ def fit_model(X_train, X_test, y_train):
 		oof_preds = []
 		test_preds = []
 		for name, model in models.items():
+			print(f'{i}-model name is ={name}')
 			if ('cat' in name) or ("lgb" in name) or ("xgb" in name):
 				if 'lgb' in name:  # categorical_feature=c test_predss at_features
+					print('X_train_.columns:')
+					print(X_train_.columns)
 					model.fit(X_train_, y_train_, eval_set=[(X_val, y_val)])
 				elif 'cat' in name:
 					model.fit(X_train_, y_train_, eval_set=[(X_val, y_val)], \
@@ -619,7 +623,7 @@ def post_processor(train, test):
 
 
 submission = pd.read_csv("../input/sample_submission.csv")
-submission.head()
+print(submission.head())
 
 count = 0
 for col in target:
@@ -644,9 +648,11 @@ for col in target:
 	count += 1
 	print(f'Column {col} ,loop # {count}')
 
-submission.to_csv("submission_pure.csv", index=False)
-submission.head()
+purePath = "../input/submission_pure02.csv"
+submission.to_csv(purePath, index=False)
+print(submission.head())
 
+# submission = pd.read_csv("../input/submission_pure01.csv")
 sub1 = pd.read_csv("../input/multiclass-feature-engineering-thoughts/submission.csv")
 sub2 = pd.read_csv("../input/ps4e03-multi-class-lightgbm/submission.csv")
 sub_list = [sub1, sub2, submission]
@@ -673,5 +679,6 @@ def ensemble_mean(sub_list, cols, mean="AM"):
 
 
 sub_ensemble = ensemble_mean(weighted_list, target, mean='AM')
-sub_ensemble.to_csv('submission.csv', index=False)
+sub_ensemble.to_csv('../input/submission01.csv', index=False)
+print('s' * 100)
 print(sub_ensemble.head())

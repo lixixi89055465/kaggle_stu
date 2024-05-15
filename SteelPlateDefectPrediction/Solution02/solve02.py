@@ -200,7 +200,7 @@ def high_freq_ohe(train, test, extra_cols, target, n_limit=50):
 	train_copy = train_copy.drop(columns=drop_cols)
 	test_copy = test_copy.drop(columns=drop_cols)
 
-	return train_copy,test_copy
+	return train_copy, test_copy
 
 
 def cat_encoding(train, test, target):
@@ -265,8 +265,69 @@ def cat_encoding(train, test, target):
 	return train_copy, test_copy
 
 
+class Splitter:
+	def __init__(self, test_size=0.2, kfold=True, \
+				 n_splits=5):
+		self.test_size = test_size
+		self.kfold = kfold
+		self.n_splits = n_splits
+
+	def split_data(self, X, y, random_state_list):
+		if self.kfold:
+			for random_state in random_state_list:
+				kf = KFold(n_splits=self.n_splits, random_state=random_state, shuffle=True)
+				for train_index, val_index in kf.split(X, y):
+					X_train, X_val = X.iloc[train_index], X.iloc[val_index]
+					y_train, y_val = y.iloc[train_index], y.iloc[val_index]
+					yield X_train, y_train, X_val, y_val
+
+
+class Classifier:
+	def __init__(self, n_estimator=100, device='cpu', random_state=0):
+		self.n_estimator = n_estimator
+		self.device = device
+		self.random_state = random_state
+		self.models = self._define_model()
+		self.len_models = len(self.models)
+
+	def _define_model(self):
+		xgb_params = {
+			'n_estimators': self.n_estimator,
+			'learn_rate': 0.1,
+			'max_depth': 4,
+			'subsample': 0.8,
+			'colsample_bytree': 0.1,
+
+		}
+		pass
+
+
+def fit_model(X_train, X_test, y_train):
+	kfold = True
+	n_splits = 1 if not kfold else 5
+	random_state = 2023
+	random_state_list = [42]  # used by split_data [71]
+	n_estimators = 9999  # 9999
+	early_stopping_rounds = 300
+	verbose = False
+	splitter = Splitter(kfold=kfold, n_splits=n_splits)
+	# Initialize an array for storing test predictions
+	test_predss = np.zeros(X_test.shape[0])
+	y_train_pred = y_train.copy()
+	ensemble_score = []
+	weights = []
+	trained_models = {'xgb': [], 'lgb': []}
+	for i, (X_train_, X_val, y_train_, y_val_) in enumerate(
+			splitter.split_data(X_train, y_train, random_state_list=random_state_list)):
+		n = i % n_splits
+		m = i // n_splits
+		classifier = Classifier(n_estimators, device, random_state)
+		pass
+
+
 submission = pd.read_csv("../input/sample_submission.csv")
 submission.head()
+
 count = 0
 for col in target:
 	train_temp = train[test.columns.tolist() + [col]]
@@ -281,3 +342,7 @@ for col in target:
 	test_scaled[final_features] = sc.transform(test[final_features])
 	train_cop, test_cop = train_scaled, test_scaled
 	X_train = train_cop.drop(columns=[col])
+	y_train = train_cop[col]
+
+	X_test = test_cop.copy()
+	test_predss = fit_model(X_train, X_test, y_train)
