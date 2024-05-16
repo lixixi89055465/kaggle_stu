@@ -481,7 +481,7 @@ def fit_model(X_train, X_test, y_train):
 		for name, model in models.items():
 			if ('cat' in name) or ('lgb' in name) or ('xgb' in name):
 				if 'lgb' in name:
-					model.fit(X_train_,\
+					model.fit(X_train_, \
 							  y_train_, \
 							  eval_set=[(X_val, y_val)])
 				elif 'cat' in name:
@@ -490,9 +490,23 @@ def fit_model(X_train, X_test, y_train):
 							  eval_set=[(X_val, y_val)], \
 							  early_stopping_rounds=early_stopping_rounds, \
 							  verbose=verbose)
-
-
-
+				else:
+					model.fit(X_train_, \
+							  y_train_, \
+							  eval_set=[(X_val, y_val)], \
+							  early_stopping_rounds=early_stopping_rounds, \
+							  verbose=verbose)
+			else:
+				model.fit(X_train_, y_train_)
+			test_pred = model.predict_proba(X_test)[:, 1]
+			y_val_pred = model.predict_proba(X_val)[:, 1]
+			score = roc_auc_score(y_val, y_val_pred.reshape(-1, 1))
+			# score=accuracy_score(y_val,acc_cutooff_class(y_val,y_val_pred))
+			print(f'{name} [FOLD-{n} SEED - {random_state_list[m]}] ROC AUC score:{score:.5f}')
+			oof_preds.append(y_val_pred)
+			test_preds.append(test_pred)
+			if name in trained_models.keys():
+				trained_models[f'{name}'].append(deepcopy(model))
 
 
 submission = pd.read_csv("../input/sample_submission.csv")

@@ -183,8 +183,8 @@ def OHE(train_df, test_df, cols, target):
 cat_cols = [f for f in test.columns if test[f].nunique() / test.shape[0] * 100 < 5 and test[f].nunique() > 2]
 print(test[cat_cols].nunique())
 
-# def nearst_val(target):
-# 	return min(common, key=lambda x: abs(x - target))
+def nearst_val(target):
+	return min(common, key=lambda x: abs(x - target))
 
 
 global cat_cols_updated
@@ -195,10 +195,10 @@ for col in cat_cols:
 	cat_cols_updated.append(f'{col}_cat')
 	uncommon = list(
 		(set(test[col].unique()) | set(train[col].unique())) - (set(test[col].unique()) & set(train[col].unique())))
-# if uncommon:
-# 	common = list(set(test[col].unique()) & set(train[col].unique()))
-# train[f'{col}_cat'] = train[col].apply(nearst_val)
-# test[f'{col}_cat'] = test[col].apply(nearst_val)
+	if uncommon:
+		common = list(set(test[col].unique()) & set(train[col].unique()))
+		train[f'{col}_cat'] = train[col].apply(nearst_val)
+		test[f'{col}_cat'] = test[col].apply(nearst_val)
 
 import os
 
@@ -463,29 +463,29 @@ class Classifier:
 			# 'xgb3': xgb.XGBClassifier(**xgb_params3),
 			# 'xgb4': xgb.XGBClassifier(**xgb_params4),
 			'lgb': lgb.LGBMClassifier(**lgb_params),
-			'lgb2': lgb.LGBMClassifier(**lgb_params2),
-			'lgb3': lgb.LGBMClassifier(**lgb_params3),
-			'lgb4': lgb.LGBMClassifier(**lgb_params4),
-			'cat': CatBoostClassifier(**cb_params),
-			'cat2': CatBoostClassifier(**cb_params2),
-			'cat3': CatBoostClassifier(**cb_params3),
-			'cat4': CatBoostClassifier(**cb_params4),
-			"cat_sym": CatBoostClassifier(**cb_sym_params),
-			"cat_loss": CatBoostClassifier(**cb_loss_params),
-			'hist_gbm': HistGradientBoostingClassifier(max_iter=300, learning_rate=0.001, max_leaf_nodes=80,
-													   max_depth=6, random_state=self.random_state),
-			# class_weight=class_weights_dict,
-			'gbdt': GradientBoostingClassifier(max_depth=6, n_estimators=1000, random_state=self.random_state),
-			'lr': LogisticRegression(),
-			'rf': RandomForestClassifier(max_depth=9, max_features='auto', min_samples_split=10,
-										 min_samples_leaf=4, n_estimators=500, random_state=self.random_state),
-			'svc': SVC(gamma="auto", probability=True),
-			'knn': KNeighborsClassifier(n_neighbors=5),
-			'mlp': MLPClassifier(random_state=self.random_state, max_iter=1000),
-			'etr': ExtraTreesClassifier(min_samples_split=55, min_samples_leaf=15, max_depth=10,
-										n_estimators=200, random_state=self.random_state),
-			'dt': DecisionTreeClassifier(**dt_params, random_state=self.random_state),
-			'ada': AdaBoostClassifier(random_state=self.random_state),
+			# 'lgb2': lgb.LGBMClassifier(**lgb_params2),
+			# 'lgb3': lgb.LGBMClassifier(**lgb_params3),
+			# 'lgb4': lgb.LGBMClassifier(**lgb_params4),
+			# 'cat': CatBoostClassifier(**cb_params),
+			# 'cat2': CatBoostClassifier(**cb_params2),
+			# 'cat3': CatBoostClassifier(**cb_params3),
+			# 'cat4': CatBoostClassifier(**cb_params4),
+			# "cat_sym": CatBoostClassifier(**cb_sym_params),
+			# "cat_loss": CatBoostClassifier(**cb_loss_params),
+			# 'hist_gbm': HistGradientBoostingClassifier(max_iter=300, learning_rate=0.001, max_leaf_nodes=80,
+			# 										   max_depth=6, random_state=self.random_state),
+			# # class_weight=class_weights_dict,
+			# 'gbdt': GradientBoostingClassifier(max_depth=6, n_estimators=1000, random_state=self.random_state),
+			# 'lr': LogisticRegression(),
+			# 'rf': RandomForestClassifier(max_depth=9, max_features='auto', min_samples_split=10,
+			# 							 min_samples_leaf=4, n_estimators=500, random_state=self.random_state),
+			# 'svc': SVC(gamma="auto", probability=True),
+			# 'knn': KNeighborsClassifier(n_neighbors=5),
+			# 'mlp': MLPClassifier(random_state=self.random_state, max_iter=1000),
+			# 'etr': ExtraTreesClassifier(min_samples_split=55, min_samples_leaf=15, max_depth=10,
+			# 							n_estimators=200, random_state=self.random_state),
+			# 'dt': DecisionTreeClassifier(**dt_params, random_state=self.random_state),
+			# 'ada': AdaBoostClassifier(random_state=self.random_state),
 
 		}
 		return models
@@ -562,7 +562,7 @@ def fit_model(X_train, X_test, y_train):
 			if ('cat' in name) or ("lgb" in name) or ("xgb" in name):
 				if 'lgb' in name:  # categorical_feature=c test_predss at_features
 					print('X_train_.columns:')
-					print(X_train_.columns)
+					print(list(X_train_.columns))
 					model.fit(X_train_, y_train_, eval_set=[(X_val, y_val)])
 				elif 'cat' in name:
 					model.fit(X_train_, y_train_, eval_set=[(X_val, y_val)], \
