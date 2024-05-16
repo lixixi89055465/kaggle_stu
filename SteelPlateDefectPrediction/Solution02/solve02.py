@@ -152,14 +152,18 @@ def OHE(train_df, test_df, cols, target):
 		one_hot.columns = [str(f) + col for f in one_hot.columns]
 		combined = pd.concat([combined, one_hot], axis="columns")
 		combined = combined.loc[:, ~combined.columns.duplicated()]
+	train_ohe = combined[:len(train_df)]
+	test_ohe = combined[len(train_df)]
+	test_ohe.reset_index(inplace=True, drop=True)
+	test.drop(columns=[target], inplace=True)
+	return train_ohe, test_ohe
 
 
 cat_cols = [f for f in test.columns if test[f].nunique() / test.shape[0] * 100 < 5 and test[f].nunique() > 2]
 print(test[cat_cols].nunique())
 
-
-def nearest_val(target):
-	return min(common, key=lambda x: abs(x - target))
+# def nearest_val(target):
+# 	return min(common, key=lambda x: abs(x - target))
 
 
 global cat_cols_updated
@@ -168,12 +172,14 @@ for col in cat_cols:
 	train[f"{col}_cat"] = train[col]
 	test[f"{col}_cat"] = test[col]
 	cat_cols_updated.append(f"{col}_cat")
-	uncommon = list(
-		(set(test[col].unique()) | set(train[col].unique())) - (set(test[col].unique()) & set(train[col].unique())))
-	if uncommon:
-		common = list(set(test[col].unique()) & set(train[col].unique()))
-		train[f"{col}_cat"] = train[col].apply(nearest_val)
-		test[f"{col}_cat"] = test[col].apply(nearest_val)
+
+
+# uncommon = list(
+# 	(set(test[col].unique()) | set(train[col].unique())) - (set(test[col].unique()) & set(train[col].unique())))
+# if uncommon:
+# 	common = list(set(test[col].unique()) & set(train[col].unique()))
+# 	train[f"{col}_cat"] = train[col].apply(nearest_val)
+# 	test[f"{col}_cat"] = test[col].apply(nearest_val)
 
 
 def high_freq_ohe(train, test, extra_cols, target, n_limit=50):
@@ -188,11 +194,11 @@ def high_freq_ohe(train, test, extra_cols, target, n_limit=50):
 		dict1 = train_copy[col].value_counts().to_dict()
 		ordered = dict(sorted(dict1.items(), key=lambda x: x[1], reverse=True))
 		rare_keys = list([*ordered.keys()][n_limit:])
-		ext_keys = [f[0] for f in ordered.items() if f[1] < 50]
+		# ext_keys = [f[0] for f in ordered.items() if f[1] < 50]
 		rare_key_map = dict(zip(rare_keys, np.full(len(rare_keys), 9999)))
 
 		train_copy[col] = train_copy[col].replace(rare_key_map)
-		test_copy[col] = test_copy.replace(rare_key_map)
+		test_copy[col] = test_copy[col].replace(rare_key_map)
 	train_copy, test_copy = OHE(train_copy, test_copy, extra_cols, target)
 	drop_cols = [f for f in train_copy.columns \
 				 if '9999' in f or train_copy[f].nunique() == 1]
@@ -218,7 +224,7 @@ def cat_encoding(train, test, target):
 		# train_copy[feature + '_target'] = train[feature].map(cat_labels2)
 		# test_copy[feature + '_target'] = test[feature].map(cat_labels2)
 		dic = train[feature].value_counts().to_dict()
-		train_copy[feature + '_count'] = train[feature].map(dict)
+		train_copy[feature + '_count'] = train[feature].map(dic)
 		test_copy[feature + '_count'] = test[feature].map(dic)
 		dic2 = train[feature].value_counts().to_dict()
 		list1 = np.arange(len(dic2.values()))
@@ -452,6 +458,48 @@ class Classifier:
 		return models
 
 
+class OptunaWeights:
+	def __init__(self, random_state, n_trials=5000):
+		self.study = None
+		self.weights = None
+		self.random_state = random_state
+		self.n_trials = n_trials
+
+	def _objective(self, trial, y_true, y_preds):
+		# Define the weights for the predictions from each model
+		weights = [trial.suggest_float(f'weight{n}', 0, 1) for n in range(len(y_preds))]
+		# Calculate the weighted prediction
+		weighted_pred = np.average(np.array(y_preds).T, axis=1, weights=weights)
+		auc_score = roc_auc_score(y_true, weighted_pred)
+		log_loss_score = log_loss(y_true, weighted_pred)
+		return auc_score  # /log_loss_score
+
+	def fit(self, y_true, y_preds):
+		optuna.logging.set_verbosity(optuna.logging.ERROR)
+		sampler = optuna.samplers.CmaEsSampler(seed=self.random_state)
+		pruner = optuna.pruners.HyperbandPruner()
+		self.study = optuna.create_study(sampler=sampler, \
+										 pruner=pruner, \
+										 study_name='OptunaWeights', \
+										 direction='maximize' \
+										 )
+		objective_partial = partial(self._objective, y_true=y_true, y_preds=y_preds)
+		self.study.optimize(objective_partial, n_trials=self.n_trials)
+		self.weights = [self.study.best_params[f'weight{n}'] for n in range(len(y_preds))]
+
+	def predict(self, y_preds):
+		assert self.weights is not None, 'OptunaWeights  error,must be fitted before predict'
+		weighted_pred = np.average(np.array(y_preds).T, axis=1, weights=self.weights)
+		return weighted_pred
+
+	def fit_predict(self, y_true, y_preds):
+		self.fit(y_true, y_preds)
+		return self.predict(y_preds)
+
+	def weights(self):
+		return self.weights
+
+
 def fit_model(X_train, X_test, y_train):
 	kfold = True
 	n_splits = 1 if not kfold else 5
@@ -507,6 +555,31 @@ def fit_model(X_train, X_test, y_train):
 			test_preds.append(test_pred)
 			if name in trained_models.keys():
 				trained_models[f'{name}'].append(deepcopy(model))
+		# Using optuna to find the best ensemble weights
+		optweights = OptunaWeights(random_state=random_state)
+		y_val_pred = optweights.fit_predict(y_val.values, oof_preds)
+		score = roc_auc_score(y_val, y_val_pred.reshape(-1, 1))
+		print(f'Ensemble [FOLD-{n} SEED-{random_state_list[m]}] '
+			  f'------------------>  ROC AUC score {score:.5f}')
+		ensemble_score.append(score)
+		weights.append(optweights.weights)
+		test_predss += optweights.predict(test_preds) / (n_splits * len(random_state_list))
+		y_train_pred.loc[y_val.index] = np.array(y_val_pred)
+		gc.collect()
+
+	# Calculate the mean ROC AUC score of the ensemble
+	mean_score = np.mean(ensemble_score)
+	std_score = np.std(ensemble_score)
+	print(f'Ensemble ROC AUC score {mean_score:.5f} ± {std_score:.5f}')
+	# Print the mean and standard deviation of the ensemble weights for each model
+	print('--Model Weights ---')
+	mean_weights = np.mean(weights, axis=0)
+	std_weights = np.std(weights, axis=0)
+	for name, mean_weight, std_weights in zip(models.keys(), mean_weights, std_weights):
+		print(f'{name} : {mean_weight:.5f}+ {std_weights:.5f}')
+	print(f'Overall OOF Preds AUC SCORE {roc_auc_score(y_train, y_train_pred)}')
+	print("__________________________________________________________________")
+	return test_predss
 
 
 submission = pd.read_csv("../input/sample_submission.csv")
@@ -517,19 +590,24 @@ for col in target:
 	train_temp = train[test.columns.tolist() + [col]]
 	test_temp = test.copy()
 	train_temp, test_temp = cat_encoding(train_temp, test_temp, col)
+
 	final_features = test.columns.tolist()
 	sc = StandardScaler()
+
 	train_scaled = train_temp.copy()
 	test_scaled = test_temp.copy()
 
 	train_scaled[final_features] = sc.fit_transform(train[final_features])
 	test_scaled[final_features] = sc.transform(test[final_features])
+
 	train_cop, test_cop = train_scaled, test_scaled
 	X_train = train_cop.drop(columns=[col])
 	y_train = train_cop[col]
 
 	X_test = test_cop.copy()
+
 	test_predss = fit_model(X_train, X_test, y_train)
-	# Initialize lists to store oof and test predictions for each base model
-	oof_preds = []
-	test_preds = []
+	submission[col] = test_predss
+
+	count += 1
+	print(f'Columns {col} ,loop # {count}')

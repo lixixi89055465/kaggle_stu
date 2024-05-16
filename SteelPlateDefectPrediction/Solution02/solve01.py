@@ -183,8 +183,8 @@ def OHE(train_df, test_df, cols, target):
 cat_cols = [f for f in test.columns if test[f].nunique() / test.shape[0] * 100 < 5 and test[f].nunique() > 2]
 print(test[cat_cols].nunique())
 
-def nearst_val(target):
-	return min(common, key=lambda x: abs(x - target))
+# def nearst_val(target):
+# 	return min(common, key=lambda x: abs(x - target))
 
 
 global cat_cols_updated
@@ -193,23 +193,26 @@ for col in cat_cols:
 	train[f'{col}_cat'] = train[col]
 	test[f'{col}_cat'] = test[col]
 	cat_cols_updated.append(f'{col}_cat')
-	uncommon = list(
-		(set(test[col].unique()) | set(train[col].unique())) - (set(test[col].unique()) & set(train[col].unique())))
-	if uncommon:
-		common = list(set(test[col].unique()) & set(train[col].unique()))
-		train[f'{col}_cat'] = train[col].apply(nearst_val)
-		test[f'{col}_cat'] = test[col].apply(nearst_val)
+	# uncommon = list(
+	# 	(set(test[col].unique()) | set(train[col].unique())) - (set(test[col].unique()) & set(train[col].unique())))
+	# if uncommon:
+	# 	common = list(set(test[col].unique()) & set(train[col].unique()))
+	# 	train[f'{col}_cat'] = train[col].apply(nearst_val)
+	# 	test[f'{col}_cat'] = test[col].apply(nearst_val)
 
 import os
 
 train_path = '../input/train_cat.csv'
 test_path = '../input/test_cat.csv'
 if not os.path.exists(train_path):
-	train.to_csv(train_path)
-	test.to_csv(test_path)
+	train.to_csv(train_path,index=False)
+	test.to_csv(test_path,index=False)
 train = pd.read_csv(train_path)
 test = pd.read_csv(test_path)
+# train.drop(columns=['id'], inplace=True)
+# test.drop(columns=['id'], inplace=True)
 print('0' * 100)
+
 
 
 def high_freq_ohe(train, test, extra_cols, target, n_limit=50):
@@ -458,7 +461,7 @@ class Classifier:
 		cb_params4['depth'] = 12
 		dt_params = {'min_samples_split': 30, 'min_samples_leaf': 10, 'max_depth': 8, 'criterion': 'gini'}
 		models = {
-			# 'xgb': xgb.XGBClassifier(**xgb_params),
+			'xgb': xgb.XGBClassifier(**xgb_params),
 			# 'xgb2': xgb.XGBClassifier(**xgb_params2),
 			# 'xgb3': xgb.XGBClassifier(**xgb_params3),
 			# 'xgb4': xgb.XGBClassifier(**xgb_params4),
@@ -466,11 +469,11 @@ class Classifier:
 			# 'lgb2': lgb.LGBMClassifier(**lgb_params2),
 			# 'lgb3': lgb.LGBMClassifier(**lgb_params3),
 			# 'lgb4': lgb.LGBMClassifier(**lgb_params4),
-			# 'cat': CatBoostClassifier(**cb_params),
+			'cat': CatBoostClassifier(**cb_params),
 			# 'cat2': CatBoostClassifier(**cb_params2),
 			# 'cat3': CatBoostClassifier(**cb_params3),
 			# 'cat4': CatBoostClassifier(**cb_params4),
-			# "cat_sym": CatBoostClassifier(**cb_sym_params),
+			"cat_sym": CatBoostClassifier(**cb_sym_params),
 			# "cat_loss": CatBoostClassifier(**cb_loss_params),
 			# 'hist_gbm': HistGradientBoostingClassifier(max_iter=300, learning_rate=0.001, max_leaf_nodes=80,
 			# 										   max_depth=6, random_state=self.random_state),
