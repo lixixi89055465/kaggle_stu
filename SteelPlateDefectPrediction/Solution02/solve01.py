@@ -475,20 +475,20 @@ class Classifier:
 			# 'cat4': CatBoostClassifier(**cb_params4),
 			"cat_sym": CatBoostClassifier(**cb_sym_params),
 			# "cat_loss": CatBoostClassifier(**cb_loss_params),
-			# 'hist_gbm': HistGradientBoostingClassifier(max_iter=300, learning_rate=0.001, max_leaf_nodes=80,
-			# 										   max_depth=6, random_state=self.random_state),
+			'hist_gbm': HistGradientBoostingClassifier(max_iter=300, learning_rate=0.001, max_leaf_nodes=80,
+													   max_depth=6, random_state=self.random_state),
 			# # class_weight=class_weights_dict,
-			# 'gbdt': GradientBoostingClassifier(max_depth=6, n_estimators=1000, random_state=self.random_state),
-			# 'lr': LogisticRegression(),
-			# 'rf': RandomForestClassifier(max_depth=9, max_features='auto', min_samples_split=10,
-			# 							 min_samples_leaf=4, n_estimators=500, random_state=self.random_state),
-			# 'svc': SVC(gamma="auto", probability=True),
-			# 'knn': KNeighborsClassifier(n_neighbors=5),
-			# 'mlp': MLPClassifier(random_state=self.random_state, max_iter=1000),
-			# 'etr': ExtraTreesClassifier(min_samples_split=55, min_samples_leaf=15, max_depth=10,
-			# 							n_estimators=200, random_state=self.random_state),
-			# 'dt': DecisionTreeClassifier(**dt_params, random_state=self.random_state),
-			# 'ada': AdaBoostClassifier(random_state=self.random_state),
+			'gbdt': GradientBoostingClassifier(max_depth=6, n_estimators=1000, random_state=self.random_state),
+			'lr': LogisticRegression(),
+			'rf': RandomForestClassifier(max_depth=9, max_features='auto', min_samples_split=10,
+										 min_samples_leaf=4, n_estimators=500, random_state=self.random_state),
+			'svc': SVC(gamma="auto", probability=True),
+			'knn': KNeighborsClassifier(n_neighbors=5),
+			'mlp': MLPClassifier(random_state=self.random_state, max_iter=1000),
+			'etr': ExtraTreesClassifier(min_samples_split=55, min_samples_leaf=15, max_depth=10,
+										n_estimators=200, random_state=self.random_state),
+			'dt': DecisionTreeClassifier(**dt_params, random_state=self.random_state),
+			'ada': AdaBoostClassifier(random_state=self.random_state),
 
 		}
 		return models
@@ -651,7 +651,7 @@ for col in target:
 	count += 1
 	print(f'Column {col} ,loop # {count}')
 
-purePath = "../input/submission_pure02.csv"
+purePath = "../input/submission_pure03.csv"
 submission.to_csv(purePath, index=False)
 print(submission.head())
 
@@ -682,6 +682,6 @@ def ensemble_mean(sub_list, cols, mean="AM"):
 
 
 sub_ensemble = ensemble_mean(weighted_list, target, mean='AM')
-sub_ensemble.to_csv('../input/submission01.csv', index=False)
+sub_ensemble.to_csv('../input/submission03.csv', index=False)
 print('s' * 100)
 print(sub_ensemble.head())
