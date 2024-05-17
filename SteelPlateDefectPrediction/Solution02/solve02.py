@@ -558,6 +558,7 @@ def fit_model(X_train, X_test, y_train):
 		# Using optuna to find the best ensemble weights
 		optweights = OptunaWeights(random_state=random_state)
 		y_val_pred = optweights.fit_predict(y_val.values, oof_preds)
+
 		score = roc_auc_score(y_val, y_val_pred.reshape(-1, 1))
 		print(f'Ensemble [FOLD-{n} SEED-{random_state_list[m]}] '
 			  f'------------------>  ROC AUC score {score:.5f}')
@@ -611,3 +612,34 @@ for col in target:
 
 	count += 1
 	print(f'Columns {col} ,loop # {count}')
+submission.to_csv('submission_pure_2_1.csv', index=False)
+print(submission.head())
+
+sub1 = pd.read_csv("../input/multiclass-feature-engineering-thoughts/submission.csv")
+sub2 = pd.read_csv("../input/ps4e03-multi-class-lightgbm/submission.csv")
+sub_list = [sub1, sub2, submission]
+weights = [1, 1, 1]
+weighted_list = [item for sublist, weight in zip(sub_list, weights) for item in [sublist] * weight]
+
+
+def ensemble_mean(sub_list, cols, mean='AM'):
+	sub_out = sub_list[0].copy()
+	if mean == 'AM':
+		for col in cols:
+			sub_out[col] = sum(df[col] for df in sub_list) / len(sub_list)
+	elif mean == 'GM':
+		for df in sub_list[1:]:
+			for col in cols:
+				sub_out[col] *= df[col]
+		for col in cols:
+			sub_out[col] = (sub_out[col]) ** (1 / len(sub_list))
+	elif mean == 'HM':
+		for col in cols:
+			sub_out[col] = len(sub_list) / sum(1 / df[col] for df in sub_list)
+	sub_out[cols] = sub_out[cols].div(sub_out[cols].sum(axis=1), axis=0)
+	return sub_out
+
+sub_ensemble=ensemble_mean(weighted_list,target,mean='AM')
+sub_ensemble.to_csv('submission_2_1.csv',index=False)
+print(sub_ensemble.head())
+
