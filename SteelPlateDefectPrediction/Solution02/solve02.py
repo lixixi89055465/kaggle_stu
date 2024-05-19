@@ -92,6 +92,8 @@ original = pd.read_csv("../input/SteelPlatesFaults.csv")
 
 train.drop(columns=["id"], inplace=True)
 test.drop(columns=["id"], inplace=True)
+r1 = train.isna().sum(axis=0)
+print(r1)
 
 train_copy = train.copy()
 test_copy = test.copy()
@@ -639,7 +641,7 @@ def ensemble_mean(sub_list, cols, mean='AM'):
 	sub_out[cols] = sub_out[cols].div(sub_out[cols].sum(axis=1), axis=0)
 	return sub_out
 
-sub_ensemble=ensemble_mean(weighted_list,target,mean='AM')
-sub_ensemble.to_csv('submission_2_1.csv',index=False)
-print(sub_ensemble.head())
 
+sub_ensemble = ensemble_mean(weighted_list, target, mean='AM')
+sub_ensemble.to_csv('submission_2_1.csv', index=False)
+print(sub_ensemble.head())

@@ -566,6 +566,7 @@ and y (dependent/target/outcome/response/etc.) variables for input modeling.
 * [Pandas Categorical dtype](https://pandas.pydata.org/pandas-docs/stable/categorical.html)
 * [pandas.get_dummies](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.get_dummies.html)
 '''
+###TODO 待定
 label = LabelEncoder()
 for data in data_cleaner:
 	data['HomePlanet_Code'] = label.fit_transform(data['HomePlanet'])
