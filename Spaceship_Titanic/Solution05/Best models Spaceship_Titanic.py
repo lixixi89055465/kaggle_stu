@@ -621,7 +621,7 @@ print("-" * 10)
 from sklearn import model_selection
 
 print(data_raw.describe(include='all'))
-train_x, test1_x, train1_y, test1_y = model_selection.train_test_split(data1[data1_x_calc], data1[Target],
+train_x, test1_x, train1_y, test1_y =model_selection.train_test_split(data1[data1_x_calc], data1[Target],
 																	   random_state=0)
 
 train_x_bin, test1_x_bin, train1_y_bin, test1_y_bin = model_selection.train_test_split(data1[data1_x_bin],
