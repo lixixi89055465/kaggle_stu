@@ -155,9 +155,9 @@ def OHE(train_df, test_df, cols, target):
 		combined = pd.concat([combined, one_hot], axis="columns")
 		combined = combined.loc[:, ~combined.columns.duplicated()]
 	train_ohe = combined[:len(train_df)]
-	test_ohe = combined[len(train_df)]
+	test_ohe = combined[len(train_df):]
 	test_ohe.reset_index(inplace=True, drop=True)
-	test.drop(columns=[target], inplace=True)
+	test_ohe.drop(columns=[target], inplace=True)
 	return train_ohe, test_ohe
 
 
@@ -292,8 +292,8 @@ class Splitter:
 from sklearn import ensemble,gaussian_process,linear_model,svm,discriminant_analysis,tree
 
 class Classifier:
-	def __init__(self, n_estimator=100, device='cpu', random_state=0):
-		self.n_estimator = n_estimator
+	def __init__(self, n_estimators=100, device='cpu', random_state=0):
+		self.n_estimators = n_estimators
 		self.device = device
 		self.random_state = random_state
 		self.models = self._define_model()
@@ -301,7 +301,7 @@ class Classifier:
 
 	def _define_model(self):
 		xgb_params = {
-			'n_estimators': self.n_estimator,
+			'n_estimators': self.n_estimators,
 			'learn_rate': 0.1,
 			'max_depth': 4,
 			'subsample': 0.8,
@@ -404,7 +404,7 @@ class Classifier:
 		cb_params2['learning_rate'] = 0.01
 		cb_params2['depth'] = 8
 		cb_params3 = {
-			'iterations': self.n_estimator,
+			'iterations': self.n_estimators,
 			'random_strength': 0.5783342241486167,
 			'one_hot_max_size': 10,
 			'max_bin': 150,
@@ -444,7 +444,7 @@ class Classifier:
 			'nusvc':svm.NuSVC(probability=True),
 			'lsvc':svm.LinearSVC(),
 			# Trees
-			'treeDC':tree.DecisionTreeClassifier(),
+			# 'treeDC':tree.DecisionTreeClassifier(),
 			'ExtraTC':tree.ExtraTreeClassifier(),
 			# Discriminat Analysisi
 			'LinearDA':discriminant_analysis.LinearDiscriminantAnalysis(),
@@ -638,7 +638,7 @@ for col in target:
 
 	count += 1
 	print(f'Columns {col} ,loop # {count}')
-submission.to_csv('submission_pure_2_1.csv', index=False)
+submission.to_csv('submission_pure_4_1.csv', index=False)
 print(submission.head())
 
 sub1 = pd.read_csv("../input/multiclass-feature-engineering-thoughts/submission.csv")
@@ -667,5 +667,5 @@ def ensemble_mean(sub_list, cols, mean='AM'):
 
 
 sub_ensemble = ensemble_mean(weighted_list, target, mean='AM')
-sub_ensemble.to_csv('submission_2_1.csv', index=False)
+sub_ensemble.to_csv('submission_4_1.csv', index=False)
 print(sub_ensemble.head())
