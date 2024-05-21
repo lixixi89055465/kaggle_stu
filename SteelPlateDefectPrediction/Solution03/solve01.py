@@ -42,3 +42,18 @@ from functools import partial
 print(print())
 print(collect())
 print(clear_output())
+from category_encoders import OrdinalEncoder, OneHotEncoder
+from sklearn.preprocessing import (RobustScaler, MinMaxScaler, \
+								   StandardScaler, \
+								   FunctionTransformer as FT, \
+								   PowerTransformer)
+from sklearn.impute import SimpleImputer as SI
+from sklearn.model_selection import (RepeatedStratifiedKFold as RSKF, \
+									 StratifiedKFold as SKF, \
+									 StratifiedGroupKFold as SGKF, \
+									 KFold, \
+									 RepeatedKFold as RKF, \
+									 cross_val_score, \
+									 cross_val_predict)
+from sklearn.inspection import permutation_importance
+from sklearn.feature_selection import mutual_info_classif,RFE
