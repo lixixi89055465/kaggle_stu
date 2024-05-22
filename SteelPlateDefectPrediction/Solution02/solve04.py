@@ -15,6 +15,8 @@ import matplotlib.pyplot as plt
 import missingno as msno
 from prettytable import PrettyTable
 import seaborn as sns
+import time
+from datetime import datetime
 
 sns.set(style='darkgrid', font_scale=1.4)
 from tqdm import tqdm
@@ -89,12 +91,10 @@ pd.pandas.set_option('display.max_columns', None)
 train = pd.read_csv('../input/train.csv')
 test = pd.read_csv('../input/test.csv')
 original = pd.read_csv("../input/SteelPlatesFaults.csv")
-from pprint import pprint
+
 train.drop(columns=["id"], inplace=True)
 test.drop(columns=["id"], inplace=True)
 r1 = train.isna().sum(axis=0)
-pprint('aaaaaaaaaaa')
-print('r1:')
 print(r1)
 
 train_copy = train.copy()
@@ -291,9 +291,7 @@ class Splitter:
 					y_train, y_val = y.iloc[train_index], y.iloc[val_index]
 					yield X_train, y_train, X_val, y_val
 
-
-from sklearn import ensemble, gaussian_process, linear_model, svm, discriminant_analysis, tree
-
+from sklearn import ensemble,gaussian_process,linear_model,svm,discriminant_analysis,tree
 
 class Classifier:
 	def __init__(self, n_estimators=100, device='cpu', random_state=0):
@@ -435,29 +433,29 @@ class Classifier:
 					 'criterion': 'gini'}
 		models = {
 			# TODO 测试：
-			# 太慢了，所以暂时不用
-			# 'bag': ensemble.BaggingClassifier(),
+			'bag': ensemble.BaggingClassifier(),
 			'gau':gaussian_process.GaussianProcessClassifier(),
-			# # # GLM
-			# 'log':linear_model.LogisticRegressionCV(),
-			# 'Pas':linear_model.PassiveAggressiveClassifier(),
-			# 'Rid':linear_model.RidgeClassifierCV(),
-			# 'SGDC':linear_model.SGDClassifier(),
-			# 'Perce':linear_model.Perceptron(),
-			# # # SVM
-			# 'svc':svm.SVC(probability=True),
-			# 'nusvc':svm.NuSVC(probability=True),
-			# 'lsvc':svm.LinearSVC(),
-			# # Trees
-			# # 'treeDC':tree.DecisionTreeClassifier(),
-			# 'ExtraTC':tree.ExtraTreeClassifier(),
-			# # Discriminat Analysisi
-			# 'LinearDA':discriminant_analysis.LinearDiscriminantAnalysis(),
-			# 'QuadraticDiscriminantAnalysis':discriminant_analysis.QuadraticDiscriminantAnalysis(),
-			# xgboost: http://xgboost.readthedocs.io/en/latest/model.html
+			# # GLM
+			'log':linear_model.LogisticRegressionCV(),
+			'Pas':linear_model.PassiveAggressiveClassifier(),
+			'Rid':linear_model.RidgeClassifierCV(),
+			'SGDC':linear_model.SGDClassifier(),
+			'Perce':linear_model.Perceptron(),
+			# # SVM
+			'svc':svm.SVC(probability=True),
+			'nusvc':svm.NuSVC(probability=True),
+			'lsvc':svm.LinearSVC(),
+			# Trees
+			# 'treeDC':tree.DecisionTreeClassifier(),
+			'ExtraTC':tree.ExtraTreeClassifier(),
+			# Discriminat Analysisi
+			'LinearDA':discriminant_analysis.LinearDiscriminantAnalysis(),
+			'QuadraticDiscriminantAnalysis':discriminant_analysis.QuadraticDiscriminantAnalysis(),
+			#xgboost: http://xgboost.readthedocs.io/en/latest/model.html
 
-			# TODO new col
-			# 'xgb': xgb.XGBClassifier(**xgb_params),
+
+			#TODO new col
+			'xgb': xgb.XGBClassifier(**xgb_params),
 			#            'xgb2': xgb.XGBClassifier(**xgb_params2),
 			#            'xgb3': xgb.XGBClassifier(**xgb_params3),
 			#            'xgb4': xgb.XGBClassifier(**xgb_params4),
@@ -545,7 +543,7 @@ def fit_model(X_train, X_test, y_train):
 	ensemble_score = []
 	weights = []
 	trained_models = {'xgb': [], 'lgb': []}
-	for i, (X_train_, y_train_, X_val, y_val) in enumerate(
+	for i, (X_train_, X_val, y_train_, y_val) in enumerate(
 			splitter.split_data(X_train, y_train, random_state_list=random_state_list)):
 		n = i % n_splits
 		m = i // n_splits
@@ -575,16 +573,12 @@ def fit_model(X_train, X_test, y_train):
 							  early_stopping_rounds=early_stopping_rounds, \
 							  verbose=verbose)
 			else:
-				print('X_train_.shape:')
-				print(X_train_.shape)
-				print('y_train_.shape:')
-				print(y_train_.shape)
 				model.fit(X_train_, y_train_)
 			test_pred = model.predict_proba(X_test)[:, 1]
 			y_val_pred = model.predict_proba(X_val)[:, 1]
 			score = roc_auc_score(y_val, y_val_pred.reshape(-1, 1))
 			# score=accuracy_score(y_val,acc_cutooff_class(y_val,y_val_pred))
-			print(f'{name} [FOLD-{n} SEED - {random_state_list[m]}] ROC AUC score:{score:.5f}')
+			print(f'{datetime.now() }--{i}--{name} [FOLD-{n} SEED - {random_state_list[m]}] ROC AUC score:{score:.5f}')
 			oof_preds.append(y_val_pred)
 			test_preds.append(test_pred)
 			if name in trained_models.keys():
@@ -594,7 +588,7 @@ def fit_model(X_train, X_test, y_train):
 		y_val_pred = optweights.fit_predict(y_val.values, oof_preds)
 
 		score = roc_auc_score(y_val, y_val_pred.reshape(-1, 1))
-		print(f'Ensemble [FOLD-{n} SEED-{random_state_list[m]}] '
+		print(f'{datetime.now()} -- Ensemble [FOLD-{n} SEED-{random_state_list[m]}] '
 			  f'------------------>  ROC AUC score {score:.5f}')
 		ensemble_score.append(score)
 		weights.append(optweights.weights)
@@ -605,14 +599,14 @@ def fit_model(X_train, X_test, y_train):
 	# Calculate the mean ROC AUC score of the ensemble
 	mean_score = np.mean(ensemble_score)
 	std_score = np.std(ensemble_score)
-	print(f'Ensemble ROC AUC score {mean_score:.5f} ± {std_score:.5f}')
+	print(f'{datetime.now() } -- enmble ROC AUC score {mean_score:.5f} ± {std_score:.5f}')
 	# Print the mean and standard deviation of the ensemble weights for each model
 	print('--Model Weights ---')
 	mean_weights = np.mean(weights, axis=0)
 	std_weights = np.std(weights, axis=0)
 	for name, mean_weight, std_weights in zip(models.keys(), mean_weights, std_weights):
 		print(f'{name} : {mean_weight:.5f}+ {std_weights:.5f}')
-	print(f'Overall OOF Preds AUC SCORE {roc_auc_score(y_train, y_train_pred)}')
+	print(f'{datetime.now() }--Overall OOF Preds AUC SCORE {roc_auc_score(y_train, y_train_pred)}')
 	print("__________________________________________________________________")
 	return test_predss
 
@@ -621,11 +615,7 @@ submission = pd.read_csv("../input/sample_submission.csv")
 submission.head()
 
 count = 0
-print('target:')
-print(target)
 for col in target:
-	print('col:')
-	print(col)
 	train_temp = train[test.columns.tolist() + [col]]
 	test_temp = test.copy()
 	train_temp, test_temp = cat_encoding(train_temp, test_temp, col)
@@ -649,7 +639,7 @@ for col in target:
 	submission[col] = test_predss
 
 	count += 1
-	print(f'Columns {col} ,loop # {count}')
+	print(f'{datetime.now()}-- Columns {col} ,loop # {count}')
 submission.to_csv('submission_pure_4_1.csv', index=False)
 print(submission.head())
 

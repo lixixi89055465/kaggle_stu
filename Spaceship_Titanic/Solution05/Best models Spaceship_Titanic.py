@@ -216,6 +216,7 @@ for dataset in data_cleaner:
 	dataset['Cabin_region7'] = (dataset['Cabin_number'] >= 1800).astype(int)
 
 # plt.figure(figsize=(10, 4))
+# TODO 求和特征
 data1['Cabin_region_plot'] = (
 		data1['Cabin_region1'] + 2 * data1['Cabin_region2'] + 3 * data1['Cabin_region3'] + 4 * data1[
 	'Cabin_region4'] + 5 * data1['Cabin_region5'] + 6 * data1['Cabin_region6'] + 7 * data1['Cabin_region7']).astype(int)
@@ -263,7 +264,7 @@ data1['na_count'] = data1.isna().sum(axis=1)
 # We managed to fill 131 values with 100% confidence but we are nott finished yet.
 
 
-# TODO
+# TODO 设置  na 值
 for dataset in data_cleaner:
 	GHP_gb = dataset.groupby(['Group', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
 	# Missing values before
@@ -295,7 +296,7 @@ for data in data_cleaner:
 # print('#HomePlanet missing values after:', input['HomePlanet'].isna().sum())
 
 print('7' * 100)
-# TODO
+# TODO 设置 na 值
 for data in data_cleaner:
 	HP_bef = data['HomePlanet'].isna().sum()
 	data.loc[(data['HomePlanet'].isna()) & ~(data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Earth'
@@ -343,6 +344,7 @@ for data in data_cleaner:
 	# Joint distribution of Surname and Cabin side
 	SCS_gb = data[data['Group_size'] > 1].groupby(['Surname', 'Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
 	# Ratio of sides
+	# TODO 特征比例
 	SCS_gb['Ratio'] = SCS_gb['P'] / (SCS_gb['P'] + SCS_gb['S'])
 # Histograme of ratio
 # plt.figure(figsize=(10, 4))
@@ -350,7 +352,6 @@ for data in data_cleaner:
 # plt.title('Ratio of cabin side by surname')
 # plt.show()
 # Print proportion
-# TODO
 print("Percentage of families all on the same cabin side:", 100 * np.round(SCS_gb['Ratio'] / len(SCS_gb), 3), '%')
 print("2" * 100)
 print(SCS_gb.head())
@@ -503,6 +504,7 @@ for data in data_cleaner:
 #     na_rows_A]
 
 print('2' * 100)
+#TODO  特征分段
 for data in data_cleaner:
 	data.loc[data['Age'] <= 12, 'Age_group'] = 'Age_0-12'
 	data.loc[(data['Age'] > 12) & (data['Age'] < 18), 'Age_group'] = 'Age_13-17'
@@ -566,7 +568,7 @@ and y (dependent/target/outcome/response/etc.) variables for input modeling.
 * [Pandas Categorical dtype](https://pandas.pydata.org/pandas-docs/stable/categorical.html)
 * [pandas.get_dummies](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.get_dummies.html)
 '''
-###TODO 待定
+###TODO  特征转换
 label = LabelEncoder()
 for data in data_cleaner:
 	data['HomePlanet_Code'] = label.fit_transform(data['HomePlanet'])

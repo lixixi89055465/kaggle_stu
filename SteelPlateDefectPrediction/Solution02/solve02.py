@@ -289,7 +289,6 @@ class Splitter:
 					y_train, y_val = y.iloc[train_index], y.iloc[val_index]
 					yield X_train, y_train, X_val, y_val
 
-from sklearn import ensemble,gaussian_process,linear_model,svm,discriminant_analysis,tree
 
 class Classifier:
 	def __init__(self, n_estimator=100, device='cpu', random_state=0):
@@ -430,29 +429,6 @@ class Classifier:
 					 'max_depth': 8, \
 					 'criterion': 'gini'}
 		models = {
-			# TODO 测试：
-			'bag': ensemble.BaggingClassifier(),
-			'gau':gaussian_process.GaussianProcessClassifier(),
-			# # GLM
-			'log':linear_model.LogisticRegressionCV(),
-			'Pas':linear_model.PassiveAggressiveClassifier(),
-			'Rid':linear_model.RidgeClassifierCV(),
-			'SGDC':linear_model.SGDClassifier(),
-			'Perce':linear_model.Perceptron(),
-			# # SVM
-			'svc':svm.SVC(probability=True),
-			'nusvc':svm.NuSVC(probability=True),
-			'lsvc':svm.LinearSVC(),
-			# Trees
-			'treeDC':tree.DecisionTreeClassifier(),
-			'ExtraTC':tree.ExtraTreeClassifier(),
-			# Discriminat Analysisi
-			'LinearDA':discriminant_analysis.LinearDiscriminantAnalysis(),
-			'QuadraticDiscriminantAnalysis':discriminant_analysis.QuadraticDiscriminantAnalysis(),
-			#xgboost: http://xgboost.readthedocs.io/en/latest/model.html
-
-
-			#TODO new col
 			'xgb': xgb.XGBClassifier(**xgb_params),
 			#            'xgb2': xgb.XGBClassifier(**xgb_params2),
 			#            'xgb3': xgb.XGBClassifier(**xgb_params3),
