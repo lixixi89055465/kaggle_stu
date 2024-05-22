@@ -8,7 +8,7 @@
 from gc import collect;
 from warnings import filterwarnings;
 
-filterwarnings('ignore');
+filterwarnings('ignore')
 from IPython.display import display_html, clear_output;
 
 clear_output();
@@ -56,4 +56,19 @@ from sklearn.model_selection import (RepeatedStratifiedKFold as RSKF, \
 									 cross_val_score, \
 									 cross_val_predict)
 from sklearn.inspection import permutation_importance
-from sklearn.feature_selection import mutual_info_classif,RFE
+from sklearn.feature_selection import mutual_info_classif, RFE
+from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.compose import ColumnTransformer
+
+# ML Model training : ~
+from sklearn.metrics import accuracy_score, roc_auc_score, make_scorer
+from xgboost import DMatrix, XGBClassifier as XGBC
+from lightgbm import log_evaluation, early_stopping, LGBMClassifier as LGBMC
+from catboost import CatBoostClassifier as CBC, Pool
+from sklearn.ensemble import HistGradientBoostingClassifier as HGBC, \
+	RandomForestClassifier as RFC
+from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.compose import ColumnTransformer
+
