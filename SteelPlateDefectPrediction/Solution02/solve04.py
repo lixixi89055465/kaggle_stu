@@ -90,6 +90,12 @@ pd.pandas.set_option('display.max_columns', None)
 
 train = pd.read_csv('../input/train.csv')
 test = pd.read_csv('../input/test.csv')
+r1=test.isna().sum(axis=0)
+print('r1:')
+print(r1)
+
+
+
 original = pd.read_csv("../input/SteelPlatesFaults.csv")
 
 train.drop(columns=["id"], inplace=True)
@@ -272,6 +278,7 @@ def cat_encoding(train, test, target):
 		table.add_row([feature, best_col, best_auc])
 	#         print(feature)
 	#     print(table)
+
 	return train_copy, test_copy
 
 
@@ -529,6 +536,11 @@ class OptunaWeights:
 
 
 def fit_model(X_train, X_test, y_train):
+	si=SimpleImputer(missing_values=np.nan,strategy='mean')
+	train_copy=si.fit_transform(X_train)
+	test_copy=si.fit_transform(X_test)
+	X_train=pd.DataFrame(data=train_copy,columns=X_train.columns)
+	X_test=pd.DataFrame(data=test_copy,columns=X_test.columns)
 	kfold = True
 	n_splits = 1 if not kfold else 5
 	random_state = 2023
@@ -543,7 +555,7 @@ def fit_model(X_train, X_test, y_train):
 	ensemble_score = []
 	weights = []
 	trained_models = {'xgb': [], 'lgb': []}
-	for i, (X_train_, X_val, y_train_, y_val) in enumerate(
+	for i, (X_train_,y_train_ ,X_val, y_val) in enumerate(
 			splitter.split_data(X_train, y_train, random_state_list=random_state_list)):
 		n = i % n_splits
 		m = i // n_splits
@@ -553,6 +565,8 @@ def fit_model(X_train, X_test, y_train):
 
 		oof_preds = []
 		test_preds = []
+		print(f'{datetime.now()}--i:{i}--models.items()')
+		print(models.items())
 		# Loop over each base model and fit it to the training data, evaluate on validation data, and store predictions
 		for name, model in models.items():
 			if ('cat' in name) or ('lgb' in name) or ('xgb' in name):
@@ -605,7 +619,7 @@ def fit_model(X_train, X_test, y_train):
 	mean_weights = np.mean(weights, axis=0)
 	std_weights = np.std(weights, axis=0)
 	for name, mean_weight, std_weights in zip(models.keys(), mean_weights, std_weights):
-		print(f'{name} : {mean_weight:.5f}+ {std_weights:.5f}')
+		print(f'{datetime.now() }--{name} : {mean_weight:.5f}+ {std_weights:.5f}')
 	print(f'{datetime.now() }--Overall OOF Preds AUC SCORE {roc_auc_score(y_train, y_train_pred)}')
 	print("__________________________________________________________________")
 	return test_predss
@@ -616,6 +630,7 @@ submission.head()
 
 count = 0
 for col in target:
+	print(f'{datetime.now()}-- Columns {col}  ,start # {count}')
 	train_temp = train[test.columns.tolist() + [col]]
 	test_temp = test.copy()
 	train_temp, test_temp = cat_encoding(train_temp, test_temp, col)
@@ -639,7 +654,7 @@ for col in target:
 	submission[col] = test_predss
 
 	count += 1
-	print(f'{datetime.now()}-- Columns {col} ,loop # {count}')
+	print(f'{datetime.now()}-- Columns {col} end ,loop # {count}')
 submission.to_csv('submission_pure_4_1.csv', index=False)
 print(submission.head())
 
