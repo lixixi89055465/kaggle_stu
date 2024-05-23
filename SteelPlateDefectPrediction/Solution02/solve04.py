@@ -440,16 +440,16 @@ class Classifier:
 					 'criterion': 'gini'}
 		models = {
 			# TODO 测试：
-			'bag': ensemble.BaggingClassifier(),
-			'gau':gaussian_process.GaussianProcessClassifier(),
+			# 'bag': ensemble.BaggingClassifier(),通过
+			# 'gau':gaussian_process.GaussianProcessClassifier(),通过
 			# # GLM
-			'log':linear_model.LogisticRegressionCV(),
-			'Pas':linear_model.PassiveAggressiveClassifier(),
-			'Rid':linear_model.RidgeClassifierCV(),
-			'SGDC':linear_model.SGDClassifier(),
-			'Perce':linear_model.Perceptron(),
+			# 'log':linear_model.LogisticRegressionCV(),通过
+			# 'Pas':linear_model.PassiveAggressiveClassifier(),# 没有prodict_proba()
+			# 'Rid':linear_model.RidgeClassifierCV(),# 没有prodict_proba()
+			# 'SGDC':linear_model.SGDClassifier(loss='log'),
+			# 'Perce':linear_model.Perceptron(),没有prodict_proba()
 			# # SVM
-			'svc':svm.SVC(probability=True),
+			# 'svc':svm.SVC(probability=True),
 			'nusvc':svm.NuSVC(probability=True),
 			'lsvc':svm.LinearSVC(),
 			# Trees
