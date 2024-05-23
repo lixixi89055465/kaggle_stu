@@ -508,3 +508,23 @@ class Xformer(TransformerMixin, BaseEstimator):
 					else:
 						df[col] = df[col].astype(np.float64)
 		end_mem = df.memory_usage().sum() / 1024 ** 2
+		PrintColor(f'Start - end memory: - {start_mem:5.2f} - {end_mem:5.2f} Mb')
+		return df
+
+	def transform(self, X, y=None, **params):
+		'''
+        This method adds secondary features to the existing data
+        Source:- https://www.kaggle.com/code/lucamassaron/steel-plate-eda-xgboost-is-all-you-need
+		:param X:
+		:param y:
+		:param params:
+		:return:
+		'''
+		df = X.copy()
+		if self.sec_ftre_req == 'Y':
+			df['XRange'] = df['X_Maximum'] - df['X_Minimum']
+			df['YRange'] = df['Y_Maximum'] - df['Y_Minimum']
+			df['Area_Perimeter_Ratio']=df['Pixels_Areas']/(df['X_Perimeter']+df['Y_Perimeter'])
+			df['Aspect_Ratio']=np.where(df['YRange'] == 0, 0, df['XRange'] / df['YRange']);
+
+

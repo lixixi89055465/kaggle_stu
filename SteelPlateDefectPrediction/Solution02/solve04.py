@@ -447,11 +447,11 @@ class Classifier:
 			# 'Pas':linear_model.PassiveAggressiveClassifier(),# 没有prodict_proba()
 			# 'Rid':linear_model.RidgeClassifierCV(),# 没有prodict_proba()
 			# 'SGDC':linear_model.SGDClassifier(loss='log'),
-			# 'Perce':linear_model.Perceptron(),没有prodict_proba()
+			# 'Perce':linear_model.Perceptron(),#没有prodict_proba()
 			# # SVM
-			# 'svc':svm.SVC(probability=True),
-			'nusvc':svm.NuSVC(probability=True),
-			'lsvc':svm.LinearSVC(),
+			# 'svc':svm.SVC(probability=True),# 没有prodict_proba()
+			# 'nusvc':svm.NuSVC(probability=True),# 没有prodict_proba()
+			# 'lsvc':svm.LinearSVC(),# 没有prodict_proba()
 			# Trees
 			# 'treeDC':tree.DecisionTreeClassifier(),
 			'ExtraTC':tree.ExtraTreeClassifier(),
