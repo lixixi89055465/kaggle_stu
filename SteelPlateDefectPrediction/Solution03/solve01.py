@@ -524,7 +524,18 @@ class Xformer(TransformerMixin, BaseEstimator):
 		if self.sec_ftre_req == 'Y':
 			df['XRange'] = df['X_Maximum'] - df['X_Minimum']
 			df['YRange'] = df['Y_Maximum'] - df['Y_Minimum']
-			df['Area_Perimeter_Ratio']=df['Pixels_Areas']/(df['X_Perimeter']+df['Y_Perimeter'])
-			df['Aspect_Ratio']=np.where(df['YRange'] == 0, 0, df['XRange'] / df['YRange']);
+			df['Area_Perimeter_Ratio'] = df['Pixels_Areas'] / (df['X_Perimeter'] + df['Y_Perimeter'])
+			df['Aspect_Ratio'] = np.where(df['YRange'] == 0, 0, df['XRange'] / df['YRange']);
+		self.op_cols = df.columns
+		df = self._reduce_mem(df)
+		return df
+
+	def get_feature_names_in(self, X, y=None, **params):
+		return self.ip_cols
+
+	def get_feature_names_out(self, X, y=None, **params):
+		return self.op_cols
 
 
+collect()
+print()
