@@ -539,3 +539,40 @@ class Xformer(TransformerMixin, BaseEstimator):
 
 collect()
 print()
+
+PrintColor(f"\n{'=' * 20} Data transformation {'=' * 20} \n");
+ytrain = pp.train[CFG.targets]
+
+xform = Pipeline(steps=[('xfrm', Xformer())])
+Xtrain = xform.fit_transform(pp.train.drop(columns=CFG.targets))
+Xtest = xform.transform(pp.test.copy(deep=True))
+
+PrintColor(f'\n --->Train data \n ')
+# display(Xtrain.head(5).style.format(precision = 2));
+PrintColor(f'\n---> Test data\n')
+# display(.head(5).style.format(precision = 2));
+# display(Xtest.head(5).style.format(precision = 2));
+
+# Checking the results:-
+with np.printoptions(linewidth=160):
+	PrintColor(f"\n---> Train data columns after data pipeline\n");
+	pprint(np.array(Xtrain.columns))
+	PrintColor(f"\n---> Test data columns after data pipeline\n");
+	pprint(np.array(Xtest.columns))
+	PrintColor(f"\n---> Train-test shape after pipeline = {Xtrain.shape} {Xtest.shape}");
+
+print()
+collect()
+
+class OptunaEnsembler:
+	'''
+	  This is the Optuna ensemble class-
+    Source- https://www.kaggle.com/code/arunklenin/ps3e26-cirrhosis-survial-prediction-multiclass
+	'''
+	def __init__(self):
+		self.study=None
+		self.weights=None
+		self.random_state=CFG.state
+		self.n_trials = CFG.ntrials;
+		self.direction = CFG.metric_obj;
+
