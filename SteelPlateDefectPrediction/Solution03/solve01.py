@@ -564,15 +564,477 @@ with np.printoptions(linewidth=160):
 print()
 collect()
 
+
 class OptunaEnsembler:
 	'''
 	  This is the Optuna ensemble class-
     Source- https://www.kaggle.com/code/arunklenin/ps3e26-cirrhosis-survial-prediction-multiclass
 	'''
-	def __init__(self):
-		self.study=None
-		self.weights=None
-		self.random_state=CFG.state
-		self.n_trials = CFG.ntrials;
-		self.direction = CFG.metric_obj;
 
+	def __init__(self):
+		self.study = None
+		self.weights = None
+		self.random_state = CFG.state
+		self.n_trials = CFG.ntrials
+		self.direction = CFG.metric_obj
+
+	def ScoreMetric(self, ytrue, ypred):
+		'''
+		This is the metric function for the competition
+		:param ytrue:
+		:param ypred:
+		:return:
+		'''
+		return roc_auc_score(ytrue, ypred)
+
+	def _object(self, trial, y_true, y_preds):
+		''''
+        This method defines the objective function for the ensemble
+		'''
+		if isinstance(y_preds, pd.DataFrame) or isinstance(y_preds, np.ndarray):
+			weights = [trial.suggest_float(f'weight{n}', 0, 1)
+					   for n in range(y_preds.shape[-1])]
+			axis = 1
+		elif isinstance(y_preds, list):
+			weights = [trial.suggest_float(f'weight{n}', 0, 1) \
+					   for n in range(len(y_preds))]
+			axis = 0
+		weighted_pred = np.average(np.array(y_preds), axis=axis, weights=weights)
+		score = self.ScoreMetric(y_true, weighted_pred)
+		return score
+
+	def fit(self, y_true, y_preds):
+		'''
+		This method fits the Optuna objective on the fold level data
+		:param y_true:
+		:param y_preds:
+		:return:
+		'''
+		optuna.logging.set_verbosity = optuna.logging.ERROR
+		self.study = optuna.create_study(
+			sampler=TPESampler(self=self.random_state),
+			pruner=HyperbandPruner(),
+			study_name='Ensemble',
+			direction=self.direction
+		)
+		obj = partial(self._objective, y_true=y_true, y_preds=y_preds)
+		self.study.optimize(obj, n_trials=self.n_trials)
+		if isinstance(y_preds, list):
+			self.weights = [self.study.best_params[f'weight{n}'] \
+							for n in range(len(y_preds))]
+		else:
+			self.weights = [self.study.best_params[f'weight{n}'] \
+							for n in range(y_preds.shape[-1])]
+		clear_output()
+
+	def predict(self, y_preds):
+		'''
+		This method predicts using the fitted Optuna objective;
+		:param y_preds:
+		:return:
+		'''
+		assert self.weights is not None, 'OptunaWeights error, must be fitted before predict';
+		if isinstance(y_preds, list):
+			weighted_pred = np.average(np.array(y_preds), axis=0, weights=self.weights)
+		else:
+			weighted_pred = np.average(np.array(y_preds), axis=1, weights=self.weights)
+		return weighted_pred
+
+	def fit_predict(self, y_true, y_pres):
+		self.fit(y_true, y_pres)
+		return self.predict(y_pres)
+
+	def weights(self):
+		return self.weights
+
+
+print()
+collect()
+
+
+class MdlDeveloper(CFG):
+	'''
+	This class implements the training pipeline elements-
+    1. Initializes the Model predictions
+    2. Trains and infers models
+    3. Returns the OOF and model test set predictions
+	'''
+
+	def __init__(self, Xtrain, ytrain, ygrp, Xtest, sel_cols, cat_cols, enc_cols, **kwargs):
+		'''
+		In this method,we initialize the below -
+		1.Train-test data,selected columns
+		2.Metric,custom scorer,model and cv object
+		4.Output tables for score and predictions
+		:param Xtrain:
+		:param ytrain:
+		:param ygrp:
+		:param Xtest:
+		:param sel_cols:
+		:param cat_cols:
+		:param enc_cols:
+		:param kwargs:
+		'''
+		self.Xtrain = Xtrain
+		self.ytrain = ytrain
+		self.y_grp = ygrp
+		self.Xtest = Xtest
+		self.sel_cols = sel_cols
+		self.cat_cols = cat_cols
+		self.enc_cols = enc_cols
+		self._DefineModel()
+		self.cv = self.all_cv[self.mdlcv_mthd]
+		self.mothods = list(self.Mdl_Master.keys())
+
+	def _DefineModel(self):
+		'''
+		This method initiliazes models for the analysis
+        It also initializes the CV methods and class-weights that could be tuned going ahead.
+		:return:
+		'''
+		# Commonly used CV strategies for later usage:
+		self.all_cv = {
+			'KF': KFold(n_splits=self.n_splits, shuffle=True, random_state=self.state),
+			'RKF': RKF(n_splits=self.n_splits, n_repeats=self.n_repeats, random_state=self.state),
+			'RSKF': RSKF(n_splits=self.n_splits, n_repeats=self.n_repeats, random_state=self.state),
+			'SKF': SKF(n_splits=self.n_splits, shuffle=True, random_state=self.state),
+			'SGKF': SGKF(n_splits=self.n_splits, shuffle=True, random_state=self.state)
+		}
+		self.Mdl_Master = {
+			'XGB1C': XGBC(
+				**{
+					'tree_method': 'hist',
+					'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
+					'objective': 'binary:logistic',
+					'eval_metric': 'auc',
+					'random_state': self.state,
+					'colsample_bytree': 0.25,
+					'learning_rate': 0.07,
+					'max_depth': 8,
+					'n_estimcator': 1100,
+					'reg_alpha': 0.7,
+					'reg_lambda': 0.7,
+					'min_child_weight': 22,
+					'early_stopping_rounds': self.nbrnd_erly_stp,
+					'verbosity': 0,
+					'enable_categorical': True
+				}),
+			'XGB2C': XGBC(**{
+				'tree_method': 'hist',
+				'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
+				'eval_metric': 'auc',
+				'random_state': self.state,
+				'colsample_bytree': 0.4,
+				'learning_rate': 0.06,
+				'max_depth': 9,
+				'n_estimator': 2500,
+				'reg_alpha': 0.12,
+				'reg_lambda': 0.8,
+				'min_child_weight': 15,
+				'early_stopping_rounds': self.nbrnd_erly_stp,
+				'verbosity': 0,
+				'enable_categorical': True,
+			}),
+			'XGB3C': XGBC(**{
+				'tree_method': 'hist',
+				'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
+				'objective': 'binary:logistic',
+				'eval_metric': 'auc',
+				'random_state': self.state,
+				'colsample_bytree': 0.5,
+				'learning_rate': 0.055,
+				'max_depth': 9,
+				'n_estimator': 3000,
+				'reg_alpha': .2,
+				'reg_lambda': 0.6,
+				'min_child_weight': 25,
+				'early_stopping_rounds': CFG.nbrnd_erly_stp,
+				'verbosity': 0,
+				'enable_categorical': True,
+			}),
+			'XGB4C': XGBC(**{
+				'tree_method': 'hist',
+				'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
+				'eval_metric': 'auc',
+				'random_state': self.state,
+				'colsample_bytree': 0.8,
+				'learning_rate': 0.082,
+				'max_depth': 7,
+				'n_estimator': 2000,
+				'reg_alpha': 0.005,
+				'reg_lambda': 0.95,
+				'min_child_weight': 26,
+				'early_stopping_round': self.nbrnd_erly_stp,
+				'verbosity': 0,
+				'enable_categorical': True
+			}),
+			'LGBM1C': LGBMC(**{
+				'device': 'gpu' if self.gpu_switch == 'ON' else 'cpu',
+				'objective': 'binary',
+				'boosting_type': 'gbdt',
+				'metric': 'auc',
+				'random_state': self.state,
+				'colsample_bytree': 0.56,
+				'subsample': 0.35,
+				'learning_rate': 0.05,
+				'max_depth': 6,
+				'n_estimators': 3000,
+				'num_leaves': 140,
+				'reg_alpha': 0.14,
+				'reg_lambda': 0.85,
+				'verbosity': -1,
+				'categorical_feature': [f'name:{c}' for c in self.cat_cols]
+			}),
+			'LGBM2C': LGBMC(**{'device': "gpu" if self.gpu_switch == "ON" else "cpu",
+							   'objective': 'binary',
+							   'boosting_type': 'gbdt',
+							   'data_sample_strategy': "goss",
+							   'metric': "auc",
+							   'random_state': self.state,
+							   'colsample_bytree': 0.20,
+							   'subsample': 0.25,
+							   'learning_rate': 0.10,
+							   'max_depth': 7,
+							   'n_estimators': 3000,
+							   'num_leaves': 120,
+							   'reg_alpha': 0.15,
+							   'reg_lambda': 0.90,
+							   'verbosity': -1,
+							   'categorical_feature': [f"name: {c}" for c in self.cat_cols],
+							   }
+							),
+
+			'LGBM3C': LGBMC(**{'device': "gpu" if CFG.gpu_switch == "ON" else "cpu",
+							   'objective': 'binary',
+							   'boosting_type': 'gbdt',
+							   'metric': "auc",
+							   'random_state': self.state,
+							   'colsample_bytree': 0.45,
+							   'subsample': 0.45,
+							   'learning_rate': 0.06,
+							   'max_depth': 6,
+							   'n_estimators': 3000,
+							   'num_leaves': 125,
+							   'reg_alpha': 0.05,
+							   'reg_lambda': 0.95,
+							   'verbosity': -1,
+							   'categorical_feature': [f"name: {c}" for c in self.cat_cols],
+							   }
+							),
+
+			'LGBM4C': LGBMC(**{'device': "gpu" if self.gpu_switch == "ON" else "cpu",
+							   'objective': 'binary',
+							   'boosting_type': 'gbdt',
+							   'metric': "auc",
+							   'random_state': self.state,
+							   'colsample_bytree': 0.55,
+							   'subsample': 0.55,
+							   'learning_rate': 0.085,
+							   'max_depth': 7,
+							   'n_estimators': 3000,
+							   'num_leaves': 105,
+							   'reg_alpha': 0.08,
+							   'reg_lambda': 0.995,
+							   'verbosity': -1,
+							   }
+							),
+			'CB1C': CBC(**{
+				'task_type': 'GPU' if self.gpu_switch == 'ON' else 'CPU',
+				'objective': 'Logloss',
+				'eval_metric': 'AUC',
+				'bagging_temperature': 0.1,
+				'colsample_bylevel': 0.88,
+				'iterations': 3000,
+				'learning_rate': 0.065,
+				'od_wait': 12,
+				'max_depth': 7,
+				'l2_leaf_reg': 1.75,
+				'min_data_in_leaf': 25,
+				'random_strength': 0.1,
+				'max_bin': 100,
+				'verbose': 0,
+				'use_best_model': True
+			}),
+			"CB2C": CBC(**{'task_type': "GPU" if self.gpu_switch == "ON" else "CPU",
+						   'objective': 'Logloss',
+						   'eval_metric': "AUC",
+						   'bagging_temperature': 0.5,
+						   'colsample_bylevel': 0.50,
+						   'iterations': 2500,
+						   'learning_rate': 0.04,
+						   'od_wait': 24,
+						   'max_depth': 8,
+						   'l2_leaf_reg': 1.235,
+						   'min_data_in_leaf': 25,
+						   'random_strength': 0.35,
+						   'max_bin': 160,
+						   'verbose': 0,
+						   'use_best_model': True,
+						   }
+						),
+			"CB3C": CBC(**{'task_type': "GPU" if self.gpu_switch == "ON" else "CPU",
+						   'objective': 'Logloss',
+						   'eval_metric': "AUC",
+						   'bagging_temperature': 0.2,
+						   'colsample_bylevel': 0.85,
+						   'iterations': 2500,
+						   'learning_rate': 0.025,
+						   'od_wait': 10,
+						   'max_depth': 7,
+						   'l2_leaf_reg': 1.235,
+						   'min_data_in_leaf': 8,
+						   'random_strength': 0.60,
+						   'max_bin': 160,
+						   'verbose': 0,
+						   'use_best_model': True,
+						   }
+						),
+			"CB4C": CBC(**{'task_type': "GPU" if self.gpu_switch == "ON" else "CPU",
+						   'objective': 'Logloss',
+						   'eval_metric': "AUC",
+						   'grow_policy': 'Lossguide',
+						   'colsample_bylevel': 0.25,
+						   'iterations': 2500,
+						   'learning_rate': 0.035,
+						   'od_wait': 24,
+						   'max_depth': 7,
+						   'l2_leaf_reg': 1.80,
+						   'random_strength': 0.60,
+						   'max_bin': 160,
+						   'verbose': 0,
+						   'use_best_model': True,
+						   }
+						),
+			'HGB1C': HGBC(
+				loss='log_loss',
+				learning_rate=0.06,
+				max_iter=800,
+				max_depth=6,
+				min_samples_leaf=12,
+				l2_regularization=1.15,
+				validation_fraction=0.1,
+				n_iter_no_change=self.nbrnd_erly_stp,
+				random_state=self.state
+			),
+			'HGB2C': HGBC(
+				loss='log_loss',
+				learning_rate=0.06,
+				max_iter=800,
+				max_depth=6,
+				min_samples_leaf=12,
+				l2_regularization=1.15,
+				validation_fraction=0.1,
+				n_iter_no_change=self.nbrnd_erly_stp,
+				random_state=self.state
+			),
+		}
+		return self
+
+	def ScoreMetric(self, ytrue, ypred):
+		'''
+		This is the metric function for the competition scoring
+		:param ytrue:
+		:param y_pred:
+		:return:
+		'''
+		return roc_auc_score(ytrue, ypred)
+
+	def ClbMetric(self, ytrue, ypred):
+		'''
+		This is the calibration metric
+		:param ytrue:
+		:param ypred:
+		:return:
+		'''
+		return brier_score_loss(ytrue, ypred)
+
+	def PostProcessPred(self, ypred):
+		'''
+		This is an optional post-processing method
+		:param ypred:
+		:return:
+		'''
+		return np.clip(ypred, a_min=0, a_max=1)
+
+	def TrainMdl(self, target: str, test_preds_req: str = 'Y', save_models='N'):
+		'''
+		This method trains and infers from the model suite and
+		returns the predictions and scores
+        It optionally predicts the test set too, if desired by the user
+        Source for dropped columns:-
+        https://www.kaggle.com/competitions/playground-series-s4e3/discussion/482401
+		:param target:
+		:param test_preds_req:
+		:param save_models:
+		:return:
+		'''
+		# Initializing I-O :-
+		X, y, Xt = self.Xtrain[self.sel_cols], \
+				   self.ytrain.copy(deep=True), \
+				   self.Xtest[self.sel_cols]
+		cols_drop = [
+			'Source', 'id', 'Sum_of_Luminosity', \
+			'X_perimeter', 'SigmoidOfAreas', \
+			'Edges_X_Index', 'Y_Minimum', 'Y_Maximum'
+		]
+		ens = OptunaEnsembler()
+		self.FtreImp = pd.DataFrame(
+			columns=self.methods, \
+			index=[c for c in self.sel_cols if c not in cols_drop] \
+			).fillna(0)
+
+		# Making CV folds:-
+		for fold_nb, (train_idx, dev_idx) in tqdm(enumerate(self.cv.split(X, self.y_grp))):
+			Xtr = X.iloc[train_idx].drop(columns=cols_drop, error='ignore')
+			Xdev = X.iloc[dev_idx].drop(columns=cols_drop, error='ignore')
+			ytr = y.loc[y.index.isin(Xtr.index)]
+			ydev = y.loc[y.index.isin(Xdev.index)]
+			# Initializing the OOF and test set predictions:-
+			oof_preds = pd.DataFrame(columns=self.methods, index=Xdev.index)
+			mdl_preds = pd.DataFrame(columns=self.methods, index=Xt.index)
+			PrintColor(f"\n{' = ' * 5} Fold {fold_nb + 1} {' = ' * 5}\n")
+		# Initializing models across methods:-
+		for method in tqdm(self.methods):
+			model = Pipeline(steps=[('M', self.Mdl_Master.get(method))])
+			# Fitting the model:-
+			if 'CB' in method:
+				model.fit(Xtr, ytr, \
+						  M__eval_set=[(Xdev, ydev)], \
+						  M__verbose=0,
+						  M__early_stopping_rounds=CFG.nbrnd_erly_stp)
+			elif 'LGBM' in method:
+				model.fit(Xtr, ytr, \
+						  M__eval_set=[(Xdev, ydev)], \
+						  M__callbacks=[log_evaluation(0), \
+										early_stopping(stopping_rounds=CFG.nbrnd_erly_stp, verbose=False, ),
+										]
+						  )
+			elif 'XGB' in method:
+				model.fit(Xtr, ytr, \
+						  M__eval_set=[(Xdev, ydev)], \
+						  M__verbose=0, )
+			else:
+				model.fit(Xtr, ytr)
+			# Collating feature importance:-
+			try:
+				self.FtreImp[method] += model['M'].feature_importances_
+			except:
+				pass
+			# Collecting predictions and scores and post-processing OOF based on model method:-
+			dev_preds = model.predict_proba(Xdev)[:, 1]
+			train_preds = model.predict_proba(Xtr)[:, 1]
+			tr_score = self.ScoreMetric(ytr.values.flatten(), \
+										train_preds)
+			score = self.ScoreMetric(ydev.values.flatten(), dev_preds)
+			PrintColor(f'OOF={score:.5f} | train = {tr_score:.5f} | {method}', color=Fore.CYAN)
+			oof_preds[method] = dev_preds
+			# Integrating the predictions and scores:-
+			self.Scores.at[fold_nb, method] = np.round(score, decimals=6)
+			self.TrainScores.at[fold_nb, method] = np.round(tr_score, decimals=6)
+			if test_preds_req == 'Y':
+				mdl_preds[method] = self.PostProcessPred(model.predict_proba(Xt.drop(columns=cols_drop,
+																					 errors='ignore')))
+		try:
+			del dev_preds, train_preds, tr_score, score
+		except:
+			pass

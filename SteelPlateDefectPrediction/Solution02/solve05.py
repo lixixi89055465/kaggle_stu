@@ -461,17 +461,17 @@ class Classifier:
 		dt_params = {'min_samples_split': 30, 'min_samples_leaf': 10, 'max_depth': 8, 'criterion': 'gini'}
 		models = {
 			'xgb': xgb.XGBClassifier(**xgb_params),
-			'xgb2': xgb.XGBClassifier(**xgb_params2),
-			'xgb3': xgb.XGBClassifier(**xgb_params3),
-			'xgb4': xgb.XGBClassifier(**xgb_params4),
+			# 'xgb2': xgb.XGBClassifier(**xgb_params2),
+			# 'xgb3': xgb.XGBClassifier(**xgb_params3),
+			# 'xgb4': xgb.XGBClassifier(**xgb_params4),
 			'lgb': lgb.LGBMClassifier(**lgb_params),
-			'lgb2': lgb.LGBMClassifier(**lgb_params2),
-			'lgb3': lgb.LGBMClassifier(**lgb_params3),
-			'lgb4': lgb.LGBMClassifier(**lgb_params4),
+			# 'lgb2': lgb.LGBMClassifier(**lgb_params2),
+			# 'lgb3': lgb.LGBMClassifier(**lgb_params3),
+			# 'lgb4': lgb.LGBMClassifier(**lgb_params4),
 			'cat': CatBoostClassifier(**cb_params),
-			'cat2': CatBoostClassifier(**cb_params2),
-			'cat3': CatBoostClassifier(**cb_params3),
-			'cat4': CatBoostClassifier(**cb_params4),
+			# 'cat2': CatBoostClassifier(**cb_params2),
+			# 'cat3': CatBoostClassifier(**cb_params3),
+			# 'cat4': CatBoostClassifier(**cb_params4),
 			"cat_sym": CatBoostClassifier(**cb_sym_params),
 			"cat_loss": CatBoostClassifier(**cb_loss_params),
 			'hist_gbm': HistGradientBoostingClassifier(max_iter=300, learning_rate=0.001, max_leaf_nodes=80,
@@ -662,7 +662,7 @@ for col in target:
 X_train = addCol(X_train)
 X_test = addCol(X_test)
 
-purePath = "../input/submission_pure03.csv"
+purePath = "../input/submission_pure05.csv"
 submission.to_csv(purePath, index=False)
 print(submission.head())
 
@@ -693,6 +693,6 @@ def ensemble_mean(sub_list, cols, mean="AM"):
 
 
 sub_ensemble = ensemble_mean(weighted_list, target, mean='AM')
-sub_ensemble.to_csv('../input/submission03.csv', index=False)
+sub_ensemble.to_csv('../input/submission05.csv', index=False)
 print('s' * 100)
 print(sub_ensemble.head())
