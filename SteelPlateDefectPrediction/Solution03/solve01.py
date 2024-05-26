@@ -1254,6 +1254,15 @@ print()
 collect()
 # ---> OOF score across all methods and folds
 
-if CFG.ML=='Y':
-	for col in  CFG.targets:
-		pp.sub
+if CFG.ML == 'Y':
+	for col in CFG.targets:
+		pp.sub_f1[col] = 1 - Mdl_Preds.loc[Mdl_Preds.Target == col, 'Ensemble '].values
+	sub1 = pd.read_csv(f'../input/playgrounds4e03ancillary/89652_submission.csv')[CFG.targets]
+	pp.sub_f1[CFG.targets] = pp.sub_f1[CFG.targets].values * 0.1 + sub1 * 0.9
+
+	pp.sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
+	OOF_Preds.to_csv(f'OOF_Preds_V{CFG.version_nb}.csv', index=False)
+	Mdl_Preds.to_csv(f'Mdl_Preds_V{CFG.version_nb}.csv', index=False)
+	# display(pp.sub_fl.head(10).style.set_caption(f"\nSubmission file\n").format(precision=3));
+print()
+collect()
