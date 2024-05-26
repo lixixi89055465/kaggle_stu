@@ -6,10 +6,10 @@
 # @File : solve01.py
 # @Software: PyCharm 
 # @Comment : PS4E3 | Steel Plate Fault Prediction |Multilabel
+from datetime import datetime
 import sklearn
 import numpy as np
 import os
-import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 import missingno as msno
@@ -636,6 +636,9 @@ def addCol(df):
 	return df
 
 
+X_train = addCol(X_train)
+X_test = addCol(X_test)
+
 count = 0
 for col in target:
 	train_temp = train[test.columns.tolist() + [col]]
@@ -657,42 +660,39 @@ for col in target:
 	test_predss = fit_model(X_train, X_test, y_train)
 	submission[col] = test_predss
 	count += 1
-	print(f'Column {col} ,loop # {count}')
-
-X_train = addCol(X_train)
-X_test = addCol(X_test)
+	print(f'{datetime.now()} -- Column {col} ,loop # {count}')
 
 purePath = "../input/submission_pure05.csv"
 submission.to_csv(purePath, index=False)
 print(submission.head())
 
 # submission = pd.read_csv("../input/submission_pure01.csv")
-sub1 = pd.read_csv("../input/multiclass-feature-engineering-thoughts/submission.csv")
-sub2 = pd.read_csv("../input/ps4e03-multi-class-lightgbm/submission.csv")
-sub_list = [sub1, sub2, submission]
-weights = [1, 1, 1]
-weighted_list = [item for sublist, weight in zip(sub_list, weights) for item in [sublist] * weight]
-
-
-def ensemble_mean(sub_list, cols, mean="AM"):
-	sub_out = sub_list[0].copy()
-	if mean == "AM":
-		for col in cols:
-			sub_out[col] = sum(df[col] for df in sub_list) / len(sub_list)
-	elif mean == "GM":
-		for df in sub_list[1:]:
-			for col in cols:
-				sub_out[col] *= df[col]
-		for col in cols:
-			sub_out[col] = (sub_out[col]) ** (1 / len(sub_list))
-	elif mean == 'HM':
-		for col in cols:
-			sub_out[col] = len(sub_list) / sum(1 / df[col] for df in sub_list)
-	sub_out[cols] = sub_out[cols].div(sub_out[cols].sum(axis=1), axis=0)
-	return sub_out
-
-
-sub_ensemble = ensemble_mean(weighted_list, target, mean='AM')
-sub_ensemble.to_csv('../input/submission05.csv', index=False)
-print('s' * 100)
-print(sub_ensemble.head())
+# sub1 = pd.read_csv("../input/multiclass-feature-engineering-thoughts/submission.csv")
+# sub2 = pd.read_csv("../input/ps4e03-multi-class-lightgbm/submission.csv")
+# sub_list = [sub1, sub2, submission]
+# weights = [1, 1, 1]
+# weighted_list = [item for sublist, weight in zip(sub_list, weights) for item in [sublist] * weight]
+#
+#
+# def ensemble_mean(sub_list, cols, mean="AM"):
+# 	sub_out = sub_list[0].copy()
+# 	if mean == "AM":
+# 		for col in cols:
+# 			sub_out[col] = sum(df[col] for df in sub_list) / len(sub_list)
+# 	elif mean == "GM":
+# 		for df in sub_list[1:]:
+# 			for col in cols:
+# 				sub_out[col] *= df[col]
+# 		for col in cols:
+# 			sub_out[col] = (sub_out[col]) ** (1 / len(sub_list))
+# 	elif mean == 'HM':
+# 		for col in cols:
+# 			sub_out[col] = len(sub_list) / sum(1 / df[col] for df in sub_list)
+# 	sub_out[cols] = sub_out[cols].div(sub_out[cols].sum(axis=1), axis=0)
+# 	return sub_out
+#
+#
+# sub_ensemble = ensemble_mean(weighted_list, target, mean='AM')
+# sub_ensemble.to_csv('../input/submission05.csv', index=False)
+# print('s' * 100)
+# print(sub_ensemble.head())

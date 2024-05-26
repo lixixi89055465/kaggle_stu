@@ -462,7 +462,7 @@ class Classifier:
 
 
 			#TODO new col
-			'xgb': xgb.XGBClassifier(**xgb_params),
+			# 'xgb': xgb.XGBClassifier(**xgb_params),
 			#            'xgb2': xgb.XGBClassifier(**xgb_params2),
 			#            'xgb3': xgb.XGBClassifier(**xgb_params3),
 			#            'xgb4': xgb.XGBClassifier(**xgb_params4),

@@ -201,7 +201,7 @@ class Preprocessor():
 
 	def __init__(self):
 		self.train = pd.read_csv(os.path.join(CFG.path, 'train.csv'), index_col='id')
-		self.test = pd.read_csv(os.path.oin(CFG.path, 'test.csv'), index_col='id')
+		self.test = pd.read_csv(os.path.join(CFG.path, 'test.csv'), index_col='id')
 		self.targets = CFG.targets
 		self.original = pd.read_csv(CFG.orig_path, index_col='id')
 		self.conjoin_orig_data = CFG.conjoin_orig_data
@@ -684,7 +684,29 @@ class MdlDeveloper(CFG):
 		self.enc_cols = enc_cols
 		self._DefineModel()
 		self.cv = self.all_cv[self.mdlcv_mthd]
-		self.mothods = list(self.Mdl_Master.keys())
+		self.methods = list(self.Mdl_Master.keys())
+		self.OOF_Preds = pd.DataFrame()
+		self.Mdl_Preds = pd.DataFrame()
+		self.Scores = pd.DataFrame( \
+			columns=self.methods + ['Ensemble'], \
+			index=range(self.n_splits * self.n_repeats))
+		self.TrainScores = pd.DataFrame( \
+			columns=self.methods, \
+			index=range(self.n_splits * self.n_repeats) \
+			)
+		self.mdlscorer = make_scorer( \
+			self.ScoreMetric, \
+			greater_is_better=True, \
+			needs_proba=True, \
+			needs_threshold=False
+		)
+		PrintColor(f'\n ---> Selected model option- ')
+		try:
+			with np.printoptions(linewidth=150):
+				pprint(np.array(self.methods), depth=1, width=100, indent=5)
+
+		except:
+			pprint(self.methods, depth=1, width=100, indent=5)
 
 	def _DefineModel(self):
 		'''
@@ -918,11 +940,11 @@ class MdlDeveloper(CFG):
 			),
 			'HGB2C': HGBC(
 				loss='log_loss',
-				learning_rate=0.06,
-				max_iter=800,
-				max_depth=6,
-				min_samples_leaf=12,
-				l2_regularization=1.15,
+				learning_rate=0.035,
+				max_iter=700,
+				max_depth=7,
+				min_samples_leaf=9,
+				l2_regularization=1.75,
 				validation_fraction=0.1,
 				n_iter_no_change=self.nbrnd_erly_stp,
 				random_state=self.state
@@ -974,7 +996,7 @@ class MdlDeveloper(CFG):
 				   self.Xtest[self.sel_cols]
 		cols_drop = [
 			'Source', 'id', 'Sum_of_Luminosity', \
-			'X_perimeter', 'SigmoidOfAreas', \
+			'X_Perimeter', 'SigmoidOfAreas', \
 			'Edges_X_Index', 'Y_Minimum', 'Y_Maximum'
 		]
 		ens = OptunaEnsembler()
@@ -1038,3 +1060,180 @@ class MdlDeveloper(CFG):
 			del dev_preds, train_preds, tr_score, score
 		except:
 			pass
+		# Ensembling the predictions:-
+		oof_preds['Ensemble'] = ens.fit_predict(ydev, oof_preds[self.method])
+		score = self.ScoreMetric(ydev, oof_preds['Ensemble'].values)
+		self.OOF_Preds = pd.concat([self.OOF_Preds, oof_preds], axis=0, ignore_index=False)
+		self.Scores.at[fold_nb, 'Ensemble'] = np.round(score, 6)
+		if test_preds_req == 'Y':
+			mdl_preds['ensemble'] = ens.predict(mdl_preds[self.methods])
+			self.Mdl_Preds = pd.concat([self.Mdl_Preds, mdl_preds], axis=1, ignore_index=False)
+		# Averaging the predictions afeter all folds:-
+		self.OOF_Preds = self.OOF_Preds.groupby(level=0).mean()
+		if test_preds_req == 'Y':
+			self.Mdl_Preds = self.Mdl_Preds[self.methods + ['Ensemble']].groupby(level=0).mean()
+		return self.OOF_Preds, self.Mdl_Preds, self.Scores, self.TrainScores
+
+	def MakePseudoLbl(self, up_cutoff: float, low_cutoff: float, **kwargs):
+		"""
+		This method makes pseudo-labels using confident test set predictions to add to the training data
+		:param up_cutoff:
+		:param low_cutoff:
+		:param kwargs:
+		:return:
+		"""
+		df = self.Mdl_Preds.loc[ \
+			(self.Mdl_Preds.Ensemble >= up_cutoff) | (self.Mdl_Preds.Ensemble <= low_cutoff), \
+			'Ensemble'
+		]
+		PrintColor(f'-->Pseudo Label additions form test set={df.shape[0]:,.0f}', \
+				   color=Fore.RED)
+		df = df.astype(np.uint8)
+		new_ytrain = pd.concat([self.ytrain, df], axis=0, ignore_index=True)
+		new_ytrain.index = range(len(new_ytrain))
+
+		new_Xtrain = pd.concat([self.Xtrain, self.Xtest.loc[df.index]], \
+							   axis=0, \
+							   ignore_index=True)
+		new_Xtrain.index = range(len(new_Xtrain))
+		#  Verifying the additions:-
+		PrintColor(f"---> Revised train set shapes after pseudo labels = {new_Xtrain.shape} {new_ytrain.shape}");
+		return new_Xtrain, new_ytrain
+
+	def MakeMLPlots(self):
+		'''
+		This method makes plots for the ML models,
+		 including feature importance and calibration curves
+		:return:
+		'''
+		fig, axes = plt.subplots(len(self.methods), \
+								 2, \
+								 figsize=(35, len(self.methods) * 10), \
+								 gridspec_kw={'hspace': 0.6, 'wspace': 0.2}, \
+								 width_ratios=[0.75, 0.25], \
+								 );
+		for i, col in enumerate(self.methods):
+			try:
+				ax = axes[i, 0];
+			except:
+				ax = axes[0];
+			self.FtreImp[col].plot.bar(ax=ax, color='#0073e6');
+			ax.set_title(f"{col} Importances", **CFG.title_specs);
+			ax.set(xlabel='', ylabel='');
+			try:
+				ax = axes[i, 1];
+			except:
+				ax = axes[1];
+			Clb.from_predictions(self.ytrain[0:len(self.OOF_Preds)],
+								 self.OOF_Preds[col],
+								 n_bins=20,
+								 ref_line=True,
+								 **{'color': '#0073e6', 'linewidth': 1.2,
+									'markersize': 3.75, 'marker': 'o', 'markerfacecolor': '#cc7a00'},
+								 ax=ax
+								 )
+			ax.set_title(f"{col} Calibration", **CFG.title_specs);
+			ax.set(xlabel='', ylabel='', );
+			ax.set_yticks(np.arange(0, 1.01, 0.05),
+						  labels=np.round(np.arange(0, 1.01, 0.05), 2), fontsize=7.0);
+			ax.set_xticks(np.arange(0, 1.01, 0.05),
+						  labels=np.round(np.arange(0, 1.01, 0.05), 2),
+						  fontsize=6.25,
+						  rotation=90
+						  );
+			ax.legend('');
+		plt.tight_layout();
+		plt.show();
+
+
+print();
+collect()
+
+
+class Utils:
+	'''
+	    This class plots the final scores and generates adjutant model utilities
+	'''
+
+	def __init__(self, targets):
+		self.targets = targets
+
+	def DisplayAdjTbl(self, *args):
+		'''
+		This function displays pandas tables in an adjacent manner, sourced from the below link-
+        https://stackoverflow.com/questions/38783027/jupyter-notebook-display-two-pandas-tables-side-by-side
+		:param args:
+		:return:
+		'''
+		html_str = ''
+		for df in args:
+			html_str += df.to_html()
+		display_html(html_str.replace('table', 'table style="display:inline"'), raw=True);
+		collect();
+
+	def DisplayScores(self, Scores: pd.DataFrame, TrainScores: pd.DataFrame):
+		'''
+		This method displays the scores and their means
+		:param Scores:
+		:param TrainScores:
+		:return:
+		'''
+		methods = Scores.columns[0:-2];
+		args = \
+			[Scores.style.format(precision=5). \
+				 background_gradient(cmap="Pastel2", subset=methods). \
+				 set_caption(f"\nOOF scores across methods and folds\n"),
+
+			 TrainScores.style.format(precision=5). \
+				 background_gradient(cmap="Pastel2", subset=methods). \
+				 set_caption(f"\nTrain scores across methods and folds\n")
+			 ];
+		PrintColor(f"\n\n\n---> OOF score across all methods and folds\n", color=Fore.LIGHTMAGENTA_EX);
+		self.DisplayAdjTbl(*args);
+
+		print('\n');
+		# display(Scores.groupby("Target")[["Ensemble"]].mean(). \
+		# 		transpose(). \
+		# 		style.format(precision=5). \
+		# 		background_gradient(cmap="Spectral", axis=1, subset=self.targets). \
+		# 		set_caption(f"\nOOF mean scores across methods and folds\n")
+		# 		)
+
+		PrintColor(f"\n---> Mean ensemble score OOF = {np.mean(Scores['Ensemble']):.5f}\n");
+
+
+collect()
+print()
+if CFG.ML == 'Y':
+	OOF_Preds, Mdl_Preds, Scores, TrainScores = pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+	for target in CFG.targets:
+		md = MdlDeveloper(Xtrain, \
+						  ytrain[target], \
+						  ytrain[target], \
+						  Xtest, \
+						  sel_cols=sel_cols, \
+						  cat_cols=cat_ftre, \
+						  enc_cols=[]
+						  )
+		oof_preds, mdl_preds, scores, trainscores = md.TrainMdl(
+			test_preds_req='Y', \
+			target=target)
+		OOF_Preds = pd.concat([oof_preds.assign(Target=target), OOF_Preds], \
+							  axis=0, \
+							  ignore_index=False)
+		Mdl_Preds = pd.concat([mdl_preds.assign(Target=target), Mdl_Preds], \
+							  axis=0, \
+							  ignore_index=False)
+		Scores = pd.concat([scores.assign(Target=target), Scores], \
+						   axis=0, \
+						   ignore_index=True)
+		TrainScores = pd.concat([trainscores.assign(Target=target), TrainScores], \
+								axis=0, \
+								ignore_index=True)
+	clear_output()
+	utils = Utils(CFG.targets)
+	utils.DisplayScores(Scores, TrainScores)
+
+print()
+collect()
+# ---> OOF score across all methods and folds
