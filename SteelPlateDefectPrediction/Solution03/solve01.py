@@ -261,8 +261,8 @@ class Preprocessor():
 				self.test[self.strt_ftre].isna().sum(axis=0),
 				self.original[self.strt_ftre].isna().sum(axis=0)
 			], axis=1)
-			_, columns = ['Train_Nunq', 'Test_Nunq', 'Original_Nunq',
-						  'Train_Nulls', 'Test_Nulls', 'Original_Nulls']
+			_.columns = ['Train_Nunq', 'Test_Nunq', 'Original_Nunq',
+						 'Train_Nulls', 'Test_Nulls', 'Original_Nulls']
 		# display(_.T.style.background_gradient(cmap='Blues', axis=1). \
 		# 		format(formatter='{:,.0f}') );
 		return self
@@ -270,7 +270,9 @@ class Preprocessor():
 	def _ConjoinTrainOrig(self):
 		if self.conjoin_orig_data == 'Y':
 			PrintColor(f"\n\nTrain shape before conjoining with original = {self.train.shape}");
-			train = pd.cocnat([self.train, self.original], axis=0, ignore_index=True)
+			train = pd.concat([self.train, self.original], axis=0, ignore_index=True)
+			PrintColor(f'Train shape after de-deupling ={train.shape}')
+
 			train = train.drop_duplicates()
 			PrintColor(f'Train shape after de-deupling ={train.shape}')
 			train.index = range(len(train))
@@ -278,6 +280,7 @@ class Preprocessor():
 		else:
 			PrintColor(f'\n We are using the competition training data only')
 			train = self.train
+		return train
 
 	def DoPreprocessing(self):
 		self._AddSourceCol()
@@ -285,7 +288,7 @@ class Preprocessor():
 		self._CollateUnqNull()
 		self.train = self._ConjoinTrainOrig()
 		self.train.index = range(len(self.train))
-		_ = pp.train.drop(columns=CFG.targets + ['Source']).unique()
+		_ = pp.train.drop(columns=CFG.targets + ['Source']).nunique()
 		self.cat_cols = _.loc[_ <= 10].index.to_list()
 		self.cont_cols = [c for c in _.index if c not in self.cat_cols + ['Source']]
 		return self
@@ -345,7 +348,7 @@ class FeaturePlotter(CFG, Preprocessor):
 				ax.set_xticks(np.arange(0.0, 0.9, 0.05), \
 							  labels=np.round(np.arange(0.0, 0.9, 0.05), 2), \
 							  rotation=90)
-				ax.set(xlabel='', ylabe='')
+				ax.set(xlabel='', ylabel='')
 				del a
 				ax = axes[i, 1];
 				a = self.test[col].value_counts(normalize=True);
@@ -372,7 +375,7 @@ class FeaturePlotter(CFG, Preprocessor):
 			plt.tight_layout();
 			plt.show();
 
-	def MakeContCol(self, cont_cols):
+	def MakeContColPlots(self, cont_cols):
 		'''
 		    This method returns the continuous feature plots
 		:param cont_cols:
@@ -660,7 +663,8 @@ class MdlDeveloper(CFG):
     3. Returns the OOF and model test set predictions
 	'''
 
-	def __init__(self, Xtrain, ytrain, ygrp, Xtest, sel_cols, cat_cols, enc_cols, **kwargs):
+	def __init__(self, Xtrain, ytrain, ygrp, Xtest, \
+				 sel_cols, cat_cols, enc_cols, **kwargs):
 		'''
 		In this method,we initialize the below -
 		1.Train-test data,selected columns
@@ -1007,8 +1011,8 @@ class MdlDeveloper(CFG):
 
 		# Making CV folds:-
 		for fold_nb, (train_idx, dev_idx) in tqdm(enumerate(self.cv.split(X, self.y_grp))):
-			Xtr = X.iloc[train_idx].drop(columns=cols_drop, error='ignore')
-			Xdev = X.iloc[dev_idx].drop(columns=cols_drop, error='ignore')
+			Xtr = X.iloc[train_idx].drop(columns=cols_drop, errors='ignore')
+			Xdev = X.iloc[dev_idx].drop(columns=cols_drop, errors='ignore')
 			ytr = y.loc[y.index.isin(Xtr.index)]
 			ydev = y.loc[y.index.isin(Xdev.index)]
 			# Initializing the OOF and test set predictions:-
@@ -1204,6 +1208,18 @@ class Utils:
 
 collect()
 print()
+
+if CFG.ML == 'Y':
+	sel_cols = Xtrain.columns
+	PrintColor(f'\n ---> Selected model columns')
+	cat_ftre = list(set(pp.cat_cols))
+	with np.printoptions(linewidth=150):
+		PrintColor(f'\n--> All Selected columns\n')
+		pprint(np.array(sel_cols))
+
+		PrintColor(f'\n--> All category columns\n')
+		pprint(np.array(cat_ftre))
+
 if CFG.ML == 'Y':
 	OOF_Preds, Mdl_Preds, Scores, TrainScores = pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 	for target in CFG.targets:
@@ -1213,7 +1229,7 @@ if CFG.ML == 'Y':
 						  Xtest, \
 						  sel_cols=sel_cols, \
 						  cat_cols=cat_ftre, \
-						  enc_cols=[]
+						  enc_cols=[] \
 						  )
 		oof_preds, mdl_preds, scores, trainscores = md.TrainMdl(
 			test_preds_req='Y', \
@@ -1237,3 +1253,7 @@ if CFG.ML == 'Y':
 print()
 collect()
 # ---> OOF score across all methods and folds
+
+if CFG.ML=='Y':
+	for col in  CFG.targets:
+		pp.sub

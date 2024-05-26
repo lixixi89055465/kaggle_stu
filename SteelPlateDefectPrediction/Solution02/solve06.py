@@ -90,11 +90,9 @@ pd.pandas.set_option('display.max_columns', None)
 
 train = pd.read_csv('../input/train.csv')
 test = pd.read_csv('../input/test.csv')
-r1=test.isna().sum(axis=0)
+r1 = test.isna().sum(axis=0)
 print('r1:')
 print(r1)
-
-
 
 original = pd.read_csv("../input/SteelPlatesFaults.csv")
 
@@ -298,7 +296,9 @@ class Splitter:
 					y_train, y_val = y.iloc[train_index], y.iloc[val_index]
 					yield X_train, y_train, X_val, y_val
 
-from sklearn import ensemble,gaussian_process,linear_model,svm,discriminant_analysis,tree
+
+from sklearn import ensemble, gaussian_process, linear_model, svm, discriminant_analysis, tree
+
 
 class Classifier:
 	def __init__(self, n_estimators=100, device='cpu', random_state=0):
@@ -449,19 +449,18 @@ class Classifier:
 			# 'SGDC':linear_model.SGDClassifier(loss='log'),
 			# 'Perce':linear_model.Perceptron(),#没有prodict_proba()
 			# # SVM
-			# 'svc':svm.SVC(probability=True),# 没有prodict_proba()
+			'svc': svm.SVC(probability=True),  # 没有prodict_proba()
 			# 'nusvc':svm.NuSVC(probability=True),# 没有prodict_proba()
 			# 'lsvc':svm.LinearSVC(),# 没有prodict_proba()
 			# Trees
-			# 'treeDC':tree.DecisionTreeClassifier(),
-			'ExtraTC':tree.ExtraTreeClassifier(),
+			'treeDC': tree.DecisionTreeClassifier(),
+			'ExtraTC': tree.ExtraTreeClassifier(),
 			# Discriminat Analysisi
-			'LinearDA':discriminant_analysis.LinearDiscriminantAnalysis(),
-			'QuadraticDiscriminantAnalysis':discriminant_analysis.QuadraticDiscriminantAnalysis(),
-			#xgboost: http://xgboost.readthedocs.io/en/latest/model.html
+			'LinearDA': discriminant_analysis.LinearDiscriminantAnalysis(),
+			'QuadraticDiscriminantAnalysis': discriminant_analysis.QuadraticDiscriminantAnalysis(),
+			# xgboost: http://xgboost.readthedocs.io/en/latest/model.html
 
-
-			#TODO new col
+			# TODO new col
 			# 'xgb': xgb.XGBClassifier(**xgb_params),
 			#            'xgb2': xgb.XGBClassifier(**xgb_params2),
 			#            'xgb3': xgb.XGBClassifier(**xgb_params3),
@@ -482,7 +481,7 @@ class Classifier:
 			#             'lr': LogisticRegression(),
 			#             'rf': RandomForestClassifier(max_depth= 9,max_features= 'auto',min_samples_split= 10,
 			#                                                           min_samples_leaf= 4,  n_estimators=500,random_state=self.random_state),
-			#            'svc': SVC(gamma="auto", probability=True),
+			'svc': SVC(gamma="auto", probability=True),
 			#             'knn': KNeighborsClassifier(n_neighbors=5),
 			#             'mlp': MLPClassifier(random_state=self.random_state, max_iter=1000),
 			#             'etr':ExtraTreesClassifier(min_samples_split=55, min_samples_leaf= 15, max_depth=10,
@@ -536,11 +535,11 @@ class OptunaWeights:
 
 
 def fit_model(X_train, X_test, y_train):
-	si=SimpleImputer(missing_values=np.nan,strategy='mean')
-	train_copy=si.fit_transform(X_train)
-	test_copy=si.fit_transform(X_test)
-	X_train=pd.DataFrame(data=train_copy,columns=X_train.columns)
-	X_test=pd.DataFrame(data=test_copy,columns=X_test.columns)
+	si = SimpleImputer(missing_values=np.nan, strategy='mean')
+	train_copy = si.fit_transform(X_train)
+	test_copy = si.fit_transform(X_test)
+	X_train = pd.DataFrame(data=train_copy, columns=X_train.columns)
+	X_test = pd.DataFrame(data=test_copy, columns=X_test.columns)
 	kfold = True
 	n_splits = 1 if not kfold else 5
 	random_state = 2023
@@ -555,7 +554,7 @@ def fit_model(X_train, X_test, y_train):
 	ensemble_score = []
 	weights = []
 	trained_models = {'xgb': [], 'lgb': []}
-	for i, (X_train_,y_train_ ,X_val, y_val) in enumerate(
+	for i, (X_train_, y_train_, X_val, y_val) in enumerate(
 			splitter.split_data(X_train, y_train, random_state_list=random_state_list)):
 		n = i % n_splits
 		m = i // n_splits
@@ -569,6 +568,7 @@ def fit_model(X_train, X_test, y_train):
 		print(models.items())
 		# Loop over each base model and fit it to the training data, evaluate on validation data, and store predictions
 		for name, model in models.items():
+			print(f"{datetime.now()}-- name:{name} start")
 			if ('cat' in name) or ('lgb' in name) or ('xgb' in name):
 				if 'lgb' in name:
 					model.fit(X_train_, \
@@ -592,11 +592,13 @@ def fit_model(X_train, X_test, y_train):
 			y_val_pred = model.predict_proba(X_val)[:, 1]
 			score = roc_auc_score(y_val, y_val_pred.reshape(-1, 1))
 			# score=accuracy_score(y_val,acc_cutooff_class(y_val,y_val_pred))
-			print(f'{datetime.now() }--{i}--{name} [FOLD-{n} SEED - {random_state_list[m]}] ROC AUC score:{score:.5f}')
+			print(f'{datetime.now()}--{i}--{name} [FOLD-{n} SEED - {random_state_list[m]}] ROC AUC score:{score:.5f}')
 			oof_preds.append(y_val_pred)
 			test_preds.append(test_pred)
 			if name in trained_models.keys():
 				trained_models[f'{name}'].append(deepcopy(model))
+			print(f"{datetime.now()}-- name:{name} end!")
+
 		# Using optuna to find the best ensemble weights
 		optweights = OptunaWeights(random_state=random_state)
 		y_val_pred = optweights.fit_predict(y_val.values, oof_preds)
@@ -613,14 +615,14 @@ def fit_model(X_train, X_test, y_train):
 	# Calculate the mean ROC AUC score of the ensemble
 	mean_score = np.mean(ensemble_score)
 	std_score = np.std(ensemble_score)
-	print(f'{datetime.now() } -- enmble ROC AUC score {mean_score:.5f} ± {std_score:.5f}')
+	print(f'{datetime.now()} -- enmble ROC AUC score {mean_score:.5f} ± {std_score:.5f}')
 	# Print the mean and standard deviation of the ensemble weights for each model
 	print('--Model Weights ---')
 	mean_weights = np.mean(weights, axis=0)
 	std_weights = np.std(weights, axis=0)
 	for name, mean_weight, std_weights in zip(models.keys(), mean_weights, std_weights):
-		print(f'{datetime.now() }--{name} : {mean_weight:.5f}+ {std_weights:.5f}')
-	print(f'{datetime.now() }--Overall OOF Preds AUC SCORE {roc_auc_score(y_train, y_train_pred)}')
+		print(f'{datetime.now()}--{name} : {mean_weight:.5f}+ {std_weights:.5f}')
+	print(f'{datetime.now()}--Overall OOF Preds AUC SCORE {roc_auc_score(y_train, y_train_pred)}')
 	print("__________________________________________________________________")
 	return test_predss
 
