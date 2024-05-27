@@ -209,6 +209,7 @@ class Preprocessor():
 		self.test_req = CFG.test_req
 		self.sub_f1 = pd.read_csv(os.path.join(CFG.path, 'sample_submission.csv'))
 		PrintColor(f"Data shapes - train-test-original | {self.train.shape} {self.test.shape} {self.original.shape}");
+		# 去除列columns中的特殊字符
 		for tbl in [self.train, self.original, self.test]:
 			tbl.columns = tbl.columns.str.replace(r"\(|\)|\s+", "", regex=True);
 
