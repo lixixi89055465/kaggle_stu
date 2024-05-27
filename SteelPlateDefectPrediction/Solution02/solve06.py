@@ -461,33 +461,33 @@ class Classifier:
 			# xgboost: http://xgboost.readthedocs.io/en/latest/model.html
 
 			# TODO new col
-			# 'xgb': xgb.XGBClassifier(**xgb_params),
+			'xgb': xgb.XGBClassifier(**xgb_params),
 			#            'xgb2': xgb.XGBClassifier(**xgb_params2),
 			#            'xgb3': xgb.XGBClassifier(**xgb_params3),
 			#            'xgb4': xgb.XGBClassifier(**xgb_params4),
-			#            'lgb': lgb.LGBMClassifier(**lgb_params),
+			           'lgb': lgb.LGBMClassifier(**lgb_params),
 			#             'lgb2': lgb.LGBMClassifier(**lgb_params2),
 			#             'lgb3': lgb.LGBMClassifier(**lgb_params3),
 			#             'lgb4': lgb.LGBMClassifier(**lgb_params4),
-			# 'cat': CatBoostClassifier(**cb_params),
+			'cat': CatBoostClassifier(**cb_params),
 			#            'cat2': CatBoostClassifier(**cb_params2),
 			#             'cat3': CatBoostClassifier(**cb_params3),
 			#             'cat4': CatBoostClassifier(**cb_params4),
-			# "cat_sym": CatBoostClassifier(**cb_sym_params),
-			#             "cat_loss": CatBoostClassifier(**cb_loss_params),
-			#             'hist_gbm' : HistGradientBoostingClassifier (max_iter=300, learning_rate=0.001,  max_leaf_nodes=80,
-			#            max_depth=6,random_state=self.random_state),#class_weight=class_weights_dict,
-			#             'gbdt': GradientBoostingClassifier(max_depth=6,  n_estimators=1000,random_state=self.random_state),
-			#             'lr': LogisticRegression(),
-			#             'rf': RandomForestClassifier(max_depth= 9,max_features= 'auto',min_samples_split= 10,
-			#                                                           min_samples_leaf= 4,  n_estimators=500,random_state=self.random_state),
+			"cat_sym": CatBoostClassifier(**cb_sym_params),
+			            "cat_loss": CatBoostClassifier(**cb_loss_params),
+			            'hist_gbm' : HistGradientBoostingClassifier (max_iter=300, learning_rate=0.001,  max_leaf_nodes=80,
+			           max_depth=6,random_state=self.random_state),#class_weight=class_weights_dict,
+			            'gbdt': GradientBoostingClassifier(max_depth=6,  n_estimators=1000,random_state=self.random_state),
+			            'lr': LogisticRegression(),
+			            'rf': RandomForestClassifier(max_depth= 9,max_features= 'auto',min_samples_split= 10,
+			                                                          min_samples_leaf= 4,  n_estimators=500,random_state=self.random_state),
 			'svc': SVC(gamma="auto", probability=True),
-			#             'knn': KNeighborsClassifier(n_neighbors=5),
-			#             'mlp': MLPClassifier(random_state=self.random_state, max_iter=1000),
-			#             'etr':ExtraTreesClassifier(min_samples_split=55, min_samples_leaf= 15, max_depth=10,
-			#                                        n_estimators=200,random_state=self.random_state),
-			#             'dt' :DecisionTreeClassifier(**dt_params,random_state=self.random_state),
-			#             'ada': AdaBoostClassifier(random_state=self.random_state),
+			            'knn': KNeighborsClassifier(n_neighbors=5),
+			            'mlp': MLPClassifier(random_state=self.random_state, max_iter=1000),
+			            'etr':ExtraTreesClassifier(min_samples_split=55, min_samples_leaf= 15, max_depth=10,
+			                                       n_estimators=200,random_state=self.random_state),
+			            'dt' :DecisionTreeClassifier(**dt_params,random_state=self.random_state),
+			            'ada': AdaBoostClassifier(random_state=self.random_state),
 		}
 		return models
 
@@ -657,7 +657,7 @@ for col in target:
 
 	count += 1
 	print(f'{datetime.now()}-- Columns {col} end ,loop # {count}')
-submission.to_csv('../input/submission_pure_4_1.csv', index=False)
+submission.to_csv('../input/submission_pure_6_1.csv', index=False)
 print(submission.head())
 
 sub1 = pd.read_csv("../input/multiclass-feature-engineering-thoughts/submission.csv")
@@ -686,5 +686,5 @@ def ensemble_mean(sub_list, cols, mean='AM'):
 
 
 sub_ensemble = ensemble_mean(weighted_list, target, mean='AM')
-sub_ensemble.to_csv('../input/submission_4_1.csv', index=False)
+sub_ensemble.to_csv('../input/submission_6_1.csv', index=False)
 print(sub_ensemble.head())
