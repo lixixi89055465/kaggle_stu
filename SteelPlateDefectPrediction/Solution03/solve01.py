@@ -291,6 +291,7 @@ class Preprocessor():
 		self.train.index = range(len(self.train))
 		_ = pp.train.drop(columns=CFG.targets + ['Source']).nunique()
 		self.cat_cols = _.loc[_ <= 10].index.to_list()
+		# 连续特征
 		self.cont_cols = [c for c in _.index if c not in self.cat_cols + ['Source']]
 		return self
 
