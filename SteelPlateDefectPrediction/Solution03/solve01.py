@@ -443,6 +443,7 @@ class FeaturePlotter(CFG, Preprocessor):
 							"Test": self.test[cont_cols],
 							"Original": self.original[cont_cols]
 							}.items():
+				#TODO 5-29
 				skew_df = \
 					pd.concat([skew_df,
 							   df.drop(columns=self.targets + ["Source", "id"], errors="ignore").skew()],
