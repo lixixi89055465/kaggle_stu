@@ -443,7 +443,7 @@ class FeaturePlotter(CFG, Preprocessor):
 							"Test": self.test[cont_cols],
 							"Original": self.original[cont_cols]
 							}.items():
-				#TODO 5-29
+				# TODO 5-29
 				skew_df = \
 					pd.concat([skew_df,
 							   df.drop(columns=self.targets + ["Source", "id"], errors="ignore").skew()],
@@ -725,7 +725,7 @@ class MdlDeveloper(CFG):
 		self.all_cv = {
 			'KF': KFold(n_splits=self.n_splits, shuffle=True, random_state=self.state),
 			'RKF': RKF(n_splits=self.n_splits, n_repeats=self.n_repeats, random_state=self.state),
-			#TODO 5-30
+			# TODO 5-30
 			'RSKF': RSKF(n_splits=self.n_splits, n_repeats=self.n_repeats, random_state=self.state),
 			'SKF': SKF(n_splits=self.n_splits, shuffle=True, random_state=self.state),
 			'SGKF': SGKF(n_splits=self.n_splits, shuffle=True, random_state=self.state)
@@ -738,15 +738,21 @@ class MdlDeveloper(CFG):
 					'objective': 'binary:logistic',
 					'eval_metric': 'auc',
 					'random_state': self.state,
-					'colsample_bytree': 0.25,
+					'colsample_bytree': 0.25,  # 构建弱学习器时，对特征随机采样的比例，默认值为1。
 					'learning_rate': 0.07,
 					'max_depth': 8,
 					'n_estimcator': 1100,
 					'reg_alpha': 0.7,
 					'reg_lambda': 0.7,
-					'min_child_weight': 22,
-					'early_stopping_rounds': self.nbrnd_erly_stp,
-					'verbosity': 0,
+					'min_child_weight': 22,  # 指定孩子节点中最小的样本权重和，
+					# 如果一个叶子节点的样本权重和小于min_child_weight则拆分过程结束，默认值为1。
+					'early_stopping_rounds': self.nbrnd_erly_stp,  # 指定迭代多少次没有得到优化则停止训练，
+					# 默认值为None，表示不提前停止训练。如果设置了此参数，则模型会生成三个属性：
+					# best_score, best_iteration, best_ntree_limit
+					# 注意：evals 必须非空才能生效，如果有多个数据集，则以最后一个数据集为准。
+					'verbosity': 0,  # 训练中是否打印每次训练的结果
+					# 开启参数verbosity，在数据巨大，预料到算法运行会非常缓慢的时候
+					# 可以使用这个参数来监控模型的训练进度
 					'enable_categorical': True
 				}),
 			'XGB2C': XGBC(**{
@@ -801,19 +807,26 @@ class MdlDeveloper(CFG):
 			'LGBM1C': LGBMC(**{
 				'device': 'gpu' if self.gpu_switch == 'ON' else 'cpu',
 				'objective': 'binary',
-				'boosting_type': 'gbdt',
-				'metric': 'auc',
+				'boosting_type': 'gbdt',  # 用于指定弱学习器的类型，默认值为 ‘gbdt’，
+				# 表示使用基于树的模型进行计算。
+				# 还可以选择为 ‘gblinear’ 表示使用线性模型作为弱学习器。
+				'metric': 'auc',  # 用于指定评估指标，可以传递各种评估方法组成的list。
 				'random_state': self.state,
-				'colsample_bytree': 0.56,
-				'subsample': 0.35,
+				'colsample_bytree': 0.56,  # 构建弱学习器时，对特征随机采样的比例，默认值为1。
+				'subsample': 0.35,  # 默认值1，指定采样出 subsample * n_samples 个样本用于训练弱学习器。
+				# 注意这里的子采样和随机森林不一样，随机森林使用的是放回抽样，而这里是不放回抽样。
+				# 取值在(0, 1)之间，
+				# 设置为1表示使用所有数据训练弱学习器。如果取值小于1，
+				# 则只有一部分样本会去做GBDT的决策树拟合。选择小于1的比例可以减少方差，即防止过拟合，
+				# 但是会增加样本拟合的偏差，因此取值不能太低。
 				'learning_rate': 0.05,
 				'max_depth': 6,
 				'n_estimators': 3000,
 				'num_leaves': 140,
-				'reg_alpha': 0.14,
-				'reg_lambda': 0.85,
+				'reg_alpha': 0.14,  # 正则化参数 L1正则化系数
+				'reg_lambda': 0.85,  # L2正则化系数
 				'verbosity': -1,
-				'categorical_feature': [f'name:{c}' for c in self.cat_cols]
+				'categorical_feature': [f'name:{c}' for c in self.cat_cols]  # 指定哪些是类别特征。
 			}),
 			'LGBM2C': LGBMC(**{'device': "gpu" if self.gpu_switch == "ON" else "cpu",
 							   'objective': 'binary',
@@ -872,9 +885,9 @@ class MdlDeveloper(CFG):
 				'task_type': 'GPU' if self.gpu_switch == 'ON' else 'CPU',
 				'objective': 'Logloss',
 				'eval_metric': 'AUC',
-				'bagging_temperature': 0.1,
+				'bagging_temperature': 0.1,#  贝叶斯套袋控制强度，区间[0, 1]。默认1
 				'colsample_bylevel': 0.88,
-				'iterations': 3000,
+				'iterations': 3000,# 最大树数。默认1000。
 				'learning_rate': 0.065,
 				'od_wait': 12,
 				'max_depth': 7,
@@ -1267,6 +1280,6 @@ if CFG.ML == 'Y':
 	pp.sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
 	OOF_Preds.to_csv(f'OOF_Preds_V{CFG.version_nb}.csv', index=False)
 	Mdl_Preds.to_csv(f'Mdl_Preds_V{CFG.version_nb}.csv', index=False)
-	# display(pp.sub_fl.head(10).style.set_caption(f"\nSubmission file\n").format(precision=3));
+# display(pp.sub_fl.head(10).style.set_caption(f"\nSubmission file\n").format(precision=3));
 print()
 collect()
