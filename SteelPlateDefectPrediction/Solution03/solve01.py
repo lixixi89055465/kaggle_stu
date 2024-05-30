@@ -885,18 +885,28 @@ class MdlDeveloper(CFG):
 				'task_type': 'GPU' if self.gpu_switch == 'ON' else 'CPU',
 				'objective': 'Logloss',
 				'eval_metric': 'AUC',
-				'bagging_temperature': 0.1,#  贝叶斯套袋控制强度，区间[0, 1]。默认1
+				'bagging_temperature': 0.1,  # 贝叶斯套袋控制强度，区间[0, 1]。默认1
 				'colsample_bylevel': 0.88,
-				'iterations': 3000,# 最大树数。默认1000。
+				'iterations': 3000,  # 最大树数。默认1000。
 				'learning_rate': 0.065,
-				'od_wait': 12,
+				'od_wait': 12,  # 与early_stopping_rounds部分相似，
+				# od_wait为达到最佳评估值后继续迭代的次数，
+				# 检测器为IncToDec时达到最佳评估值后继续迭代n次（n为od_wait参数值）；
+				# 检测器为Iter时达到最优评估值后停止，默认值20`
 				'max_depth': 7,
-				'l2_leaf_reg': 1.75,
-				'min_data_in_leaf': 25,
-				'random_strength': 0.1,
-				'max_bin': 100,
-				'verbose': 0,
-				'use_best_model': True
+				'l2_leaf_reg': 1.75,  # l2正则项，别名：reg_lambda
+				'min_data_in_leaf': 25,  # 叶子结点最小样本量
+				'random_strength': 0.1,  # 设置特征分裂信息增益的扰过拟合。
+				# 子树分裂时，正常会寻找最大信息增益的特征+分裂点进行分裂，
+				# 此处对每个特征+分裂点的信息增益值+扰动项后再确定最大值。扰动项服从正态分布、均值为0，
+				# random_strength参数值会作为正态分布的方差，默认值1、对应标准正态分布；设置0时则无扰动项
+				'max_bin': 100,  # 数值型特征的分箱数，别名max_bin，取值范围[1,65535]、默认值254（CPU下)
+				'verbose': 0,  # # 模型训练过程的信息输出等级，取值Silent（不输出信息）、
+				# Verbose（默认值，输出评估指标、已训练时间、剩余时间等）、
+				# Info（输出额外信息、树的棵树）、Debug（debug信息）
+				'use_best_model': True  # 让模型使用效果最优的子树棵树/迭代次数，
+				# 使用验证集的最优效果对应的迭代次数（eval_metric：评估指标，eval_set：验证集数据），
+				# 布尔类型可取值0，1（取1时要求设置验证集数据）
 			}),
 			"CB2C": CBC(**{'task_type': "GPU" if self.gpu_switch == "ON" else "CPU",
 						   'objective': 'Logloss',
