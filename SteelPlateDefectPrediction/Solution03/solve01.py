@@ -457,17 +457,17 @@ class FeaturePlotter(CFG, Preprocessor):
 
 print();
 collect();
-plotter = FeaturePlotter();
-plotter.MakeCatFtrePlots(cat_cols=pp.cat_cols)
+# plotter = FeaturePlotter();
+# plotter.MakeCatFtrePlots(cat_cols=pp.cat_cols)
 
 print(f"\n\n\n");
-plotter.MakeContColPlots(cont_cols=pp.cont_cols);
+# plotter.MakeContColPlots(cont_cols=pp.cont_cols);
 
 print(f"\n\n\n");
-plotter.MakeTgtPlot();
+# plotter.MakeTgtPlot();
 
 print(f"\n\n\n");
-plotter.CalcSkew(cont_cols=pp.cont_cols);
+# plotter.CalcSkew(cont_cols=pp.cont_cols);
 
 print();
 collect();
@@ -725,6 +725,7 @@ class MdlDeveloper(CFG):
 		self.all_cv = {
 			'KF': KFold(n_splits=self.n_splits, shuffle=True, random_state=self.state),
 			'RKF': RKF(n_splits=self.n_splits, n_repeats=self.n_repeats, random_state=self.state),
+			#TODO 5-30
 			'RSKF': RSKF(n_splits=self.n_splits, n_repeats=self.n_repeats, random_state=self.state),
 			'SKF': SKF(n_splits=self.n_splits, shuffle=True, random_state=self.state),
 			'SGKF': SGKF(n_splits=self.n_splits, shuffle=True, random_state=self.state)
