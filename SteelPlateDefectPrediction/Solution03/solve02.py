@@ -507,7 +507,6 @@ class Xformer(TransformerMixin, BaseEstimator):
 						df[col] = df[col].astype(np.int32)
 					elif c_min >= np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
 						df[col] = df[col].astype(np.int64)
-					df[col]=df[col].astype('category')
 				else:
 					if c_min >= np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
 						df[col] = df[col].astype(np.float16)
@@ -1053,7 +1052,7 @@ class MdlDeveloper(CFG):
 			mdl_preds = pd.DataFrame(columns=self.methods, index=Xt.index)
 			PrintColor(f"\n{' = ' * 5} Fold {fold_nb + 1} {' = ' * 5}\n")
 			# Initializing models across methods:-
-			for method in tqdm(self.methods):
+			for method in tqdm(self.methods[:1]):
 				model = Pipeline(steps=[('M', self.Mdl_Master.get(method))])
 				# Fitting the model:-
 				if 'CB' in method:
