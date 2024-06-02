@@ -165,6 +165,7 @@ class CFG:
 	pseudolbl_up = 0.975
 	pseudolbl_low = 0.00
 
+	# n_splits = 3 if test_req == 'Y' else 10
 	n_splits = 3 if test_req == 'Y' else 10
 	n_repeats = 1
 	nbrnd_erly_stp = 75
