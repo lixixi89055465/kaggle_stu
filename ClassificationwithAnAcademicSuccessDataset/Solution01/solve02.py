@@ -7,6 +7,7 @@
 # @Comment :
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
 train = pd.read_csv('../input/playground-series-s4e6/train.csv')
 # print(train.head())
@@ -65,7 +66,27 @@ def reduce_mem_usage(df):
 	print('Decreased by {:.1f}%'.format(100 * (start_mem - end_mem) / start_mem))
 	return df
 
+
 train = reduce_mem_usage(train)
 test = reduce_mem_usage(test)
 
-# from flaml
+from flaml import AutoML
+
+automl = AutoML()
+y = train.pop('Target')
+X = train
+print(f'{datetime.now()} automl start !')
+automl.fit(X, y, task='classification', metric='roc_auc_ovo', time_budget=3600 * 3)
+print(f'{datetime.now()} automl end !')
+
+y_pred = automl.predict(test)
+print('y_pred[:5]:')
+print(y_pred[:5])
+df = pd.DataFrame(y_pred, columns=['Target'])
+print('df.head():')
+print(df.head())
+
+sol = pd.read_csv('../input/playground-series-s4e6/sample_submission.csv')
+print('sol.head():')
+print(sol.head())
+sol.to_csv('./roc_auc_ovo.csv', index=False)
