@@ -280,4 +280,4 @@ train["Mother's qualification"] = train["Mother's qualification"].replace({
 	42: "Professional higher technical course",
 	43: "Higher Education - Master (2nd cycle)",
 	44: "Higher Education - Doctorate (3rd cycle)"})
-train["Mother's qualification"].value_counts()
+print(train["Mother's qualification"].value_counts())

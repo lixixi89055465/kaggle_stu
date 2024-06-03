@@ -8,6 +8,7 @@
 # Installing select libraries:-
 from gc import collect;
 from warnings import filterwarnings;
+from datetime import datetime
 
 filterwarnings('ignore');
 from IPython.display import display_html, clear_output;
@@ -417,8 +418,8 @@ class FeaturePlotter(CFG, Preprocessor):
 							   df.drop(columns=self.targets + ["Source", "id"], errors="ignore").skew()],
 							  axis=1).rename({0: col}, axis=1);
 
-			# PrintColor(f"\nSkewness across independent features\n");
-			# display(skew_df.transpose().style.format(precision=2).background_gradient("PuBuGn"));
+		# PrintColor(f"\nSkewness across independent features\n");
+		# display(skew_df.transpose().style.format(precision=2).background_gradient("PuBuGn"));
 
 
 # print();
@@ -763,28 +764,28 @@ class MdlDeveloper(CFG):
 				**{'device': "gpu" if self.gpu_switch == "ON" else "cpu",
 				   'objective': 'binary',
 				   'boosting_type': 'gbdt',  # 用于指定弱学习器的类型，默认值为 ‘gbdt’，
-				# 表示使用基于树的模型进行计算。
-				# 还可以选择为 ‘gblinear’ 表示使用线性模型作为弱学习器。
-				'metric': 'auc',  # 用于指定评估指标，可以传递各种评估方法组成的list。
-				'random_state': self.state,
+				   # 表示使用基于树的模型进行计算。
+				   # 还可以选择为 ‘gblinear’ 表示使用线性模型作为弱学习器。
+				   'metric': 'auc',  # 用于指定评估指标，可以传递各种评估方法组成的list。
+				   'random_state': self.state,
 				   'colsample_bytree': 0.56,
 				   # 构建弱学习器时，对特征随机采样的比例，默认值为1。
-				'subsample': 0.35,  # 默认值1，指定采样出 subsample * n_samples 个样本用于训练弱学习器。
-				# 注意这里的子采样和随机森林不一样，随机森林使用的是放回抽样，而这里是不放回抽样。
-				# 取值在(0, 1)之间，
-				# 设置为1表示使用所有数据训练弱学习器。如果取值小于1，
-				# 则只有一部分样本会去做GBDT的决策树拟合。选择小于1的比例可以减少方差，即防止过拟合，
-				# 但是会增加样本拟合的偏差，因此取值不能太低。
-				'learning_rate': 0.05,
-				'max_depth': 6,
-				'n_estimators': 3000,
-				'num_leaves': 140,
-				'reg_alpha': 0.14,  # 正则化参数 L1正则化系数
-				'reg_lambda': 0.85,  # L2正则化系数
-				'verbosity': -1,
-				'categorical_feature': [f'name: {c}' for c in self.cat_cols]
+				   'subsample': 0.35,  # 默认值1，指定采样出 subsample * n_samples 个样本用于训练弱学习器。
+				   # 注意这里的子采样和随机森林不一样，随机森林使用的是放回抽样，而这里是不放回抽样。
+				   # 取值在(0, 1)之间，
+				   # 设置为1表示使用所有数据训练弱学习器。如果取值小于1，
+				   # 则只有一部分样本会去做GBDT的决策树拟合。选择小于1的比例可以减少方差，即防止过拟合，
+				   # 但是会增加样本拟合的偏差，因此取值不能太低。
+				   'learning_rate': 0.05,
+				   'max_depth': 6,
+				   'n_estimators': 3000,
+				   'num_leaves': 140,
+				   'reg_alpha': 0.14,  # 正则化参数 L1正则化系数
+				   'reg_lambda': 0.85,  # L2正则化系数
+				   'verbosity': -1,
+				   'categorical_feature': [f'name: {c}' for c in self.cat_cols]
 				   # 指定哪些是类别特征。
-			}),
+				   }),
 			'LGBM2C': LGBMC(**{'device': "gpu" if self.gpu_switch == "ON" else "cpu",
 							   'objective': 'binary',
 							   'boosting_type': 'gbdt',
@@ -986,6 +987,7 @@ class MdlDeveloper(CFG):
 			# PrintColor(f"\n{'=' * 5} FOLD {fold_nb + 1} {'=' * 5}\n");
 			# Initializing models across methods:-
 			for method in tqdm(self.methods):
+				print(f'{datetime.now()} : {fold_nb} fold - {method} method  start')
 				model = Pipeline(steps=[("M", self.Mdl_Master.get(method))]);
 
 				# Fitting the model:-
@@ -1031,7 +1033,7 @@ class MdlDeveloper(CFG):
 				# Integrating the predictions and scores:-
 				self.Scores.at[fold_nb, method] = np.round(score, decimals=6);
 				self.TrainScores.at[fold_nb, method] = np.round(tr_score, decimals=6);
-
+				print(f'{datetime.now()} : {fold_nb} fold - {method} method  end')
 				if test_preds_req == "Y":
 					mdl_preds[method] = \
 						self.PostProcessPred(model.predict_proba(Xt.drop(columns=cols_drop, errors="ignore")));
@@ -1084,47 +1086,47 @@ class MdlDeveloper(CFG):
 		This method makes plots for the ML models, including feature importance and calibration curves
 		""";
 
-		fig, axes = plt.subplots(len(self.methods), 2, figsize=(35, len(self.methods) * 10),
-								 gridspec_kw={'hspace': 0.6, 'wspace': 0.2},
-								 width_ratios=[0.75, 0.25],
-								 );
-
-		for i, col in enumerate(self.methods):
-			try:
-				ax = axes[i, 0];
-			except:
-				ax = axes[0];
-
-			self.FtreImp[col].plot.bar(ax=ax, color='#0073e6');
-			ax.set_title(f"{col} Importances", **CFG.title_specs);
-			ax.set(xlabel='', ylabel='');
-
-			try:
-				ax = axes[i, 1];
-			except:
-				ax = axes[1];
-
-			Clb.from_predictions(self.ytrain[0:len(self.OOF_Preds)],
-								 self.OOF_Preds[col],
-								 n_bins=20,
-								 ref_line=True,
-								 **{'color': '#0073e6', 'linewidth': 1.2,
-									'markersize': 3.75, 'marker': 'o', 'markerfacecolor': '#cc7a00'},
-								 ax=ax
-								 );
-			ax.set_title(f"{col} Calibration", **CFG.title_specs);
-			ax.set(xlabel='', ylabel='', );
-			ax.set_yticks(np.arange(0, 1.01, 0.05),
-						  labels=np.round(np.arange(0, 1.01, 0.05), 2), fontsize=7.0);
-			ax.set_xticks(np.arange(0, 1.01, 0.05),
-						  labels=np.round(np.arange(0, 1.01, 0.05), 2),
-						  fontsize=6.25,
-						  rotation=90
-						  );
-			ax.legend('');
-
-		plt.tight_layout();
-		plt.show();
+	# fig, axes = plt.subplots(len(self.methods), 2, figsize=(35, len(self.methods) * 10),
+	# 						 gridspec_kw={'hspace': 0.6, 'wspace': 0.2},
+	# 						 width_ratios=[0.75, 0.25],
+	# 						 );
+	#
+	# for i, col in enumerate(self.methods):
+	# 	try:
+	# 		ax = axes[i, 0];
+	# 	except:
+	# 		ax = axes[0];
+	#
+	# 	self.FtreImp[col].plot.bar(ax=ax, color='#0073e6');
+	# 	ax.set_title(f"{col} Importances", **CFG.title_specs);
+	# 	ax.set(xlabel='', ylabel='');
+	#
+	# 	try:
+	# 		ax = axes[i, 1];
+	# 	except:
+	# 		ax = axes[1];
+	#
+	# 	Clb.from_predictions(self.ytrain[0:len(self.OOF_Preds)],
+	# 						 self.OOF_Preds[col],
+	# 						 n_bins=20,
+	# 						 ref_line=True,
+	# 						 **{'color': '#0073e6', 'linewidth': 1.2,
+	# 							'markersize': 3.75, 'marker': 'o', 'markerfacecolor': '#cc7a00'},
+	# 						 ax=ax
+	# 						 );
+	# 	ax.set_title(f"{col} Calibration", **CFG.title_specs);
+	# 	ax.set(xlabel='', ylabel='', );
+	# 	ax.set_yticks(np.arange(0, 1.01, 0.05),
+	# 				  labels=np.round(np.arange(0, 1.01, 0.05), 2), fontsize=7.0);
+	# 	ax.set_xticks(np.arange(0, 1.01, 0.05),
+	# 				  labels=np.round(np.arange(0, 1.01, 0.05), 2),
+	# 				  fontsize=6.25,
+	# 				  rotation=90
+	# 				  );
+	# 	ax.legend('');
+	#
+	# plt.tight_layout();
+	# plt.show();
 
 
 print();
@@ -1224,7 +1226,7 @@ if CFG.ML == "Y":
 		pp.sub_fl[col] = 1 - Mdl_Preds.loc[Mdl_Preds.Target == col, "Ensemble"].values;
 
 	# Blending with public work:-
-	sub1 = pd.read_csv(f"/kaggle/input/playgrounds4e03ancillary/89652_submission.csv")[CFG.targets];
+	sub1 = pd.read_csv(f"../input/playgrounds4e03ancillary/89652_submission.csv")[CFG.targets];
 
 	pp.sub_fl[CFG.targets] = pp.sub_fl[CFG.targets].values * 0.10 + sub1 * 0.90;
 
@@ -1232,7 +1234,7 @@ if CFG.ML == "Y":
 	OOF_Preds.to_csv(f"OOF_Preds_V{CFG.version_nb}.csv", index=False);
 	Mdl_Preds.to_csv(f"Mdl_Preds_V{CFG.version_nb}.csv", index=False);
 
-	display(pp.sub_fl.head(10).style.set_caption(f"\nSubmission file\n").format(precision=3));
+# display(pp.sub_fl.head(10).style.set_caption(f"\nSubmission file\n").format(precision=3));
 
 print();
 collect();
