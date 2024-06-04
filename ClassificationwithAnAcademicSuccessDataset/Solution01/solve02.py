@@ -5,7 +5,7 @@
 # @File : solve02.py
 # @Software: PyCharm 
 # @Comment :
-from sklearn.pipeline import Pipeline,make_pipeline
+from sklearn.pipeline import Pipeline, make_pipeline
 from tqdm.notebook import tqdm
 import numpy as np
 import pandas as pd
@@ -14,6 +14,7 @@ import optuna
 from optuna import Trial, trial, create_study
 from optuna.pruners import HyperbandPruner
 from optuna.samplers import TPESampler, CmaEsSampler
+
 optuna.logging.set_verbosity = optuna.logging.ERROR
 from functools import partial
 
@@ -529,14 +530,14 @@ class MdlDeveloper(CFG):
 			'HGB1C': HGBC(
 				loss='log_loss',
 				learning_rate=0.06,
-				max_iter=800,# boosting过程的最大迭代次数，即二分类的最大树数。对于多类分类，每次迭代都会构建n_classes 树。
-				max_depth=6,# 每棵树的最大深度。树的深度是从根到最深叶的边数。默认情况下，深度不受限制。。
-				min_samples_leaf=12,# 每片叶子的最小样本数。对于少于几百个样本的小型数据集，
+				max_iter=800,  # boosting过程的最大迭代次数，即二分类的最大树数。对于多类分类，每次迭代都会构建n_classes 树。
+				max_depth=6,  # 每棵树的最大深度。树的深度是从根到最深叶的边数。默认情况下，深度不受限制。。
+				min_samples_leaf=12,  # 每片叶子的最小样本数。对于少于几百个样本的小型数据集，
 				# 建议降低此值，因为只会构建非常浅的树。
-				l2_regularization=1.15,# L2 正则化参数。使用 0 表示不进行正则化。
-				validation_fraction=0.1,# 留出作为提前停止验证数据的训练数据的比例(或绝对大小)。
+				l2_regularization=1.15,  # L2 正则化参数。使用 0 表示不进行正则化。
+				validation_fraction=0.1,  # 留出作为提前停止验证数据的训练数据的比例(或绝对大小)。
 				# 如果没有，则对训练数据进行提前停止。仅在执行提前停止时使用。
-				n_iter_no_change=self.nbrnd_erly_stp,# 用于确定何时“early stop”。
+				n_iter_no_change=self.nbrnd_erly_stp,  # 用于确定何时“early stop”。
 				# 当最后一个 n_iter_no_change 分数都没有优于 n_iter_no_change - 1 -th-to-last 分数时，
 				# 拟合过程将停止，达到一定的容差。仅在执行提前停止时使用
 				random_state=self.state
@@ -562,7 +563,7 @@ class MdlDeveloper(CFG):
 		:param y_pred:
 		:return:
 		'''
-		return roc_auc_score(ytrue, ypred)
+		return roc_auc_score(ytrue, ypred, multi_class='ovr')
 
 	def ClbMetric(self, ytrue, ypred):
 		'''
@@ -595,7 +596,7 @@ class MdlDeveloper(CFG):
 		'''
 		# Initializing I-O :-
 		X, y, Xt = self.Xtrain[self.sel_cols], \
-				   self.ytrain.copy(deep=True), \
+				   self.ytrain.copy(), \
 				   self.Xtest[self.sel_cols]
 		cols_drop = [
 			'Source', 'id', 'Sum_of_Luminosity', \
@@ -652,7 +653,7 @@ class MdlDeveloper(CFG):
 											train_preds)
 				score = self.ScoreMetric(ydev.values.flatten(), dev_preds)
 				# PrintColor(f'OOF={score:.5f} | train = {tr_score:.5f} | {method}', color=Fore.CYAN)
-				oof_preds[method] = dev_preds#TODO importance
+				oof_preds[method] = dev_preds  # TODO importance
 				# Integrating the predictions and scores:-
 				self.Scores.at[fold_nb, method] = np.round(score, decimals=6)
 				self.TrainScores.at[fold_nb, method] = np.round(tr_score, decimals=6)
@@ -710,23 +711,30 @@ class MdlDeveloper(CFG):
 		'''
 		pass
 
+
+from sklearn.preprocessing import LabelEncoder
+
 # pp = Preprocessor();
 # pp.DoPreprocessing();
-target='Target'
-cols_drop=['id','Target']
-ytrain= train[CFG.targets]
-train=train.drop(cols_drop,axis=1)
+target = 'Target'
+cols_drop = ['id', 'Target']
+ytrain = train[CFG.targets]
+label = LabelEncoder()
+ytrain = label.fit_transform(ytrain)
+ytrain = pd.DataFrame(ytrain).astype(np.int8)
+
+train = train.drop(cols_drop, axis=1)
 sel_cols = train.columns
-print('2'*100)
+print('2' * 100)
 print(train.nunique())
-featureCount=train.nunique()
-cat_ftre=featureCount.loc[featureCount<=10].index.to_list()
-cont_cols=[c for c in featureCount.index if c not in cat_ftre]
+featureCount = train.nunique()
+cat_ftre = featureCount.loc[featureCount <= 10].index.to_list()
+cont_cols = [c for c in featureCount.index if c not in cat_ftre]
 
 if CFG.ML == 'Y':
 	OOF_Preds, Mdl_Preds, Scores, TrainScores = pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
-	md=MdlDeveloper(train, ytrain,ytrain,test, sel_cols=sel_cols, cat_cols=cat_ftre, enc_cols=[])
-	oof_preds, mdl_preds, scores, trainscores = md.TrainMdl( test_preds_req='Y',  target=target)
+	md = MdlDeveloper(train, ytrain, ytrain, test, sel_cols=sel_cols, cat_cols=cat_ftre, enc_cols=[])
+	oof_preds, mdl_preds, scores, trainscores = md.TrainMdl(test_preds_req='Y', target=target)
 	OOF_Preds = pd.concat([oof_preds.assign(Target=target), OOF_Preds], \
 						  axis=0, \
 						  ignore_index=False)
@@ -740,23 +748,16 @@ if CFG.ML == 'Y':
 							axis=0, \
 							ignore_index=True)
 
-
 if CFG.ML == 'Y':
 	# for col in CFG.targets:
-	sub_f1= 1 - Mdl_Preds.loc[Mdl_Preds.Target == 'target', 'Ensemble '].values
+	sub_f1 = 1 - Mdl_Preds.loc[Mdl_Preds.Target == 'target', 'Ensemble '].values
 	# sub1 = pd.read_csv(f'../input/playgrounds4e03ancillary/89652_submission.csv')[CFG.targets]
 	# pp.sub_f1[CFG.targets] = pp.sub_f1[CFG.targets].values * 0.1 + sub1 * 0.9
 	#
 	# pp.sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
 	sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
-	# OOF_Preds.to_csv(f'OOF_Preds_V{CFG.version_nb}.csv', index=False)
-	# Mdl_Preds.to_csv(f'Mdl_Preds_V{CFG.version_nb}.csv', index=False)
-
-
-
-
-
-
+# OOF_Preds.to_csv(f'OOF_Preds_V{CFG.version_nb}.csv', index=False)
+# Mdl_Preds.to_csv(f'Mdl_Preds_V{CFG.version_nb}.csv', index=False)
 
 # from flaml import AutoML
 #
