@@ -304,30 +304,31 @@ class MdlDeveloper(CFG):
 			'SGKF': SGKF(n_splits=self.n_splits, shuffle=True, random_state=self.state)
 		}
 		self.Mdl_Master = {
-			'XGB1C': XGBC(
-				**{
-					'tree_method': 'hist',
-					'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
-					'objective': 'binary:logistic',
-					'eval_metric': 'auc',
-					'random_state': self.state,
-					'colsample_bytree': 0.25,  # 构建弱学习器时，对特征随机采样的比例，默认值为1。
-					'learning_rate': 0.07,
-					'max_depth': 8,
-					'n_estimcator': 1100,
-					'reg_alpha': 0.7,
-					'reg_lambda': 0.7,
-					'min_child_weight': 22,  # 指定孩子节点中最小的样本权重和，
-					# 如果一个叶子节点的样本权重和小于min_child_weight则拆分过程结束，默认值为1。
-					'early_stopping_rounds': self.nbrnd_erly_stp,  # 指定迭代多少次没有得到优化则停止训练，
-					# 默认值为None，表示不提前停止训练。如果设置了此参数，则模型会生成三个属性：
-					# best_score, best_iteration, best_ntree_limit
-					# 注意：evals 必须非空才能生效，如果有多个数据集，则以最后一个数据集为准。
-					'verbosity': 0,  # 训练中是否打印每次训练的结果
-					# 开启参数verbosity，在数据巨大，预料到算法运行会非常缓慢的时候
-					# 可以使用这个参数来监控模型的训练进度
-					'enable_categorical': True
-				}),
+			'ada': ensemble.AdaBoostClassifier(),
+			# 'XGB1C': XGBC(
+			# 	**{
+			# 		'tree_method': 'hist',
+			# 		'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
+			# 		'objective': 'binary:logistic',
+			# 		'eval_metric': 'auc',
+			# 		'random_state': self.state,
+			# 		'colsample_bytree': 0.25,  # 构建弱学习器时，对特征随机采样的比例，默认值为1。
+			# 		'learning_rate': 0.07,
+			# 		'max_depth': 8,
+			# 		'n_estimcator': 1100,
+			# 		'reg_alpha': 0.7,
+			# 		'reg_lambda': 0.7,
+			# 		'min_child_weight': 22,  # 指定孩子节点中最小的样本权重和，
+			# 		# 如果一个叶子节点的样本权重和小于min_child_weight则拆分过程结束，默认值为1。
+			# 		'early_stopping_rounds': self.nbrnd_erly_stp,  # 指定迭代多少次没有得到优化则停止训练，
+			# 		# 默认值为None，表示不提前停止训练。如果设置了此参数，则模型会生成三个属性：
+			# 		# best_score, best_iteration, best_ntree_limit
+			# 		# 注意：evals 必须非空才能生效，如果有多个数据集，则以最后一个数据集为准。
+			# 		'verbosity': 0,  # 训练中是否打印每次训练的结果
+			# 		# 开启参数verbosity，在数据巨大，预料到算法运行会非常缓慢的时候
+			# 		# 可以使用这个参数来监控模型的训练进度
+			# 		'enable_categorical': True
+			# 	}),
 			# 'XGB2C': XGBC(**{
 			# 	'tree_method': 'hist',
 			# 	'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
@@ -668,23 +669,23 @@ class MdlDeveloper(CFG):
 					mdl_preds[method] = self.PostProcessPred(model.predict_proba(Xt.drop(columns=cols_drop,
 																						 errors='ignore')))
 				print(f'{datetime.now()}; fold: { fold_nb} ; method :{method}  end ')
-		try:
-			del dev_preds, train_preds, tr_score, score
-		except:
-			pass
-		# Ensembling the predictions:-
-		oof_preds['Ensemble'] = ens.fit_predict(ydev, oof_preds[self.methods])
-		score = self.ScoreMetric(ydev, oof_preds['Ensemble'].values)
-		self.OOF_Preds = pd.concat([self.OOF_Preds, oof_preds], axis=0, ignore_index=False)
-		self.Scores.at[fold_nb, 'Ensemble'] = np.round(score, 6)
-		if test_preds_req == 'Y':
-			mdl_preds['Ensemble'] = ens.predict(mdl_preds[method])
-			self.Mdl_Preds = pd.concat([self.Mdl_Preds, mdl_preds], axis=1, ignore_index=False)
+			try:
+				del dev_preds, train_preds, tr_score, score
+			except:
+				pass
+			# Ensembling the predictions:-
+			oof_preds['Ensemble'] = ens.fit_predict(ydev, oof_preds[self.methods])
+			score = self.ScoreMetric(ydev, oof_preds['Ensemble'].values)
+			self.OOF_Preds = pd.concat([self.OOF_Preds, oof_preds], axis=0, ignore_index=False)
+			self.Scores.at[fold_nb, 'Ensemble'] = np.round(score, 6)
+			if test_preds_req == 'Y':
+				mdl_preds['Ensemble'] = ens.predict(mdl_preds[method])
+				self.Mdl_Preds = pd.concat([self.Mdl_Preds, mdl_preds], axis=1, ignore_index=False)
 		# Averaging the predictions afeter all folds:-
 		self.OOF_Preds = self.OOF_Preds.groupby(level=0).mean()
 		if test_preds_req == 'Y':
 			self.Mdl_Preds = self.Mdl_Preds[self.methods + ['Ensemble']].groupby(level=0).mean()
-		return self.OOF_Preds, self.Mdl_Preds, self.Scores, self.TrainScores
+		return self.OOF_Preds['Ensemble'].astype(np.int8), self.Mdl_Preds, self.Scores, self.TrainScores
 
 	def MakePseudoLbl(self, up_cutoff: float, low_cutoff: float, **kwargs):
 		"""
@@ -743,9 +744,11 @@ if CFG.ML == 'Y':
 	OOF_Preds, Mdl_Preds, Scores, TrainScores = pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 	md = MdlDeveloper(train, ytrain, ytrain, test, sel_cols=sel_cols, cat_cols=cat_ftre, enc_cols=[])
 	oof_preds, mdl_preds, scores, trainscores = md.TrainMdl(test_preds_req='Y', target=target)
-	OOF_Preds = pd.concat([oof_preds.assign(Target=target), OOF_Preds], \
-						  axis=0, \
-						  ignore_index=False)
+	print(oof_preds)
+	# OOF_Preds = pd.concat([oof_preds.assign(Target=target), OOF_Preds], \
+	# 					  axis=0, \
+	# 					  ignore_index=False)
+	OOF_Preds=pd.DataFrame({"id":test.id,"target":OOF_Preds})
 	Mdl_Preds = pd.concat([mdl_preds.assign(Target=target), Mdl_Preds], \
 						  axis=0, \
 						  ignore_index=False)
@@ -755,15 +758,18 @@ if CFG.ML == 'Y':
 	TrainScores = pd.concat([trainscores.assign(Target=target), TrainScores], \
 							axis=0, \
 							ignore_index=True)
+	sub_f1=pd.DataFrame({'id':test['id'],'target':Mdl_Preds})
+	sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
 
-if CFG.ML == 'Y':
+# if CFG.ML == 'Y':
+	# sub_f1=pd.DataFrame({'id':test['id'],'target':MDL_Preds })
 	# for col in CFG.targets:
-	sub_f1 = 1 - Mdl_Preds.loc[Mdl_Preds.Target == 'Target', 'Ensemble']
+	# sub_f1 = 1 - Mdl_Preds.loc[Mdl_Preds.Target == 'Target', 'Ensemble']
 	# sub1 = pd.read_csv(f'../input/playgrounds4e03ancillary/89652_submission.csv')[CFG.targets]
 	# pp.sub_f1[CFG.targets] = pp.sub_f1[CFG.targets].values * 0.1 + sub1 * 0.9
 	#
 	# pp.sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
-	sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
+	# sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
 # OOF_Preds.to_csv(f'OOF_Preds_V{CFG.version_nb}.csv', index=False)
 # Mdl_Preds.to_csv(f'Mdl_Preds_V{CFG.version_nb}.csv', index=False)
 
