@@ -172,9 +172,9 @@ class OptunaEnsembler:
 		:param ypred:
 		:return:
 		'''
-		return roc_auc_score(ytrue, ypred)
+		return accuracy_score(ytrue, ypred)
 
-	def _object(self, trial, y_true, y_preds):
+	def _objective(self, trial, y_true, y_preds):
 		''''
         This method defines the objective function for the ensemble
 		'''
@@ -199,7 +199,7 @@ class OptunaEnsembler:
 		'''
 		optuna.logging.set_verbosity = optuna.logging.ERROR
 		self.study = optuna.create_study(
-			sampler=TPESampler(self=self.random_state),
+			sampler=TPESampler(seed=self.random_state),
 			pruner=HyperbandPruner(),
 			study_name='Ensemble',
 			direction=self.direction
@@ -223,7 +223,7 @@ class OptunaEnsembler:
 		if isinstance(y_preds, list):
 			weighted_pred = np.average(np.array(y_preds), axis=0, weights=self.weights)
 		else:
-			weighted_pred = np.average(np.array(y_preds), axis=1, weights=self.weights)
+			weighted_pred = np.average(np.array(y_preds).reshape(-1,1), axis=1, weights=self.weights)
 		return weighted_pred
 
 	def fit_predict(self, y_true, y_pres):
@@ -232,7 +232,11 @@ class OptunaEnsembler:
 
 	def weights(self):
 		return self.weights
-
+# Machine Learning Algorithm (MLA) Selection and Initialization
+from sklearn import ensemble, gaussian_process, \
+	linear_model, naive_bayes, \
+	neighbors, svm, tree, discriminant_analysis
+from xgboost import XGBClassifier
 
 class MdlDeveloper(CFG):
 	'''
@@ -324,235 +328,235 @@ class MdlDeveloper(CFG):
 					# 可以使用这个参数来监控模型的训练进度
 					'enable_categorical': True
 				}),
-			'XGB2C': XGBC(**{
-				'tree_method': 'hist',
-				'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
-				'eval_metric': 'auc',
-				'random_state': self.state,
-				'colsample_bytree': 0.4,
-				'learning_rate': 0.06,
-				'max_depth': 9,
-				'n_estimator': 2500,
-				'reg_alpha': 0.12,
-				'reg_lambda': 0.8,
-				'min_child_weight': 15,
-				'early_stopping_rounds': self.nbrnd_erly_stp,
-				'verbosity': 0,
-				'enable_categorical': True,
-			}),
-			'XGB3C': XGBC(**{
-				'tree_method': 'hist',
-				'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
-				'objective': 'binary:logistic',
-				'eval_metric': 'auc',
-				'random_state': self.state,
-				'colsample_bytree': 0.5,
-				'learning_rate': 0.055,
-				'max_depth': 9,
-				'n_estimator': 3000,
-				'reg_alpha': .2,
-				'reg_lambda': 0.6,
-				'min_child_weight': 25,
-				'early_stopping_rounds': CFG.nbrnd_erly_stp,
-				'verbosity': 0,
-				'enable_categorical': True,
-			}),
-			'XGB4C': XGBC(**{
-				'tree_method': 'hist',
-				'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
-				'eval_metric': 'auc',
-				'random_state': self.state,
-				'colsample_bytree': 0.8,
-				'learning_rate': 0.082,
-				'max_depth': 7,
-				'n_estimator': 2000,
-				'reg_alpha': 0.005,
-				'reg_lambda': 0.95,
-				'min_child_weight': 26,
-				'early_stopping_round': self.nbrnd_erly_stp,
-				'verbosity': 0,
-				'enable_categorical': True
-			}),
-			'LGBM1C': LGBMC(**{
-				'device': 'gpu' if self.gpu_switch == 'ON' else 'cpu',
-				'objective': 'binary',
-				'boosting_type': 'gbdt',  # 用于指定弱学习器的类型，默认值为 ‘gbdt’，
-				# 表示使用基于树的模型进行计算。
-				# 还可以选择为 ‘gblinear’ 表示使用线性模型作为弱学习器。
-				'metric': 'auc',  # 用于指定评估指标，可以传递各种评估方法组成的list。
-				'random_state': self.state,
-				'colsample_bytree': 0.56,  # 构建弱学习器时，对特征随机采样的比例，默认值为1。
-				'subsample': 0.35,  # 默认值1，指定采样出 subsample * n_samples 个样本用于训练弱学习器。
-				# 注意这里的子采样和随机森林不一样，随机森林使用的是放回抽样，而这里是不放回抽样。
-				# 取值在(0, 1)之间，
-				# 设置为1表示使用所有数据训练弱学习器。如果取值小于1，
-				# 则只有一部分样本会去做GBDT的决策树拟合。选择小于1的比例可以减少方差，即防止过拟合，
-				# 但是会增加样本拟合的偏差，因此取值不能太低。
-				'learning_rate': 0.05,
-				'max_depth': 6,
-				'n_estimators': 3000,
-				'num_leaves': 140,
-				'reg_alpha': 0.14,  # 正则化参数 L1正则化系数
-				'reg_lambda': 0.85,  # L2正则化系数
-				'verbosity': -1,
-				'categorical_feature': [f'name:{c}' for c in self.cat_cols]  # 指定哪些是类别特征。
-			}),
-			'LGBM2C': LGBMC(**{'device': "gpu" if self.gpu_switch == "ON" else "cpu",
-							   'objective': 'binary',
-							   'boosting_type': 'gbdt',
-							   'data_sample_strategy': "goss",
-							   'metric': "auc",
-							   'random_state': self.state,
-							   'colsample_bytree': 0.20,
-							   'subsample': 0.25,
-							   'learning_rate': 0.10,
-							   'max_depth': 7,
-							   'n_estimators': 3000,
-							   'num_leaves': 120,
-							   'reg_alpha': 0.15,
-							   'reg_lambda': 0.90,
-							   'verbosity': -1,
-							   'categorical_feature': [f"name: {c}" for c in self.cat_cols],
-							   }
-							),
-
-			'LGBM3C': LGBMC(**{'device': "gpu" if CFG.gpu_switch == "ON" else "cpu",
-							   'objective': 'binary',
-							   'boosting_type': 'gbdt',
-							   'metric': "auc",
-							   'random_state': self.state,
-							   'colsample_bytree': 0.45,
-							   'subsample': 0.45,
-							   'learning_rate': 0.06,
-							   'max_depth': 6,
-							   'n_estimators': 3000,
-							   'num_leaves': 125,
-							   'reg_alpha': 0.05,
-							   'reg_lambda': 0.95,
-							   'verbosity': -1,
-							   'categorical_feature': [f"name: {c}" for c in self.cat_cols],
-							   }
-							),
-
-			'LGBM4C': LGBMC(**{'device': "gpu" if self.gpu_switch == "ON" else "cpu",
-							   'objective': 'binary',
-							   'boosting_type': 'gbdt',
-							   'metric': "auc",
-							   'random_state': self.state,
-							   'colsample_bytree': 0.55,
-							   'subsample': 0.55,
-							   'learning_rate': 0.085,
-							   'max_depth': 7,
-							   'n_estimators': 3000,
-							   'num_leaves': 105,
-							   'reg_alpha': 0.08,
-							   'reg_lambda': 0.995,
-							   'verbosity': -1,
-							   }
-							),
-			'CB1C': CBC(**{
-				'task_type': 'GPU' if self.gpu_switch == 'ON' else 'CPU',
-				'objective': 'Logloss',
-				'eval_metric': 'AUC',
-				'bagging_temperature': 0.1,  # 贝叶斯套袋控制强度，区间[0, 1]。默认1
-				'colsample_bylevel': 0.88,
-				'iterations': 3000,  # 最大树数。默认1000。
-				'learning_rate': 0.065,
-				'od_wait': 12,  # 与early_stopping_rounds部分相似，
-				# od_wait为达到最佳评估值后继续迭代的次数，
-				# 检测器为IncToDec时达到最佳评估值后继续迭代n次（n为od_wait参数值）；
-				# 检测器为Iter时达到最优评估值后停止，默认值20`
-				'max_depth': 7,
-				'l2_leaf_reg': 1.75,  # l2正则项，别名：reg_lambda
-				'min_data_in_leaf': 25,  # 叶子结点最小样本量
-				'random_strength': 0.1,  # 设置特征分裂信息增益的扰过拟合。
-				# 子树分裂时，正常会寻找最大信息增益的特征+分裂点进行分裂，
-				# 此处对每个特征+分裂点的信息增益值+扰动项后再确定最大值。扰动项服从正态分布、均值为0，
-				# random_strength参数值会作为正态分布的方差，默认值1、对应标准正态分布；设置0时则无扰动项
-				'max_bin': 100,  # 数值型特征的分箱数，别名max_bin，取值范围[1,65535]、默认值254（CPU下)
-				'verbose': 0,  # # 模型训练过程的信息输出等级，取值Silent（不输出信息）、
-				# Verbose（默认值，输出评估指标、已训练时间、剩余时间等）、
-				# Info（输出额外信息、树的棵树）、Debug（debug信息）
-				'use_best_model': True  # 让模型使用效果最优的子树棵树/迭代次数，
-				# 使用验证集的最优效果对应的迭代次数（eval_metric：评估指标，eval_set：验证集数据），
-				# 布尔类型可取值0，1（取1时要求设置验证集数据）
-			}),
-			"CB2C": CBC(**{'task_type': "GPU" if self.gpu_switch == "ON" else "CPU",
-						   'objective': 'Logloss',
-						   'eval_metric': "AUC",
-						   'bagging_temperature': 0.5,
-						   'colsample_bylevel': 0.50,
-						   'iterations': 2500,
-						   'learning_rate': 0.04,
-						   'od_wait': 24,
-						   'max_depth': 8,
-						   'l2_leaf_reg': 1.235,
-						   'min_data_in_leaf': 25,
-						   'random_strength': 0.35,
-						   'max_bin': 160,
-						   'verbose': 0,
-						   'use_best_model': True,
-						   }
-						),
-			"CB3C": CBC(**{'task_type': "GPU" if self.gpu_switch == "ON" else "CPU",
-						   'objective': 'Logloss',
-						   'eval_metric': "AUC",
-						   'bagging_temperature': 0.2,
-						   'colsample_bylevel': 0.85,
-						   'iterations': 2500,
-						   'learning_rate': 0.025,
-						   'od_wait': 10,
-						   'max_depth': 7,
-						   'l2_leaf_reg': 1.235,
-						   'min_data_in_leaf': 8,
-						   'random_strength': 0.60,
-						   'max_bin': 160,
-						   'verbose': 0,
-						   'use_best_model': True,
-						   }
-						),
-			"CB4C": CBC(**{'task_type': "GPU" if self.gpu_switch == "ON" else "CPU",
-						   'objective': 'Logloss',
-						   'eval_metric': "AUC",
-						   'grow_policy': 'Lossguide',
-						   'colsample_bylevel': 0.25,
-						   'iterations': 2500,
-						   'learning_rate': 0.035,
-						   'od_wait': 24,
-						   'max_depth': 7,
-						   'l2_leaf_reg': 1.80,
-						   'random_strength': 0.60,
-						   'max_bin': 160,
-						   'verbose': 0,
-						   'use_best_model': True,
-						   }
-						),
-			'HGB1C': HGBC(
-				loss='log_loss',
-				learning_rate=0.06,
-				max_iter=800,  # boosting过程的最大迭代次数，即二分类的最大树数。对于多类分类，每次迭代都会构建n_classes 树。
-				max_depth=6,  # 每棵树的最大深度。树的深度是从根到最深叶的边数。默认情况下，深度不受限制。。
-				min_samples_leaf=12,  # 每片叶子的最小样本数。对于少于几百个样本的小型数据集，
-				# 建议降低此值，因为只会构建非常浅的树。
-				l2_regularization=1.15,  # L2 正则化参数。使用 0 表示不进行正则化。
-				validation_fraction=0.1,  # 留出作为提前停止验证数据的训练数据的比例(或绝对大小)。
-				# 如果没有，则对训练数据进行提前停止。仅在执行提前停止时使用。
-				n_iter_no_change=self.nbrnd_erly_stp,  # 用于确定何时“early stop”。
-				# 当最后一个 n_iter_no_change 分数都没有优于 n_iter_no_change - 1 -th-to-last 分数时，
-				# 拟合过程将停止，达到一定的容差。仅在执行提前停止时使用
-				random_state=self.state
-			),
-			'HGB2C': HGBC(
-				loss='log_loss',
-				learning_rate=0.035,
-				max_iter=700,
-				max_depth=7,
-				min_samples_leaf=9,
-				l2_regularization=1.75,
-				validation_fraction=0.1,
-				n_iter_no_change=self.nbrnd_erly_stp,
-				random_state=self.state
-			),
+			# 'XGB2C': XGBC(**{
+			# 	'tree_method': 'hist',
+			# 	'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
+			# 	'eval_metric': 'auc',
+			# 	'random_state': self.state,
+			# 	'colsample_bytree': 0.4,
+			# 	'learning_rate': 0.06,
+			# 	'max_depth': 9,
+			# 	'n_estimator': 2500,
+			# 	'reg_alpha': 0.12,
+			# 	'reg_lambda': 0.8,
+			# 	'min_child_weight': 15,
+			# 	'early_stopping_rounds': self.nbrnd_erly_stp,
+			# 	'verbosity': 0,
+			# 	'enable_categorical': True,
+			# }),
+			# 'XGB3C': XGBC(**{
+			# 	'tree_method': 'hist',
+			# 	'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
+			# 	'objective': 'binary:logistic',
+			# 	'eval_metric': 'auc',
+			# 	'random_state': self.state,
+			# 	'colsample_bytree': 0.5,
+			# 	'learning_rate': 0.055,
+			# 	'max_depth': 9,
+			# 	'n_estimator': 3000,
+			# 	'reg_alpha': .2,
+			# 	'reg_lambda': 0.6,
+			# 	'min_child_weight': 25,
+			# 	'early_stopping_rounds': CFG.nbrnd_erly_stp,
+			# 	'verbosity': 0,
+			# 	'enable_categorical': True,
+			# }),
+			# 'XGB4C': XGBC(**{
+			# 	'tree_method': 'hist',
+			# 	'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
+			# 	'eval_metric': 'auc',
+			# 	'random_state': self.state,
+			# 	'colsample_bytree': 0.8,
+			# 	'learning_rate': 0.082,
+			# 	'max_depth': 7,
+			# 	'n_estimator': 2000,
+			# 	'reg_alpha': 0.005,
+			# 	'reg_lambda': 0.95,
+			# 	'min_child_weight': 26,
+			# 	'early_stopping_round': self.nbrnd_erly_stp,
+			# 	'verbosity': 0,
+			# 	'enable_categorical': True
+			# }),
+			# 'LGBM1C': LGBMC(**{
+			# 	'device': 'gpu' if self.gpu_switch == 'ON' else 'cpu',
+			# 	'objective': 'binary',
+			# 	'boosting_type': 'gbdt',  # 用于指定弱学习器的类型，默认值为 ‘gbdt’，
+			# 	# 表示使用基于树的模型进行计算。
+			# 	# 还可以选择为 ‘gblinear’ 表示使用线性模型作为弱学习器。
+			# 	'metric': 'auc',  # 用于指定评估指标，可以传递各种评估方法组成的list。
+			# 	'random_state': self.state,
+			# 	'colsample_bytree': 0.56,  # 构建弱学习器时，对特征随机采样的比例，默认值为1。
+			# 	'subsample': 0.35,  # 默认值1，指定采样出 subsample * n_samples 个样本用于训练弱学习器。
+			# 	# 注意这里的子采样和随机森林不一样，随机森林使用的是放回抽样，而这里是不放回抽样。
+			# 	# 取值在(0, 1)之间，
+			# 	# 设置为1表示使用所有数据训练弱学习器。如果取值小于1，
+			# 	# 则只有一部分样本会去做GBDT的决策树拟合。选择小于1的比例可以减少方差，即防止过拟合，
+			# 	# 但是会增加样本拟合的偏差，因此取值不能太低。
+			# 	'learning_rate': 0.05,
+			# 	'max_depth': 6,
+			# 	'n_estimators': 3000,
+			# 	'num_leaves': 140,
+			# 	'reg_alpha': 0.14,  # 正则化参数 L1正则化系数
+			# 	'reg_lambda': 0.85,  # L2正则化系数
+			# 	'verbosity': -1,
+			# 	'categorical_feature': [f'name:{c}' for c in self.cat_cols]  # 指定哪些是类别特征。
+			# }),
+			# 'LGBM2C': LGBMC(**{'device': "gpu" if self.gpu_switch == "ON" else "cpu",
+			# 				   'objective': 'binary',
+			# 				   'boosting_type': 'gbdt',
+			# 				   'data_sample_strategy': "goss",
+			# 				   'metric': "auc",
+			# 				   'random_state': self.state,
+			# 				   'colsample_bytree': 0.20,
+			# 				   'subsample': 0.25,
+			# 				   'learning_rate': 0.10,
+			# 				   'max_depth': 7,
+			# 				   'n_estimators': 3000,
+			# 				   'num_leaves': 120,
+			# 				   'reg_alpha': 0.15,
+			# 				   'reg_lambda': 0.90,
+			# 				   'verbosity': -1,
+			# 				   'categorical_feature': [f"name: {c}" for c in self.cat_cols],
+			# 				   }
+			# 				),
+			#
+			# 'LGBM3C': LGBMC(**{'device': "gpu" if CFG.gpu_switch == "ON" else "cpu",
+			# 				   'objective': 'binary',
+			# 				   'boosting_type': 'gbdt',
+			# 				   'metric': "auc",
+			# 				   'random_state': self.state,
+			# 				   'colsample_bytree': 0.45,
+			# 				   'subsample': 0.45,
+			# 				   'learning_rate': 0.06,
+			# 				   'max_depth': 6,
+			# 				   'n_estimators': 3000,
+			# 				   'num_leaves': 125,
+			# 				   'reg_alpha': 0.05,
+			# 				   'reg_lambda': 0.95,
+			# 				   'verbosity': -1,
+			# 				   'categorical_feature': [f"name: {c}" for c in self.cat_cols],
+			# 				   }
+			# 				),
+			#
+			# 'LGBM4C': LGBMC(**{'device': "gpu" if self.gpu_switch == "ON" else "cpu",
+			# 				   'objective': 'binary',
+			# 				   'boosting_type': 'gbdt',
+			# 				   'metric': "auc",
+			# 				   'random_state': self.state,
+			# 				   'colsample_bytree': 0.55,
+			# 				   'subsample': 0.55,
+			# 				   'learning_rate': 0.085,
+			# 				   'max_depth': 7,
+			# 				   'n_estimators': 3000,
+			# 				   'num_leaves': 105,
+			# 				   'reg_alpha': 0.08,
+			# 				   'reg_lambda': 0.995,
+			# 				   'verbosity': -1,
+			# 				   }
+			# 				),
+			# 'CB1C': CBC(**{
+			# 	'task_type': 'GPU' if self.gpu_switch == 'ON' else 'CPU',
+			# 	'objective': 'Logloss',
+			# 	'eval_metric': 'AUC',
+			# 	'bagging_temperature': 0.1,  # 贝叶斯套袋控制强度，区间[0, 1]。默认1
+			# 	'colsample_bylevel': 0.88,
+			# 	'iterations': 3000,  # 最大树数。默认1000。
+			# 	'learning_rate': 0.065,
+			# 	'od_wait': 12,  # 与early_stopping_rounds部分相似，
+			# 	# od_wait为达到最佳评估值后继续迭代的次数，
+			# 	# 检测器为IncToDec时达到最佳评估值后继续迭代n次（n为od_wait参数值）；
+			# 	# 检测器为Iter时达到最优评估值后停止，默认值20`
+			# 	'max_depth': 7,
+			# 	'l2_leaf_reg': 1.75,  # l2正则项，别名：reg_lambda
+			# 	'min_data_in_leaf': 25,  # 叶子结点最小样本量
+			# 	'random_strength': 0.1,  # 设置特征分裂信息增益的扰过拟合。
+			# 	# 子树分裂时，正常会寻找最大信息增益的特征+分裂点进行分裂，
+			# 	# 此处对每个特征+分裂点的信息增益值+扰动项后再确定最大值。扰动项服从正态分布、均值为0，
+			# 	# random_strength参数值会作为正态分布的方差，默认值1、对应标准正态分布；设置0时则无扰动项
+			# 	'max_bin': 100,  # 数值型特征的分箱数，别名max_bin，取值范围[1,65535]、默认值254（CPU下)
+			# 	'verbose': 0,  # # 模型训练过程的信息输出等级，取值Silent（不输出信息）、
+			# 	# Verbose（默认值，输出评估指标、已训练时间、剩余时间等）、
+			# 	# Info（输出额外信息、树的棵树）、Debug（debug信息）
+			# 	'use_best_model': True  # 让模型使用效果最优的子树棵树/迭代次数，
+			# 	# 使用验证集的最优效果对应的迭代次数（eval_metric：评估指标，eval_set：验证集数据），
+			# 	# 布尔类型可取值0，1（取1时要求设置验证集数据）
+			# }),
+			# "CB2C": CBC(**{'task_type': "GPU" if self.gpu_switch == "ON" else "CPU",
+			# 			   'objective': 'Logloss',
+			# 			   'eval_metric': "AUC",
+			# 			   'bagging_temperature': 0.5,
+			# 			   'colsample_bylevel': 0.50,
+			# 			   'iterations': 2500,
+			# 			   'learning_rate': 0.04,
+			# 			   'od_wait': 24,
+			# 			   'max_depth': 8,
+			# 			   'l2_leaf_reg': 1.235,
+			# 			   'min_data_in_leaf': 25,
+			# 			   'random_strength': 0.35,
+			# 			   'max_bin': 160,
+			# 			   'verbose': 0,
+			# 			   'use_best_model': True,
+			# 			   }
+			# 			),
+			# "CB3C": CBC(**{'task_type': "GPU" if self.gpu_switch == "ON" else "CPU",
+			# 			   'objective': 'Logloss',
+			# 			   'eval_metric': "AUC",
+			# 			   'bagging_temperature': 0.2,
+			# 			   'colsample_bylevel': 0.85,
+			# 			   'iterations': 2500,
+			# 			   'learning_rate': 0.025,
+			# 			   'od_wait': 10,
+			# 			   'max_depth': 7,
+			# 			   'l2_leaf_reg': 1.235,
+			# 			   'min_data_in_leaf': 8,
+			# 			   'random_strength': 0.60,
+			# 			   'max_bin': 160,
+			# 			   'verbose': 0,
+			# 			   'use_best_model': True,
+			# 			   }
+			# 			),
+			# "CB4C": CBC(**{'task_type': "GPU" if self.gpu_switch == "ON" else "CPU",
+			# 			   'objective': 'Logloss',
+			# 			   'eval_metric': "AUC",
+			# 			   'grow_policy': 'Lossguide',
+			# 			   'colsample_bylevel': 0.25,
+			# 			   'iterations': 2500,
+			# 			   'learning_rate': 0.035,
+			# 			   'od_wait': 24,
+			# 			   'max_depth': 7,
+			# 			   'l2_leaf_reg': 1.80,
+			# 			   'random_strength': 0.60,
+			# 			   'max_bin': 160,
+			# 			   'verbose': 0,
+			# 			   'use_best_model': True,
+			# 			   }
+			# 			),
+			# 'HGB1C': HGBC(
+			# 	loss='log_loss',
+			# 	learning_rate=0.06,
+			# 	max_iter=800,  # boosting过程的最大迭代次数，即二分类的最大树数。对于多类分类，每次迭代都会构建n_classes 树。
+			# 	max_depth=6,  # 每棵树的最大深度。树的深度是从根到最深叶的边数。默认情况下，深度不受限制。。
+			# 	min_samples_leaf=12,  # 每片叶子的最小样本数。对于少于几百个样本的小型数据集，
+			# 	# 建议降低此值，因为只会构建非常浅的树。
+			# 	l2_regularization=1.15,  # L2 正则化参数。使用 0 表示不进行正则化。
+			# 	validation_fraction=0.1,  # 留出作为提前停止验证数据的训练数据的比例(或绝对大小)。
+			# 	# 如果没有，则对训练数据进行提前停止。仅在执行提前停止时使用。
+			# 	n_iter_no_change=self.nbrnd_erly_stp,  # 用于确定何时“early stop”。
+			# 	# 当最后一个 n_iter_no_change 分数都没有优于 n_iter_no_change - 1 -th-to-last 分数时，
+			# 	# 拟合过程将停止，达到一定的容差。仅在执行提前停止时使用
+			# 	random_state=self.state
+			# ),
+			# 'HGB2C': HGBC(
+			# 	loss='log_loss',
+			# 	learning_rate=0.035,
+			# 	max_iter=700,
+			# 	max_depth=7,
+			# 	min_samples_leaf=9,
+			# 	l2_regularization=1.75,
+			# 	validation_fraction=0.1,
+			# 	n_iter_no_change=self.nbrnd_erly_stp,
+			# 	random_state=self.state
+			# ),
 		}
 		return self
 
@@ -563,7 +567,7 @@ class MdlDeveloper(CFG):
 		:param y_pred:
 		:return:
 		'''
-		return roc_auc_score(ytrue, ypred, multi_class='ovr')
+		return accuracy_score(ytrue, ypred)
 
 	def ClbMetric(self, ytrue, ypred):
 		'''
@@ -620,7 +624,8 @@ class MdlDeveloper(CFG):
 			mdl_preds = pd.DataFrame(columns=self.methods, index=Xt.index)
 			# PrintColor(f"\n{' = ' * 5} Fold {fold_nb + 1} {' = ' * 5}\n")
 			# Initializing models across methods:-
-			for method in tqdm(self.methods[:1]):
+			for method in tqdm(self.methods[0:1]):
+				print(f'{datetime.now()}; fold: { fold_nb} ; method :{method}  start ')
 				model = Pipeline(steps=[('M', self.Mdl_Master.get(method))])
 				# Fitting the model:-
 				if 'CB' in method:
@@ -647,8 +652,10 @@ class MdlDeveloper(CFG):
 				except:
 					pass
 				# Collecting predictions and scores and post-processing OOF based on model method:-
-				dev_preds = model.predict_proba(Xdev)[:, 1]
-				train_preds = model.predict_proba(Xtr)[:, 1]
+				dev_preds = model.predict(Xdev)
+				# dev_preds = model.predict_proba(Xdev)[:, 1]
+				# train_preds = model.predict_proba(Xtr)[:, 1]
+				train_preds = model.predict(Xtr)
 				tr_score = self.ScoreMetric(ytr.values.flatten(), \
 											train_preds)
 				score = self.ScoreMetric(ydev.values.flatten(), dev_preds)
@@ -660,17 +667,18 @@ class MdlDeveloper(CFG):
 				if test_preds_req == 'Y':
 					mdl_preds[method] = self.PostProcessPred(model.predict_proba(Xt.drop(columns=cols_drop,
 																						 errors='ignore')))
+				print(f'{datetime.now()}; fold: { fold_nb} ; method :{method}  end ')
 		try:
 			del dev_preds, train_preds, tr_score, score
 		except:
 			pass
 		# Ensembling the predictions:-
-		oof_preds['Ensemble'] = ens.fit_predict(ydev, oof_preds[self.method])
+		oof_preds['Ensemble'] = ens.fit_predict(ydev, oof_preds[self.methods])
 		score = self.ScoreMetric(ydev, oof_preds['Ensemble'].values)
 		self.OOF_Preds = pd.concat([self.OOF_Preds, oof_preds], axis=0, ignore_index=False)
 		self.Scores.at[fold_nb, 'Ensemble'] = np.round(score, 6)
 		if test_preds_req == 'Y':
-			mdl_preds['ensemble'] = ens.predict(mdl_preds[self.methods])
+			mdl_preds['Ensemble'] = ens.predict(mdl_preds[method])
 			self.Mdl_Preds = pd.concat([self.Mdl_Preds, mdl_preds], axis=1, ignore_index=False)
 		# Averaging the predictions afeter all folds:-
 		self.OOF_Preds = self.OOF_Preds.groupby(level=0).mean()
@@ -750,7 +758,7 @@ if CFG.ML == 'Y':
 
 if CFG.ML == 'Y':
 	# for col in CFG.targets:
-	sub_f1 = 1 - Mdl_Preds.loc[Mdl_Preds.Target == 'target', 'Ensemble '].values
+	sub_f1 = 1 - Mdl_Preds.loc[Mdl_Preds.Target == 'Target', 'Ensemble']
 	# sub1 = pd.read_csv(f'../input/playgrounds4e03ancillary/89652_submission.csv')[CFG.targets]
 	# pp.sub_f1[CFG.targets] = pp.sub_f1[CFG.targets].values * 0.1 + sub1 * 0.9
 	#
