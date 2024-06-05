@@ -758,6 +758,7 @@ if CFG.ML == 'Y':
 	TrainScores = pd.concat([trainscores.assign(Target=target), TrainScores], \
 							axis=0, \
 							ignore_index=True)
+	#TODO  6-5
 	sub_f1=pd.DataFrame({'id':test['id'],'target':Mdl_Preds})
 	sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
 
