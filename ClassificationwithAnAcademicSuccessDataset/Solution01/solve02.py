@@ -223,7 +223,7 @@ class OptunaEnsembler:
 		if isinstance(y_preds, list):
 			weighted_pred = np.average(np.array(y_preds), axis=0, weights=self.weights)
 		else:
-			weighted_pred = np.average(np.array(y_preds).reshape(-1,1), axis=1, weights=self.weights)
+			weighted_pred = np.average(np.array(y_preds).reshape(-1, 1), axis=1, weights=self.weights)
 		return weighted_pred
 
 	def fit_predict(self, y_true, y_pres):
@@ -232,11 +232,14 @@ class OptunaEnsembler:
 
 	def weights(self):
 		return self.weights
+
+
 # Machine Learning Algorithm (MLA) Selection and Initialization
 from sklearn import ensemble, gaussian_process, \
 	linear_model, naive_bayes, \
 	neighbors, svm, tree, discriminant_analysis
 from xgboost import XGBClassifier
+
 
 class MdlDeveloper(CFG):
 	'''
@@ -266,6 +269,7 @@ class MdlDeveloper(CFG):
 		self.ytrain = ytrain
 		self.y_grp = ygrp
 		self.Xtest = Xtest
+		self.Xtest_R={}
 		self.sel_cols = sel_cols
 		self.cat_cols = cat_cols
 		self.enc_cols = enc_cols
@@ -626,7 +630,7 @@ class MdlDeveloper(CFG):
 			# PrintColor(f"\n{' = ' * 5} Fold {fold_nb + 1} {' = ' * 5}\n")
 			# Initializing models across methods:-
 			for method in tqdm(self.methods[0:1]):
-				print(f'{datetime.now()}; fold: { fold_nb} ; method :{method}  start ')
+				print(f'{datetime.now()}; fold: {fold_nb} ; method :{method}  start ')
 				model = Pipeline(steps=[('M', self.Mdl_Master.get(method))])
 				# Fitting the model:-
 				if 'CB' in method:
@@ -668,7 +672,7 @@ class MdlDeveloper(CFG):
 				if test_preds_req == 'Y':
 					mdl_preds[method] = self.PostProcessPred(model.predict_proba(Xt.drop(columns=cols_drop,
 																						 errors='ignore')))
-				print(f'{datetime.now()}; fold: { fold_nb} ; method :{method}  end ')
+				print(f'{datetime.now()}; fold: {fold_nb} ; method :{method}  end ')
 			try:
 				del dev_preds, train_preds, tr_score, score
 			except:
@@ -681,10 +685,21 @@ class MdlDeveloper(CFG):
 			if test_preds_req == 'Y':
 				mdl_preds['Ensemble'] = ens.predict(mdl_preds[method])
 				self.Mdl_Preds = pd.concat([self.Mdl_Preds, mdl_preds], axis=1, ignore_index=False)
+
+
 		# Averaging the predictions afeter all folds:-
 		self.OOF_Preds = self.OOF_Preds.groupby(level=0).mean()
+		result = pd.DataFrame(columns=self.methods, index=Xt.index)
+		test_id=test.id.copy()
+		test.drop('id',axis=1)
 		if test_preds_req == 'Y':
 			self.Mdl_Preds = self.Mdl_Preds[self.methods + ['Ensemble']].groupby(level=0).mean()
+			for key, model in self.Mdl_Master.items():
+				result[method]=model.predict(test)
+			result['Ensemble'] = ens.predict()
+
+
+
 		return self.OOF_Preds['Ensemble'].astype(np.int8), self.Mdl_Preds, self.Scores, self.TrainScores
 
 	def MakePseudoLbl(self, up_cutoff: float, low_cutoff: float, **kwargs):
@@ -748,7 +763,7 @@ if CFG.ML == 'Y':
 	# OOF_Preds = pd.concat([oof_preds.assign(Target=target), OOF_Preds], \
 	# 					  axis=0, \
 	# 					  ignore_index=False)
-	OOF_Preds=pd.DataFrame({"id":test.id,"target":OOF_Preds})
+	OOF_Preds = pd.DataFrame({"id": test.id, "target": OOF_Preds})
 	Mdl_Preds = pd.concat([mdl_preds.assign(Target=target), Mdl_Preds], \
 						  axis=0, \
 						  ignore_index=False)
@@ -758,19 +773,19 @@ if CFG.ML == 'Y':
 	TrainScores = pd.concat([trainscores.assign(Target=target), TrainScores], \
 							axis=0, \
 							ignore_index=True)
-	#TODO  6-5
-	sub_f1=pd.DataFrame({'id':test['id'],'target':Mdl_Preds})
+	# TODO  6-5
+	sub_f1 = pd.DataFrame({'id': test['id'], 'target': Mdl_Preds})
 	sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
 
 # if CFG.ML == 'Y':
-	# sub_f1=pd.DataFrame({'id':test['id'],'target':MDL_Preds })
-	# for col in CFG.targets:
-	# sub_f1 = 1 - Mdl_Preds.loc[Mdl_Preds.Target == 'Target', 'Ensemble']
-	# sub1 = pd.read_csv(f'../input/playgrounds4e03ancillary/89652_submission.csv')[CFG.targets]
-	# pp.sub_f1[CFG.targets] = pp.sub_f1[CFG.targets].values * 0.1 + sub1 * 0.9
-	#
-	# pp.sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
-	# sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
+# sub_f1=pd.DataFrame({'id':test['id'],'target':MDL_Preds })
+# for col in CFG.targets:
+# sub_f1 = 1 - Mdl_Preds.loc[Mdl_Preds.Target == 'Target', 'Ensemble']
+# sub1 = pd.read_csv(f'../input/playgrounds4e03ancillary/89652_submission.csv')[CFG.targets]
+# pp.sub_f1[CFG.targets] = pp.sub_f1[CFG.targets].values * 0.1 + sub1 * 0.9
+#
+# pp.sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
+# sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
 # OOF_Preds.to_csv(f'OOF_Preds_V{CFG.version_nb}.csv', index=False)
 # Mdl_Preds.to_csv(f'Mdl_Preds_V{CFG.version_nb}.csv', index=False)
 
