@@ -1,54 +1,25 @@
 # -*- coding: utf-8 -*-
-# @Time : 2024/5/18 20:25
+# @Time : 2024/6/3 11:19
 # @Author : nanji
-# @Site : https://www.kaggle.com/code/ravi20076/playgrounds4e03-eda-binaryclassifier
-# @File : solve01.py
+# @Site : https://www.kaggle.com/code/gauravduttakiit/pss4e6-flaml-roc-auc-ovo
+# @File : solve02.py
 # @Software: PyCharm 
 # @Comment :
-from gc import collect;
-from warnings import filterwarnings;
-
-filterwarnings('ignore')
-from IPython.display import display_html, clear_output;
-
-clear_output();
-import xgboost as xgb, lightgbm as lgb, catboost as cb, sklearn as sk, pandas as pd;
-
-from sklearn.metrics import brier_score_loss
-print(f"---> XGBoost = {xgb.__version__} | LightGBM = {lgb.__version__} | Catboost = {cb.__version__}");
-print(f"---> Sklearn = {sk.__version__}| Pandas = {pd.__version__}\n\n");
-collect();
-collect();
-from copy import deepcopy
-import pandas as pd
-import numpy as np
-import re
-from scipy.stats import mode, kstest, normaltest, shapiro, anderson, jarque_bera
-from collections import Counter
-from itertools import product
-from colorama import Fore, Style, init
-from warnings import filterwarnings
-
-filterwarnings('ignore')
-import joblib
-import os
-
+from sklearn.pipeline import Pipeline, make_pipeline
 from tqdm.notebook import tqdm
-import seaborn as sns
-import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap as LCM
-from pprint import pprint
+import numpy as np
+import pandas as pd
+from datetime import datetime
+import optuna
+from optuna import Trial, trial, create_study
+from optuna.pruners import HyperbandPruner
+from optuna.samplers import TPESampler, CmaEsSampler
+from scipy import stats
+
+optuna.logging.set_verbosity = optuna.logging.ERROR
 from functools import partial
 
-print(print())
-print(collect())
-print(clear_output())
-from category_encoders import OrdinalEncoder, OneHotEncoder
-from sklearn.preprocessing import (RobustScaler, MinMaxScaler, \
-								   StandardScaler, \
-								   FunctionTransformer as FT, \
-								   PowerTransformer)
-from sklearn.impute import SimpleImputer as SI
+from sklearn.metrics import accuracy_score, roc_auc_score, make_scorer
 from sklearn.model_selection import (RepeatedStratifiedKFold as RSKF, \
 									 StratifiedKFold as SKF, \
 									 StratifiedGroupKFold as SGKF, \
@@ -56,12 +27,6 @@ from sklearn.model_selection import (RepeatedStratifiedKFold as RSKF, \
 									 RepeatedKFold as RKF, \
 									 cross_val_score, \
 									 cross_val_predict)
-from sklearn.inspection import permutation_importance
-from sklearn.feature_selection import mutual_info_classif, RFE
-from sklearn.pipeline import Pipeline, make_pipeline
-from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.compose import ColumnTransformer
-
 # ML Model training : ~
 from sklearn.metrics import accuracy_score, roc_auc_score, make_scorer
 from xgboost import DMatrix, XGBClassifier as XGBC
@@ -69,63 +34,68 @@ from lightgbm import log_evaluation, early_stopping, LGBMClassifier as LGBMC
 from catboost import CatBoostClassifier as CBC, Pool
 from sklearn.ensemble import HistGradientBoostingClassifier as HGBC, \
 	RandomForestClassifier as RFC
+from sklearn.metrics import brier_score_loss
 
-# Ensemble and tuning
-import optuna
-from optuna import Trial, trial, create_study
-from optuna.pruners import HyperbandPruner
-from optuna.samplers import TPESampler, CmaEsSampler
-
-optuna.logging.set_verbosity = optuna.logging.ERROR
-clear_output()
-print()
-collect()
-
-# Setting rc parameters in seaborn for plots and graphs-
-# Reference - https://matplotlib.org/stable/tutorials/introductory/customizing.html:-
-# To alter this, refer to matplotlib.rcParams.keys()
-
-sns.set({"axes.facecolor": "#ffffff",
-		 "figure.facecolor": "#ffffff",
-		 "axes.edgecolor": "#000000",
-		 "grid.color": "#ffffff",
-		 "font.family": ['Cambria'],
-		 "axes.labelcolor": "#000000",
-		 "xtick.color": "#000000",
-		 "ytick.color": "#000000",
-		 "grid.linewidth": 0.75,
-		 "grid.linestyle": "--",
-		 "axes.titlecolor": '#0099e6',
-		 'axes.titlesize': 8.5,
-		 'axes.labelweight': "bold",
-		 'legend.fontsize': 7.0,
-		 'legend.title_fontsize': 7.0,
-		 'font.size': 7.5,
-		 'xtick.labelsize': 7.5,
-		 'ytick.labelsize': 7.5,
-		 });
-
-
-# Color printing
-
-# Color printing
-def PrintColor(text: str, color=Fore.BLUE, style=Style.BRIGHT):
-	"Prints color outputs using colorama using a text F-string";
-	print(style + color + text + Style.RESET_ALL);
-
-
-# Making sklearn pipeline outputs as dataframe:-
-from sklearn import set_config
-
-# set_config(transform_output ="pandas");
-
-
-pd.set_option('display.max_columns', 50);
-pd.set_option('display.max_rows', 50);
-
+train = pd.read_csv('../input/playground-series-s4e6/train.csv')
+# print(train.head())
+test = pd.read_csv('../input/playground-series-s4e6/test.csv')
+# print(test.head())
 print('0' * 100)
-print()
-collect()
+# print(train.info())
+print('1' * 100)
+# print(train.nunique())
+
+r1 = round(train['Target'].value_counts() * 100 / len(train), 2)
+print(r1)
+print('2' * 100)
+print(train.isnull().sum())
+import re
+
+train = train.rename(columns=lambda x: re.sub('[^A-Za-z0-9_]+', '', x))
+print('3' * 100)
+print(train.head())
+
+test = test.rename(columns=lambda x: re.sub('[^A-Za-z0-9_]+', '', x))
+print(test.head())
+
+
+def reduce_mem_usage(df):
+	""" iterate through all the columns of a dataframe and modify the data type
+	    to reduce memory usage.
+	"""
+	start_mem = df.memory_usage().sum() / 1024 ** 2
+	print('Memory usage of dataframe is {:.2f} MB'.format(start_mem))
+	for col in df.columns:
+		col_type = df[col].dtype
+		if col_type != object:
+			c_min = df[col].min()
+			c_max = df[col].max()
+			if str(col_type)[:3] == 'int':
+				if c_min > np.iinfo(np.int8).min and c_max < np.iinfo(np.int8).max:
+					df[col] = df[col].astype(np.int8)
+				elif c_min > np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
+					df[col] = df[col].astype(np.int16)
+				elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
+					df[col] = df[col].astype(np.int32)
+				elif c_min > np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
+					df[col] = df[col].astype(np.int64)
+			else:
+				if c_min > np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
+					df[col] = df[col].astype(np.float16)
+				elif c_min > np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
+					df[col] = df[col].astype(np.float32)
+				else:
+					df[col] = df[col].astype(np.float64)
+		else:
+			df[col] = df[col].astype('object')
+	end_mem = df.memory_usage().sum() / 1024 ** 2
+	print('Memory usage after optimization is: {:.2f} MB'.format(end_mem))
+	print('Decreased by {:.1f}%'.format(100 * (start_mem - end_mem) / start_mem))
+	return df
+
+
+train = reduce_mem_usage(train)
+test = reduce_mem_usage(test)
 
 
 class CFG:
@@ -134,14 +104,12 @@ class CFG:
 	Some parameters may be unused here as this is a general configuration class
 	""";
 	# Data preparation
-	version_nb = 7
+	version_nb = 10
 	test_req = 'Y'
 	test_sample_frac = 0.025
 	gpu_switch = 'OFF'
 	state = 42
-	targets = ['Pastry', 'Z_Scratch', \
-			   'K_Scatch', 'Stains', 'Dirtiness', \
-			   'Bumps', 'Other_Faults']
+	targets = ['Target']
 	episode = 3
 	season = 4
 	path = f"../input/playground-series-s{season}e{episode}";
@@ -185,394 +153,6 @@ class CFG:
 	title_specs = {'fontsize': 9, 'fontweight': 'bold', 'color': '#992600'};
 
 
-print()
-PrintColor(f'--> Configuration done! \n')
-collect()
-
-
-class Preprocessor():
-	"""
-	This class aims to do the below-
-	1. Read the datasets
-	2. In this case, process the original data
-	3. Check information and description
-	4. Check unique values and nulls
-	5. Collate starting features
-	6. Conjoin train-original data if requested based on Adversarial CV results
-	""";
-
-	def __init__(self):
-		self.train = pd.read_csv(os.path.join(CFG.path, 'train.csv'), index_col='id')
-		self.test = pd.read_csv(os.path.join(CFG.path, 'test.csv'), index_col='id')
-		self.targets = CFG.targets
-		self.original = pd.read_csv(CFG.orig_path, index_col='id')
-		self.conjoin_orig_data = CFG.conjoin_orig_data
-		self.dtl_preproc_req = CFG.dtl_preproc_req
-		self.test_req = CFG.test_req
-		self.sub_f1 = pd.read_csv(os.path.join(CFG.path, 'sample_submission.csv'))
-		PrintColor(f"Data shapes - train-test-original | {self.train.shape} {self.test.shape} {self.original.shape}");
-		# 去除列columns中的特殊字符
-		for tbl in [self.train, self.original, self.test]:
-			tbl.columns = tbl.columns.str.replace(r"\(|\)|\s+", "", regex=True);
-
-		# PrintColor(f"\nTrain set head", color=Fore.CYAN);
-		# display(self.train.head(5).style.format(precision=3));
-		# PrintColor(f"\nTest set head", color=Fore.CYAN);
-		# display(self.test.head(5).style.format(precision=3));
-		# PrintColor(f"\nOriginal set head", color=Fore.CYAN);
-		# display(self.original.head(5).style.format(precision=3));
-		# Resetting original data index:-
-		self.original.index = range(len(self.original));
-		self.original.index += max(self.test.index) + 1;
-		self.original.index.name = 'id';
-		#  Changing original data column order to match the competition column structure:-
-		self.original = self.original.reindex(self.train.columns, axis=1)
-
-	def _AddSourceCol(self):
-		self.train['Source'] = 'Competition'
-		self.test['Source'] = 'Competition'
-		self.original['Source'] = 'Original'
-		self.strt_ftre = self.test.columns
-		return self
-
-	def _CollateInfoDesc(self):
-		if self.dtl_preproc_req == 'Y':
-			PrintColor(f"\n{'-' * 20} Information and description {'-' * 20}\n", color=Fore.MAGENTA);
-			# Creating dataset information and description:
-			for lbl, df in {'Train': self.train, 'Test': self.test, 'Original': self.original}.items():
-				PrintColor(f"\n{lbl} description\n");
-				# display(df.describe(percentiles=[0.05, 0.25, 0.50, 0.75, 0.9, 0.95, 0.99]). \
-				# 		transpose(). \
-				# 		drop(columns=['count'], errors='ignore'). \
-				# 		drop([self.targets], axis=0, errors='ignore'). \
-				# 		style.format(formatter='{:,.2f}'). \
-				# 		background_gradient(cmap='Blues'))
-				PrintColor(f"\n{lbl} information\n")
-				# display(df.info());
-				collect();
-		return self
-
-	def _CollateUnqNull(self):
-		if self.dtl_preproc_req == 'Y':
-			# Dislaying the unique values across train-test-original:-
-			PrintColor(f"\nUnique and null values\n");
-			_ = pd.concat([
-				self.train[self.strt_ftre].nunique(),
-				self.test[self.strt_ftre].nunique(),
-				self.original[self.strt_ftre].nunique(),
-				self.train[self.strt_ftre].isna().sum(axis=0),
-				self.test[self.strt_ftre].isna().sum(axis=0),
-				self.original[self.strt_ftre].isna().sum(axis=0)
-			], axis=1)
-			_.columns = ['Train_Nunq', 'Test_Nunq', 'Original_Nunq',
-						 'Train_Nulls', 'Test_Nulls', 'Original_Nulls']
-		# display(_.T.style.background_gradient(cmap='Blues', axis=1). \
-		# 		format(formatter='{:,.0f}') );
-		return self
-
-	def _ConjoinTrainOrig(self):
-		if self.conjoin_orig_data == 'Y':
-			PrintColor(f"\n\nTrain shape before conjoining with original = {self.train.shape}");
-			train = pd.concat([self.train, self.original], axis=0, ignore_index=True)
-			PrintColor(f'Train shape after de-deupling ={train.shape}')
-
-			train = train.drop_duplicates()
-			PrintColor(f'Train shape after de-deupling ={train.shape}')
-			train.index = range(len(train))
-			train.index.name = 'id'
-		else:
-			PrintColor(f'\n We are using the competition training data only')
-			train = self.train
-		return train
-
-	def DoPreprocessing(self):
-		self._AddSourceCol()
-		self._CollateInfoDesc()
-		self._CollateUnqNull()
-		self.train = self._ConjoinTrainOrig()
-		self.train.index = range(len(self.train))
-		_ = pp.train.drop(columns=CFG.targets + ['Source']).nunique()
-		self.cat_cols = _.loc[_ <= 10].index.to_list()
-		# 连续特征
-		self.cont_cols = [c for c in _.index if c not in self.cat_cols + ['Source']]
-		return self
-
-
-collect();
-print();
-pp = Preprocessor();
-pp.DoPreprocessing();
-
-print();
-collect()
-
-
-class FeaturePlotter(CFG, Preprocessor):
-	'''
-	This class develops plots for the targets,continuous and category features
-	'''
-
-	def __init__(self):
-		super().__init__()
-		clear_output()
-
-	def MakeTgtPlot(self):
-		'''
-		This method returns the target plots
-		:return:
-		'''
-		if self.ftre_plots_req == 'Y':
-			for target in self.targets:
-				fig, axes = plt.subplots(1, 2, figsize=(10, 3), \
-										 sharey=True, \
-										 gridspec_kw={'wspace': 0.35})
-				for i, df in tqdm(enumerate([self.train, self.original]), f'Target plt - {target} --->'):
-					ax = axes[i]
-					a = df[target].value_counts(normalize=True)
-					a.sort_index().plot.bar(color='tab:blue', ax=ax)
-					df_name = 'Train' if i == 0 else 'Original'
-					_ = ax.set_title(f"\n{df_name} data- {target}\n", **CFG.title_specs);
-					ax.set_yticks(np.arange(0, 1.01, 0.08), labels=np.around(np.arange(0, 1.01, 0.08), 2), fontsize=7.0)
-				plt.tight_layout();
-				plt.show();
-
-	def MakeCatFtrePlots(self, cat_cols):
-		'''
-		This method returns the category feature plots'
-		:param cat_cols:
-		:return:
-		'''
-		if cat_cols != [] and self.ftre_plots_req == 'Y':
-			fig, axes = plt.subplots(len(cat_cols), 3, figsize=(20, len(cat_cols) * 4.5))
-			for i, col in enumerate(cat_cols):
-				ax = axes[i, 0]
-				a = self.train[col].value_counts(normalize=True)
-				a.sort_index().plot.barh(ax=ax, color='#007399')
-				ax.set_title(f'{col}_Train ', **self.title_specs)
-				ax.set_xticks(np.arange(0.0, 0.9, 0.05), \
-							  labels=np.round(np.arange(0.0, 0.9, 0.05), 2), \
-							  rotation=90)
-				ax.set(xlabel='', ylabel='')
-				del a
-				ax = axes[i, 1];
-				a = self.test[col].value_counts(normalize=True);
-				a.sort_index().plot.barh(ax=ax, color='#0088cc');
-				ax.set_title(f"{col}_Test", **self.title_specs);
-				ax.set_xticks(np.arange(0.0, 0.9, 0.05),
-							  labels=np.round(np.arange(0.0, 0.9, 0.05), 2),
-							  rotation=90
-							  );
-				ax.set(xlabel='', ylabel='');
-				del a;
-
-				ax = axes[i, 2];
-				a = self.original[col].value_counts(normalize=True);
-				a.sort_index().plot.barh(ax=ax, color='#0047b3');
-				ax.set_title(f"{col}_Original", **self.title_specs);
-				ax.set_xticks(np.arange(0.0, 0.9, 0.05),
-							  labels=np.round(np.arange(0.0, 0.9, 0.05), 2),
-							  rotation=90
-							  );
-				ax.set(xlabel='', ylabel='');
-				del a;
-			plt.suptitle(f"Category column plots", **self.title_specs, y=0.94);
-			plt.tight_layout();
-			plt.show();
-
-	def MakeContColPlots(self, cont_cols):
-		'''
-		    This method returns the continuous feature plots
-		:param cont_cols:
-		:return:
-		'''
-		if self.ftre_plots_req == 'Y':
-			df = pd.concat(
-				[
-					self.train[cont_cols].assign(Source='Train'),
-					self.test[cont_cols].assign(Source='Test'),
-					self.original[cont_cols].assign(Source='Original'),
-				],
-				axis=0, ignore_index=True
-			)
-			fig, axes = plt.subplots(len(cont_cols), 4, figsize=(16, len(cont_cols) * 4.2),
-									 gridspec_kw={'hspace': 0.35,
-												  'wspace': 0.3,
-												  'width_ratios': [0.80, 0.20, 0.20, 0.20]
-												  }
-									 )
-			for i, col in enumerate(cont_cols):
-				ax = axes[i, 0];
-				sns.kdeplot(data=df[[col, 'Source']], x=col, hue='Source',
-							palette=['#0039e6', '#ff5500', '#00b300'],
-							ax=ax, linewidth=2.1
-							);
-				ax.set_title(f"\n{col}", **self.title_specs);
-				ax.grid(**CFG.grid_specs);
-				ax.set(xlabel='', ylabel='');
-
-				ax = axes[i, 1];
-				sns.boxplot(data=df.loc[df.Source == 'Train', [col]], y=col, width=0.25,
-							color='#33ccff', saturation=0.90, linewidth=0.90,
-							fliersize=2.25,
-							ax=ax);
-				ax.set(xlabel='', ylabel='');
-				ax.set_title(f"Train", **self.title_specs);
-
-				ax = axes[i, 2];
-				sns.boxplot(data=df.loc[df.Source == 'Test', [col]], y=col, width=0.25, fliersize=2.25,
-							color='#80ffff', saturation=0.6, linewidth=0.90,
-							ax=ax);
-				ax.set(xlabel='', ylabel='');
-				ax.set_title(f"Test", **self.title_specs);
-				ax = axes[i, 3];
-				sns.boxplot(data=df.loc[df.Source == 'Original', [col]], y=col, width=0.25, fliersize=2.25,
-							color='#99ddff', saturation=0.6, linewidth=0.90,
-							ax=ax);
-				ax.set(xlabel='', ylabel='');
-				ax.set_title(f"Original", **self.title_specs);
-
-			plt.suptitle(f"\nDistribution analysis- continuous columns\n", **CFG.title_specs,
-						 y=0.89, x=0.50
-						 );
-			plt.tight_layout();
-			plt.show();
-
-	def CalcSkew(self, cont_cols):
-		"This method calculates the skewness across columns";
-		if self.ftre_plots_req == "Y":
-			skew_df = pd.DataFrame(index=cont_cols);
-			for col, df in {"Train": self.train[cont_cols],
-							"Test": self.test[cont_cols],
-							"Original": self.original[cont_cols]
-							}.items():
-				# TODO 5-29
-				skew_df = \
-					pd.concat([skew_df,
-							   df.drop(columns=self.targets + ["Source", "id"], errors="ignore").skew()],
-							  axis=1).rename({0: col}, axis=1);
-
-			PrintColor(f"\nSkewness across independent features\n");
-
-
-# display(skew_df.transpose().style.format(precision=2).background_gradient("PuBuGn"));
-
-
-print();
-collect();
-# plotter = FeaturePlotter();
-# plotter.MakeCatFtrePlots(cat_cols=pp.cat_cols)
-
-print(f"\n\n\n");
-# plotter.MakeContColPlots(cont_cols=pp.cont_cols);
-
-print(f"\n\n\n");
-# plotter.MakeTgtPlot();
-
-print(f"\n\n\n");
-# plotter.CalcSkew(cont_cols=pp.cont_cols);
-
-print();
-collect();
-
-
-class Xformer(TransformerMixin, BaseEstimator):
-	"""
-	This class adds secondary features to the existing data using simple interactions
-	"""
-
-	def __init__(self):
-		self.sec_ftre_req = CFG.sec_ftre_req
-
-	def fit(self, X, y=None, **params):
-		return self
-
-	@staticmethod
-	def _reduce_mem(df: pd.DataFrame):
-		"This method reduces memory for numeric columns in the dataframe";
-		numerics = ['int16', 'int32', \
-					'int64', 'float16', \
-					'float32', 'float64', \
-					"uint16", "uint32", "uint64"];
-		start_mem = df.memory_usage().sum() / 1024 ** 2
-		for col in df.columns:
-			col_type = df[col].dtypes
-			if col_type in numerics:
-				c_min = df[col].min()
-				c_max = df[col].max()
-				if 'int' in str(col_type):
-					if c_min >= np.iinfo(np.int8).min and c_max < np.iinfo(np.int8).max:
-						df[col] = df[col].astype(np.int8)
-					elif c_min >= np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
-						df[col] = df[col].astype(np.int16)
-					elif c_min >= np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
-						df[col] = df[col].astype(np.int32)
-					elif c_min >= np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
-						df[col] = df[col].astype(np.int64)
-				else:
-					if c_min >= np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
-						df[col] = df[col].astype(np.float16)
-					if c_min >= np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
-						df[col] = df[col].astype(np.float32)
-					else:
-						df[col] = df[col].astype(np.float64)
-		end_mem = df.memory_usage().sum() / 1024 ** 2
-		PrintColor(f'Start - end memory: - {start_mem:5.2f} - {end_mem:5.2f} Mb')
-		return df
-
-	def transform(self, X, y=None, **params):
-		'''
-        This method adds secondary features to the existing data
-        Source:- https://www.kaggle.com/code/lucamassaron/steel-plate-eda-xgboost-is-all-you-need
-		:param X:
-		:param y:
-		:param params:
-		:return:
-		'''
-		df = X.copy()
-		if self.sec_ftre_req == 'Y':
-			df['XRange'] = df['X_Maximum'] - df['X_Minimum']
-			df['YRange'] = df['Y_Maximum'] - df['Y_Minimum']
-			df['Area_Perimeter_Ratio'] = df['Pixels_Areas'] / (df['X_Perimeter'] + df['Y_Perimeter'])
-			df['Aspect_Ratio'] = np.where(df['YRange'] == 0, 0, df['XRange'] / df['YRange']);
-		self.op_cols = df.columns
-		df = self._reduce_mem(df)
-		return df
-
-	def get_feature_names_in(self, X, y=None, **params):
-		return self.ip_cols
-
-	def get_feature_names_out(self, X, y=None, **params):
-		return self.op_cols
-
-
-collect()
-print()
-
-PrintColor(f"\n{'=' * 20} Data transformation {'=' * 20} \n");
-ytrain = pp.train[CFG.targets]
-
-xform = Pipeline(steps=[('xfrm', Xformer())])
-Xtrain = xform.fit_transform(pp.train.drop(columns=CFG.targets))
-Xtest = xform.transform(pp.test.copy(deep=True))
-
-PrintColor(f'\n --->Train data \n ')
-# display(Xtrain.head(5).style.format(precision = 2));
-PrintColor(f'\n---> Test data\n')
-# display(.head(5).style.format(precision = 2));
-# display(Xtest.head(5).style.format(precision = 2));
-
-# Checking the results:-
-with np.printoptions(linewidth=160):
-	PrintColor(f"\n---> Train data columns after data pipeline\n");
-	pprint(np.array(Xtrain.columns))
-	PrintColor(f"\n---> Test data columns after data pipeline\n");
-	pprint(np.array(Xtest.columns))
-	PrintColor(f"\n---> Train-test shape after pipeline = {Xtrain.shape} {Xtest.shape}");
-
-print()
-collect()
-
-
 class OptunaEnsembler:
 	'''
 	  This is the Optuna ensemble class-
@@ -593,9 +173,9 @@ class OptunaEnsembler:
 		:param ypred:
 		:return:
 		'''
-		return roc_auc_score(ytrue, ypred)
+		return accuracy_score(ytrue, ypred)
 
-	def _object(self, trial, y_true, y_preds):
+	def _objective(self, trial, y_true, y_preds):
 		''''
         This method defines the objective function for the ensemble
 		'''
@@ -607,8 +187,9 @@ class OptunaEnsembler:
 			weights = [trial.suggest_float(f'weight{n}', 0, 1) \
 					   for n in range(len(y_preds))]
 			axis = 0
-		weighted_pred = np.average(np.array(y_preds), axis=axis, weights=weights)
-		score = self.ScoreMetric(y_true, weighted_pred)
+		# weighted_pred = np.average(np.array(y_preds), axis=axis, weights=weights)
+		weighted_pred = stats.mode(y_preds, axis=1)[0]
+		score = self.ScoreMetric(y_true.values.flatten(), weighted_pred.reshape(-1))
 		return score
 
 	def fit(self, y_true, y_preds):
@@ -620,7 +201,7 @@ class OptunaEnsembler:
 		'''
 		optuna.logging.set_verbosity = optuna.logging.ERROR
 		self.study = optuna.create_study(
-			sampler=TPESampler(self=self.random_state),
+			sampler=TPESampler(seed=self.random_state),
 			pruner=HyperbandPruner(),
 			study_name='Ensemble',
 			direction=self.direction
@@ -633,7 +214,6 @@ class OptunaEnsembler:
 		else:
 			self.weights = [self.study.best_params[f'weight{n}'] \
 							for n in range(y_preds.shape[-1])]
-		clear_output()
 
 	def predict(self, y_preds):
 		'''
@@ -644,8 +224,12 @@ class OptunaEnsembler:
 		assert self.weights is not None, 'OptunaWeights error, must be fitted before predict';
 		if isinstance(y_preds, list):
 			weighted_pred = np.average(np.array(y_preds), axis=0, weights=self.weights)
+		elif len(y_preds.shape)==1:
+			weighted_pred=y_preds
 		else:
-			weighted_pred = np.average(np.array(y_preds), axis=1, weights=self.weights)
+			# weighted_pred = np.average(np.array(y_preds).reshape(-1, 1), axis=1, weights=self.weights)
+			weighted_pred = stats.mode(y_preds, axis=1)[0]
+
 		return weighted_pred
 
 	def fit_predict(self, y_true, y_pres):
@@ -656,8 +240,11 @@ class OptunaEnsembler:
 		return self.weights
 
 
-print()
-collect()
+# Machine Learning Algorithm (MLA) Selection and Initialization
+from sklearn import ensemble, gaussian_process, \
+	linear_model, naive_bayes, \
+	neighbors, svm, tree, discriminant_analysis
+from xgboost import XGBClassifier
 
 
 class MdlDeveloper(CFG):
@@ -687,7 +274,9 @@ class MdlDeveloper(CFG):
 		self.Xtrain = Xtrain
 		self.ytrain = ytrain
 		self.y_grp = ygrp
-		self.Xtest = Xtest
+		self.testId = Xtest['id']
+		self.Xtest = Xtest.drop('id', axis=1)
+		self.Xtest_R = {}
 		self.sel_cols = sel_cols
 		self.cat_cols = cat_cols
 		self.enc_cols = enc_cols
@@ -709,13 +298,6 @@ class MdlDeveloper(CFG):
 			needs_proba=True, \
 			needs_threshold=False
 		)
-		PrintColor(f'\n ---> Selected model option- ')
-		try:
-			with np.printoptions(linewidth=150):
-				pprint(np.array(self.methods), depth=1, width=100, indent=5)
-
-		except:
-			pprint(self.methods, depth=1, width=100, indent=5)
 
 	def _DefineModel(self):
 		'''
@@ -733,259 +315,25 @@ class MdlDeveloper(CFG):
 			'SGKF': SGKF(n_splits=self.n_splits, shuffle=True, random_state=self.state)
 		}
 		self.Mdl_Master = {
-			'XGB1C': XGBC(
-				**{
-					'tree_method': 'hist',
-					'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
-					'objective': 'binary:logistic',
-					'eval_metric': 'auc',
-					'random_state': self.state,
-					'colsample_bytree': 0.25,  # 构建弱学习器时，对特征随机采样的比例，默认值为1。
-					'learning_rate': 0.07,
-					'max_depth': 8,
-					'n_estimcator': 1100,
-					'reg_alpha': 0.7,
-					'reg_lambda': 0.7,
-					'min_child_weight': 22,  # 指定孩子节点中最小的样本权重和，
-					# 如果一个叶子节点的样本权重和小于min_child_weight则拆分过程结束，默认值为1。
-					'early_stopping_rounds': self.nbrnd_erly_stp,  # 指定迭代多少次没有得到优化则停止训练，
-					# 默认值为None，表示不提前停止训练。如果设置了此参数，则模型会生成三个属性：
-					# best_score, best_iteration, best_ntree_limit
-					# 注意：evals 必须非空才能生效，如果有多个数据集，则以最后一个数据集为准。
-					'verbosity': 0,  # 训练中是否打印每次训练的结果
-					# 开启参数verbosity，在数据巨大，预料到算法运行会非常缓慢的时候
-					# 可以使用这个参数来监控模型的训练进度
-					'enable_categorical': True
-				}),
-			'XGB2C': XGBC(**{
-				'tree_method': 'hist',
-				'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
-				'eval_metric': 'auc',
-				'random_state': self.state,
-				'colsample_bytree': 0.4,
-				'learning_rate': 0.06,
-				'max_depth': 9,
-				'n_estimator': 2500,
-				'reg_alpha': 0.12,
-				'reg_lambda': 0.8,
-				'min_child_weight': 15,
-				'early_stopping_rounds': self.nbrnd_erly_stp,
-				'verbosity': 0,
-				'enable_categorical': True,
-			}),
-			'XGB3C': XGBC(**{
-				'tree_method': 'hist',
-				'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
-				'objective': 'binary:logistic',
-				'eval_metric': 'auc',
-				'random_state': self.state,
-				'colsample_bytree': 0.5,
-				'learning_rate': 0.055,
-				'max_depth': 9,
-				'n_estimator': 3000,
-				'reg_alpha': .2,
-				'reg_lambda': 0.6,
-				'min_child_weight': 25,
-				'early_stopping_rounds': CFG.nbrnd_erly_stp,
-				'verbosity': 0,
-				'enable_categorical': True,
-			}),
-			'XGB4C': XGBC(**{
-				'tree_method': 'hist',
-				'device': 'cuda' if self.gpu_switch == 'ON' else 'cpu',
-				'eval_metric': 'auc',
-				'random_state': self.state,
-				'colsample_bytree': 0.8,
-				'learning_rate': 0.082,
-				'max_depth': 7,
-				'n_estimator': 2000,
-				'reg_alpha': 0.005,
-				'reg_lambda': 0.95,
-				'min_child_weight': 26,
-				'early_stopping_round': self.nbrnd_erly_stp,
-				'verbosity': 0,
-				'enable_categorical': True
-			}),
-			'LGBM1C': LGBMC(**{
-				'device': 'gpu' if self.gpu_switch == 'ON' else 'cpu',
-				'objective': 'binary',
-				'boosting_type': 'gbdt',  # 用于指定弱学习器的类型，默认值为 ‘gbdt’，
-				# 表示使用基于树的模型进行计算。
-				# 还可以选择为 ‘gblinear’ 表示使用线性模型作为弱学习器。
-				'metric': 'auc',  # 用于指定评估指标，可以传递各种评估方法组成的list。
-				'random_state': self.state,
-				'colsample_bytree': 0.56,  # 构建弱学习器时，对特征随机采样的比例，默认值为1。
-				'subsample': 0.35,  # 默认值1，指定采样出 subsample * n_samples 个样本用于训练弱学习器。
-				# 注意这里的子采样和随机森林不一样，随机森林使用的是放回抽样，而这里是不放回抽样。
-				# 取值在(0, 1)之间，
-				# 设置为1表示使用所有数据训练弱学习器。如果取值小于1，
-				# 则只有一部分样本会去做GBDT的决策树拟合。选择小于1的比例可以减少方差，即防止过拟合，
-				# 但是会增加样本拟合的偏差，因此取值不能太低。
-				'learning_rate': 0.05,
-				'max_depth': 6,
-				'n_estimators': 3000,
-				'num_leaves': 140,
-				'reg_alpha': 0.14,  # 正则化参数 L1正则化系数
-				'reg_lambda': 0.85,  # L2正则化系数
-				'verbosity': -1,
-				'categorical_feature': [f'name:{c}' for c in self.cat_cols]  # 指定哪些是类别特征。
-			}),
-			'LGBM2C': LGBMC(**{'device': "gpu" if self.gpu_switch == "ON" else "cpu",
-							   'objective': 'binary',
-							   'boosting_type': 'gbdt',
-							   'data_sample_strategy': "goss",
-							   'metric': "auc",
-							   'random_state': self.state,
-							   'colsample_bytree': 0.20,
-							   'subsample': 0.25,
-							   'learning_rate': 0.10,
-							   'max_depth': 7,
-							   'n_estimators': 3000,
-							   'num_leaves': 120,
-							   'reg_alpha': 0.15,
-							   'reg_lambda': 0.90,
-							   'verbosity': -1,
-							   'categorical_feature': [f"name: {c}" for c in self.cat_cols],
-							   }
-							),
-
-			'LGBM3C': LGBMC(**{'device': "gpu" if CFG.gpu_switch == "ON" else "cpu",
-							   'objective': 'binary',
-							   'boosting_type': 'gbdt',
-							   'metric': "auc",
-							   'random_state': self.state,
-							   'colsample_bytree': 0.45,
-							   'subsample': 0.45,
-							   'learning_rate': 0.06,
-							   'max_depth': 6,
-							   'n_estimators': 3000,
-							   'num_leaves': 125,
-							   'reg_alpha': 0.05,
-							   'reg_lambda': 0.95,
-							   'verbosity': -1,
-							   'categorical_feature': [f"name: {c}" for c in self.cat_cols],
-							   }
-							),
-
-			'LGBM4C': LGBMC(**{'device': "gpu" if self.gpu_switch == "ON" else "cpu",
-							   'objective': 'binary',
-							   'boosting_type': 'gbdt',
-							   'metric': "auc",
-							   'random_state': self.state,
-							   'colsample_bytree': 0.55,
-							   'subsample': 0.55,
-							   'learning_rate': 0.085,
-							   'max_depth': 7,
-							   'n_estimators': 3000,
-							   'num_leaves': 105,
-							   'reg_alpha': 0.08,
-							   'reg_lambda': 0.995,
-							   'verbosity': -1,
-							   }
-							),
-			'CB1C': CBC(**{
-				'task_type': 'GPU' if self.gpu_switch == 'ON' else 'CPU',
-				'objective': 'Logloss',
-				'eval_metric': 'AUC',
-				'bagging_temperature': 0.1,  # 贝叶斯套袋控制强度，区间[0, 1]。默认1
-				'colsample_bylevel': 0.88,
-				'iterations': 3000,  # 最大树数。默认1000。
-				'learning_rate': 0.065,
-				'od_wait': 12,  # 与early_stopping_rounds部分相似，
-				# od_wait为达到最佳评估值后继续迭代的次数，
-				# 检测器为IncToDec时达到最佳评估值后继续迭代n次（n为od_wait参数值）；
-				# 检测器为Iter时达到最优评估值后停止，默认值20`
-				'max_depth': 7,
-				'l2_leaf_reg': 1.75,  # l2正则项，别名：reg_lambda
-				'min_data_in_leaf': 25,  # 叶子结点最小样本量
-				'random_strength': 0.1,  # 设置特征分裂信息增益的扰过拟合。
-				# 子树分裂时，正常会寻找最大信息增益的特征+分裂点进行分裂，
-				# 此处对每个特征+分裂点的信息增益值+扰动项后再确定最大值。扰动项服从正态分布、均值为0，
-				# random_strength参数值会作为正态分布的方差，默认值1、对应标准正态分布；设置0时则无扰动项
-				'max_bin': 100,  # 数值型特征的分箱数，别名max_bin，取值范围[1,65535]、默认值254（CPU下)
-				'verbose': 0,  # # 模型训练过程的信息输出等级，取值Silent（不输出信息）、
-				# Verbose（默认值，输出评估指标、已训练时间、剩余时间等）、
-				# Info（输出额外信息、树的棵树）、Debug（debug信息）
-				'use_best_model': True  # 让模型使用效果最优的子树棵树/迭代次数，
-				# 使用验证集的最优效果对应的迭代次数（eval_metric：评估指标，eval_set：验证集数据），
-				# 布尔类型可取值0，1（取1时要求设置验证集数据）
-			}),
-			"CB2C": CBC(**{'task_type': "GPU" if self.gpu_switch == "ON" else "CPU",
-						   'objective': 'Logloss',
-						   'eval_metric': "AUC",
-						   'bagging_temperature': 0.5,
-						   'colsample_bylevel': 0.50,
-						   'iterations': 2500,
-						   'learning_rate': 0.04,
-						   'od_wait': 24,
-						   'max_depth': 8,
-						   'l2_leaf_reg': 1.235,
-						   'min_data_in_leaf': 25,
-						   'random_strength': 0.35,
-						   'max_bin': 160,
-						   'verbose': 0,
-						   'use_best_model': True,
-						   }
-						),
-			"CB3C": CBC(**{'task_type': "GPU" if self.gpu_switch == "ON" else "CPU",
-						   'objective': 'Logloss',
-						   'eval_metric': "AUC",
-						   'bagging_temperature': 0.2,
-						   'colsample_bylevel': 0.85,
-						   'iterations': 2500,
-						   'learning_rate': 0.025,
-						   'od_wait': 10,
-						   'max_depth': 7,
-						   'l2_leaf_reg': 1.235,
-						   'min_data_in_leaf': 8,
-						   'random_strength': 0.60,
-						   'max_bin': 160,
-						   'verbose': 0,
-						   'use_best_model': True,
-						   }
-						),
-			"CB4C": CBC(**{'task_type': "GPU" if self.gpu_switch == "ON" else "CPU",
-						   'objective': 'Logloss',
-						   'eval_metric': "AUC",
-						   'grow_policy': 'Lossguide',
-						   'colsample_bylevel': 0.25,
-						   'iterations': 2500,
-						   'learning_rate': 0.035,
-						   'od_wait': 24,
-						   'max_depth': 7,
-						   'l2_leaf_reg': 1.80,
-						   'random_strength': 0.60,
-						   'max_bin': 160,
-						   'verbose': 0,
-						   'use_best_model': True,
-						   }
-						),
-			'HGB1C': HGBC(
-				loss='log_loss',
-				learning_rate=0.06,
-				max_iter=800,# boosting过程的最大迭代次数，即二分类的最大树数。对于多类分类，每次迭代都会构建n_classes 树。
-				max_depth=6,# 每棵树的最大深度。树的深度是从根到最深叶的边数。默认情况下，深度不受限制。。
-				min_samples_leaf=12,# 每片叶子的最小样本数。对于少于几百个样本的小型数据集，
-				# 建议降低此值，因为只会构建非常浅的树。
-				l2_regularization=1.15,# L2 正则化参数。使用 0 表示不进行正则化。
-				validation_fraction=0.1,# 留出作为提前停止验证数据的训练数据的比例(或绝对大小)。
-				# 如果没有，则对训练数据进行提前停止。仅在执行提前停止时使用。
-				n_iter_no_change=self.nbrnd_erly_stp,# 用于确定何时“early stop”。
-				# 当最后一个 n_iter_no_change 分数都没有优于 n_iter_no_change - 1 -th-to-last 分数时，
-				# 拟合过程将停止，达到一定的容差。仅在执行提前停止时使用
-				random_state=self.state
-			),
-			'HGB2C': HGBC(
-				loss='log_loss',
-				learning_rate=0.035,
-				max_iter=700,
-				max_depth=7,
-				min_samples_leaf=9,
-				l2_regularization=1.75,
-				validation_fraction=0.1,
-				n_iter_no_change=self.nbrnd_erly_stp,
-				random_state=self.state
-			),
+			'ada': ensemble.AdaBoostClassifier(),
+			'bc': ensemble.BaggingClassifier(),
+			'etc':ensemble.ExtraTreesClassifier(),
+			'gbc':ensemble.GradientBoostingClassifier(),
+			'rfc':ensemble.RandomForestClassifier(),
+			# Gaussian Processes: http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-classification-gpc
+			'gpc':gaussian_process.GaussianProcessClassifier(),
+			# GLM: http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+			'lr':linear_model.LogisticRegressionCV(),
+			# Navies Bayes: http://scikit-learn.org/stable/modules/naive_bayes.html
+			'bnb':naive_bayes.BernoulliNB(),
+			'gnb':naive_bayes.GaussianNB(),
+			# Nearest Neighbor: http://scikit-learn.org/stable/modules/neighbors.html
+			'knn':neighbors.KNeighborsClassifier(),
+			# SVM: http://scikit-learn.org/stable/modules/svm.html
+			# 'svc':SVC(probability==True),
+			'svc':svm.SVC(probability=True),
+			# xgboost: http://xgboost.readthedocs.io/en/latest/model.html
+			'xgb':XGBClassifier()
 		}
 		return self
 
@@ -996,7 +344,7 @@ class MdlDeveloper(CFG):
 		:param y_pred:
 		:return:
 		'''
-		return roc_auc_score(ytrue, ypred)
+		return accuracy_score(ytrue, ypred)
 
 	def ClbMetric(self, ytrue, ypred):
 		'''
@@ -1029,7 +377,7 @@ class MdlDeveloper(CFG):
 		'''
 		# Initializing I-O :-
 		X, y, Xt = self.Xtrain[self.sel_cols], \
-				   self.ytrain.copy(deep=True), \
+				   self.ytrain.copy(), \
 				   self.Xtest[self.sel_cols]
 		cols_drop = [
 			'Source', 'id', 'Sum_of_Luminosity', \
@@ -1051,9 +399,10 @@ class MdlDeveloper(CFG):
 			# Initializing the OOF and test set predictions:-
 			oof_preds = pd.DataFrame(columns=self.methods, index=Xdev.index)
 			mdl_preds = pd.DataFrame(columns=self.methods, index=Xt.index)
-			PrintColor(f"\n{' = ' * 5} Fold {fold_nb + 1} {' = ' * 5}\n")
+			# PrintColor(f"\n{' = ' * 5} Fold {fold_nb + 1} {' = ' * 5}\n")
 			# Initializing models across methods:-
-			for method in tqdm(self.methods[:1]):
+			for method in tqdm(self.methods):
+				print(f'{datetime.now()}; fold: {fold_nb} ; method :{method}  start ')
 				model = Pipeline(steps=[('M', self.Mdl_Master.get(method))])
 				# Fitting the model:-
 				if 'CB' in method:
@@ -1080,36 +429,46 @@ class MdlDeveloper(CFG):
 				except:
 					pass
 				# Collecting predictions and scores and post-processing OOF based on model method:-
-				dev_preds = model.predict_proba(Xdev)[:, 1]
-				train_preds = model.predict_proba(Xtr)[:, 1]
+				dev_preds = model.predict(Xdev)
+				# dev_preds = model.predict_proba(Xdev)[:, 1]
+				# train_preds = model.predict_proba(Xtr)[:, 1]
+				train_preds = model.predict(Xtr)
 				tr_score = self.ScoreMetric(ytr.values.flatten(), \
 											train_preds)
 				score = self.ScoreMetric(ydev.values.flatten(), dev_preds)
-				PrintColor(f'OOF={score:.5f} | train = {tr_score:.5f} | {method}', color=Fore.CYAN)
-				oof_preds[method] = dev_preds#TODO importance
+				# PrintColor(f'OOF={score:.5f} | train = {tr_score:.5f} | {method}', color=Fore.CYAN)
+				oof_preds[method] = dev_preds  # TODO importance
 				# Integrating the predictions and scores:-
 				self.Scores.at[fold_nb, method] = np.round(score, decimals=6)
 				self.TrainScores.at[fold_nb, method] = np.round(tr_score, decimals=6)
 				if test_preds_req == 'Y':
 					mdl_preds[method] = self.PostProcessPred(model.predict_proba(Xt.drop(columns=cols_drop,
 																						 errors='ignore')))
-		try:
-			del dev_preds, train_preds, tr_score, score
-		except:
-			pass
-		# Ensembling the predictions:-
-		oof_preds['Ensemble'] = ens.fit_predict(ydev, oof_preds[self.method])
-		score = self.ScoreMetric(ydev, oof_preds['Ensemble'].values)
-		self.OOF_Preds = pd.concat([self.OOF_Preds, oof_preds], axis=0, ignore_index=False)
-		self.Scores.at[fold_nb, 'Ensemble'] = np.round(score, 6)
-		if test_preds_req == 'Y':
-			mdl_preds['ensemble'] = ens.predict(mdl_preds[self.methods])
-			self.Mdl_Preds = pd.concat([self.Mdl_Preds, mdl_preds], axis=1, ignore_index=False)
+				print(f'{datetime.now()}; fold: {fold_nb} ; method :{method}  end ')
+			try:
+				del dev_preds, train_preds, tr_score, score
+			except:
+				pass
+			# Ensembling the predictions:-
+			oof_preds['Ensemble'] = ens.fit_predict(ydev, oof_preds[self.methods])
+			score = self.ScoreMetric(ydev, oof_preds['Ensemble'].values)
+			self.OOF_Preds = pd.concat([self.OOF_Preds, oof_preds], axis=0, ignore_index=False)
+			self.Scores.at[fold_nb, 'Ensemble'] = np.round(score, 6)
+			if test_preds_req == 'Y':
+				mdl_preds['Ensemble'] = ens.predict(mdl_preds[method])
+				self.Mdl_Preds = pd.concat([self.Mdl_Preds, mdl_preds], axis=1, ignore_index=False)
+
 		# Averaging the predictions afeter all folds:-
 		self.OOF_Preds = self.OOF_Preds.groupby(level=0).mean()
+		result = pd.DataFrame(columns=self.methods, index=Xt.index)
 		if test_preds_req == 'Y':
 			self.Mdl_Preds = self.Mdl_Preds[self.methods + ['Ensemble']].groupby(level=0).mean()
-		return self.OOF_Preds, self.Mdl_Preds, self.Scores, self.TrainScores
+			for key, model in self.Mdl_Master.items():
+				result[key] = model.predict(self.Xtest)
+			result['Ensemble'] = ens.predict(result)
+
+		return self.OOF_Preds['Ensemble'].astype(np.int8), self.Mdl_Preds, self.Scores, self.TrainScores, result[
+			'Ensemble'].astype(np.int8)
 
 	def MakePseudoLbl(self, up_cutoff: float, low_cutoff: float, **kwargs):
 		"""
@@ -1123,8 +482,7 @@ class MdlDeveloper(CFG):
 			(self.Mdl_Preds.Ensemble >= up_cutoff) | (self.Mdl_Preds.Ensemble <= low_cutoff), \
 			'Ensemble'
 		]
-		PrintColor(f'-->Pseudo Label additions form test set={df.shape[0]:,.0f}', \
-				   color=Fore.RED)
+		# PrintColor(f'-->Pseudo Label additions form test set={df.shape[0]:,.0f}', color=Fore.RED)
 		df = df.astype(np.uint8)
 		new_ytrain = pd.concat([self.ytrain, df], axis=0, ignore_index=True)
 		new_ytrain.index = range(len(new_ytrain))
@@ -1134,7 +492,7 @@ class MdlDeveloper(CFG):
 							   ignore_index=True)
 		new_Xtrain.index = range(len(new_Xtrain))
 		#  Verifying the additions:-
-		PrintColor(f"---> Revised train set shapes after pseudo labels = {new_Xtrain.shape} {new_ytrain.shape}");
+		# PrintColor(f"---> Revised train set shapes after pseudo labels = {new_Xtrain.shape} {new_ytrain.shape}");
 		return new_Xtrain, new_ytrain
 
 	def MakeMLPlots(self):
@@ -1143,159 +501,78 @@ class MdlDeveloper(CFG):
 		 including feature importance and calibration curves
 		:return:
 		'''
-		fig, axes = plt.subplots(len(self.methods), \
-								 2, \
-								 figsize=(35, len(self.methods) * 10), \
-								 gridspec_kw={'hspace': 0.6, 'wspace': 0.2}, \
-								 width_ratios=[0.75, 0.25], \
-								 );
-		for i, col in enumerate(self.methods):
-			try:
-				ax = axes[i, 0];
-			except:
-				ax = axes[0];
-			self.FtreImp[col].plot.bar(ax=ax, color='#0073e6');
-			ax.set_title(f"{col} Importances", **CFG.title_specs);
-			ax.set(xlabel='', ylabel='');
-			try:
-				ax = axes[i, 1];
-			except:
-				ax = axes[1];
-			Clb.from_predictions(self.ytrain[0:len(self.OOF_Preds)],
-								 self.OOF_Preds[col],
-								 n_bins=20,
-								 ref_line=True,
-								 **{'color': '#0073e6', 'linewidth': 1.2,
-									'markersize': 3.75, 'marker': 'o', 'markerfacecolor': '#cc7a00'},
-								 ax=ax
-								 )
-			ax.set_title(f"{col} Calibration", **CFG.title_specs);
-			ax.set(xlabel='', ylabel='', );
-			ax.set_yticks(np.arange(0, 1.01, 0.05),
-						  labels=np.round(np.arange(0, 1.01, 0.05), 2), fontsize=7.0);
-			ax.set_xticks(np.arange(0, 1.01, 0.05),
-						  labels=np.round(np.arange(0, 1.01, 0.05), 2),
-						  fontsize=6.25,
-						  rotation=90
-						  );
-			ax.legend('');
-		plt.tight_layout();
-		plt.show();
+		pass
 
 
-print();
-collect()
+from sklearn.preprocessing import LabelEncoder
 
+# pp = Preprocessor();
+# pp.DoPreprocessing();
+target = 'Target'
+cols_drop = ['id', 'Target']
+ytrain = train[CFG.targets]
+labelEncoder = LabelEncoder()
+ytrain = labelEncoder.fit_transform(ytrain)
+ytrain = pd.DataFrame(ytrain).astype(np.int8)
 
-class Utils:
-	'''
-	    This class plots the final scores and generates adjutant model utilities
-	'''
-
-	def __init__(self, targets):
-		self.targets = targets
-
-	def DisplayAdjTbl(self, *args):
-		'''
-		This function displays pandas tables in an adjacent manner, sourced from the below link-
-        https://stackoverflow.com/questions/38783027/jupyter-notebook-display-two-pandas-tables-side-by-side
-		:param args:
-		:return:
-		'''
-		html_str = ''
-		for df in args:
-			html_str += df.to_html()
-		display_html(html_str.replace('table', 'table style="display:inline"'), raw=True);
-		collect();
-
-	def DisplayScores(self, Scores: pd.DataFrame, TrainScores: pd.DataFrame):
-		'''
-		This method displays the scores and their means
-		:param Scores:
-		:param TrainScores:
-		:return:
-		'''
-		methods = Scores.columns[0:-2];
-		args = \
-			[Scores.style.format(precision=5). \
-				 background_gradient(cmap="Pastel2", subset=methods). \
-				 set_caption(f"\nOOF scores across methods and folds\n"),
-
-			 TrainScores.style.format(precision=5). \
-				 background_gradient(cmap="Pastel2", subset=methods). \
-				 set_caption(f"\nTrain scores across methods and folds\n")
-			 ];
-		PrintColor(f"\n\n\n---> OOF score across all methods and folds\n", color=Fore.LIGHTMAGENTA_EX);
-		self.DisplayAdjTbl(*args);
-
-		print('\n');
-		# display(Scores.groupby("Target")[["Ensemble"]].mean(). \
-		# 		transpose(). \
-		# 		style.format(precision=5). \
-		# 		background_gradient(cmap="Spectral", axis=1, subset=self.targets). \
-		# 		set_caption(f"\nOOF mean scores across methods and folds\n")
-		# 		)
-
-		PrintColor(f"\n---> Mean ensemble score OOF = {np.mean(Scores['Ensemble']):.5f}\n");
-
-
-collect()
-print()
-
-if CFG.ML == 'Y':
-	sel_cols = Xtrain.columns
-	PrintColor(f'\n ---> Selected model columns')
-	cat_ftre = list(set(pp.cat_cols))
-	with np.printoptions(linewidth=150):
-		PrintColor(f'\n--> All Selected columns\n')
-		pprint(np.array(sel_cols))
-
-		PrintColor(f'\n--> All category columns\n')
-		pprint(np.array(cat_ftre))
+train = train.drop(cols_drop, axis=1)
+sel_cols = train.columns
+print('2' * 100)
+print(train.nunique())
+featureCount = train.nunique()
+cat_ftre = featureCount.loc[featureCount <= 10].index.to_list()
+cont_cols = [c for c in featureCount.index if c not in cat_ftre]
 
 if CFG.ML == 'Y':
 	OOF_Preds, Mdl_Preds, Scores, TrainScores = pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
-	for target in CFG.targets:
-		md = MdlDeveloper(Xtrain, \
-						  ytrain[target], \
-						  ytrain[target], \
-						  Xtest, \
-						  sel_cols=sel_cols, \
-						  cat_cols=cat_ftre, \
-						  enc_cols=[] \
-						  )
-		oof_preds, mdl_preds, scores, trainscores = md.TrainMdl(
-			test_preds_req='Y', \
-			target=target)
-		OOF_Preds = pd.concat([oof_preds.assign(Target=target), OOF_Preds], \
-							  axis=0, \
-							  ignore_index=False)
-		Mdl_Preds = pd.concat([mdl_preds.assign(Target=target), Mdl_Preds], \
-							  axis=0, \
-							  ignore_index=False)
-		Scores = pd.concat([scores.assign(Target=target), Scores], \
-						   axis=0, \
-						   ignore_index=True)
-		TrainScores = pd.concat([trainscores.assign(Target=target), TrainScores], \
-								axis=0, \
-								ignore_index=True)
-	clear_output()
-	utils = Utils(CFG.targets)
-	utils.DisplayScores(Scores, TrainScores)
+	md = MdlDeveloper(train, ytrain, ytrain, test, sel_cols=sel_cols, cat_cols=cat_ftre, enc_cols=[])
+	oof_preds, mdl_preds, scores, trainscores, result = md.TrainMdl(test_preds_req='Y', target=target)
+	print(oof_preds)
+	# OOF_Preds = pd.concat([oof_preds.assign(Target=target), OOF_Preds], \
+	# 					  axis=0, \
+	# 					  ignore_index=False)
+	OOF_Preds = pd.DataFrame({"id": test.id, "Target": labelEncoder.inverse_transform(result)})
+	Mdl_Preds = pd.concat([mdl_preds.assign(Target=target), Mdl_Preds], \
+						  axis=0, \
+						  ignore_index=False)
+	Scores = pd.concat([scores.assign(Target=target), Scores], \
+					   axis=0, \
+					   ignore_index=True)
+	TrainScores = pd.concat([trainscores.assign(Target=target), TrainScores], \
+							axis=0, \
+							ignore_index=True)
+	# TODO  6-5
+	OOF_Preds.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
 
-print()
-collect()
-# ---> OOF score across all methods and folds
+# if CFG.ML == 'Y':
+# sub_f1=pd.DataFrame({'id':test['id'],'target':MDL_Preds })
+# for col in CFG.targets:
+# sub_f1 = 1 - Mdl_Preds.loc[Mdl_Preds.Target == 'Target', 'Ensemble']
+# sub1 = pd.read_csv(f'../input/playgrounds4e03ancillary/89652_submission.csv')[CFG.targets]
+# pp.sub_f1[CFG.targets] = pp.sub_f1[CFG.targets].values * 0.1 + sub1 * 0.9
+#
+# pp.sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
+# sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
+# OOF_Preds.to_csv(f'OOF_Preds_V{CFG.version_nb}.csv', index=False)
+# Mdl_Preds.to_csv(f'Mdl_Preds_V{CFG.version_nb}.csv', index=False)
 
-if CFG.ML == 'Y':
-	for col in CFG.targets:
-		pp.sub_f1[col] = 1 - Mdl_Preds.loc[Mdl_Preds.Target == col, 'Ensemble '].values
-	sub1 = pd.read_csv(f'../input/playgrounds4e03ancillary/89652_submission.csv')[CFG.targets]
-	pp.sub_f1[CFG.targets] = pp.sub_f1[CFG.targets].values * 0.1 + sub1 * 0.9
-
-	pp.sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
-	OOF_Preds.to_csv(f'OOF_Preds_V{CFG.version_nb}.csv', index=False)
-	Mdl_Preds.to_csv(f'Mdl_Preds_V{CFG.version_nb}.csv', index=False)
-# display(pp.sub_fl.head(10).style.set_caption(f"\nSubmission file\n").format(precision=3));
-print()
-collect()
+# from flaml import AutoML
+#
+# automl = AutoML()
+# y = train.pop('Target')
+# X = train
+# print(f'{datetime.now()} automl start !')
+# automl.fit(X, y, task='classification', metric='roc_auc_ovo', time_budget=3600 * 3)
+# print(f'{datetime.now()} automl end !')
+#
+# y_pred = automl.predict(test)
+# print('y_pred[:5]:')
+# print(y_pred[:5])
+# df = pd.DataFrame(y_pred, columns=['Target'])
+# print('df.head():')
+# print(df.head())
+#
+# sol = pd.read_csv('../input/playground-series-s4e6/sample_submission.csv')
+# print('sol.head():')
+# print(sol.head())
+# sol.to_csv('./roc_auc_ovo.csv', index=False)

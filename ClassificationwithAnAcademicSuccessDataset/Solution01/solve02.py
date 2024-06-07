@@ -103,7 +103,7 @@ class CFG:
 	Some parameters may be unused here as this is a general configuration class
 	""";
 	# Data preparation
-	version_nb = 7
+	version_nb = 8
 	test_req = 'Y'
 	test_sample_frac = 0.025
 	gpu_switch = 'OFF'
@@ -268,8 +268,9 @@ class MdlDeveloper(CFG):
 		self.Xtrain = Xtrain
 		self.ytrain = ytrain
 		self.y_grp = ygrp
-		self.Xtest = Xtest
-		self.Xtest_R={}
+		self.testId = Xtest['id']
+		self.Xtest = Xtest.drop('id', axis=1)
+		self.Xtest_R = {}
 		self.sel_cols = sel_cols
 		self.cat_cols = cat_cols
 		self.enc_cols = enc_cols
@@ -686,21 +687,17 @@ class MdlDeveloper(CFG):
 				mdl_preds['Ensemble'] = ens.predict(mdl_preds[method])
 				self.Mdl_Preds = pd.concat([self.Mdl_Preds, mdl_preds], axis=1, ignore_index=False)
 
-
 		# Averaging the predictions afeter all folds:-
 		self.OOF_Preds = self.OOF_Preds.groupby(level=0).mean()
 		result = pd.DataFrame(columns=self.methods, index=Xt.index)
-		test_id=test.id.copy()
-		test.drop('id',axis=1)
 		if test_preds_req == 'Y':
 			self.Mdl_Preds = self.Mdl_Preds[self.methods + ['Ensemble']].groupby(level=0).mean()
 			for key, model in self.Mdl_Master.items():
-				result[method]=model.predict(test)
-			result['Ensemble'] = ens.predict()
+				result[method] = model.predict(self.Xtest)
+			result['Ensemble'] = ens.predict(result)
 
-
-
-		return self.OOF_Preds['Ensemble'].astype(np.int8), self.Mdl_Preds, self.Scores, self.TrainScores
+		return self.OOF_Preds['Ensemble'].astype(np.int8), self.Mdl_Preds, self.Scores, self.TrainScores, result[
+			'Ensemble'].astype(np.int8)
 
 	def MakePseudoLbl(self, up_cutoff: float, low_cutoff: float, **kwargs):
 		"""
@@ -743,8 +740,8 @@ from sklearn.preprocessing import LabelEncoder
 target = 'Target'
 cols_drop = ['id', 'Target']
 ytrain = train[CFG.targets]
-label = LabelEncoder()
-ytrain = label.fit_transform(ytrain)
+labelEncoder = LabelEncoder()
+ytrain = labelEncoder.fit_transform(ytrain)
 ytrain = pd.DataFrame(ytrain).astype(np.int8)
 
 train = train.drop(cols_drop, axis=1)
@@ -758,12 +755,12 @@ cont_cols = [c for c in featureCount.index if c not in cat_ftre]
 if CFG.ML == 'Y':
 	OOF_Preds, Mdl_Preds, Scores, TrainScores = pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 	md = MdlDeveloper(train, ytrain, ytrain, test, sel_cols=sel_cols, cat_cols=cat_ftre, enc_cols=[])
-	oof_preds, mdl_preds, scores, trainscores = md.TrainMdl(test_preds_req='Y', target=target)
+	oof_preds, mdl_preds, scores, trainscores, result = md.TrainMdl(test_preds_req='Y', target=target)
 	print(oof_preds)
 	# OOF_Preds = pd.concat([oof_preds.assign(Target=target), OOF_Preds], \
 	# 					  axis=0, \
 	# 					  ignore_index=False)
-	OOF_Preds = pd.DataFrame({"id": test.id, "target": OOF_Preds})
+	OOF_Preds = pd.DataFrame({"id": test.id, "Target":labelEncoder.inverse_transform(result)})
 	Mdl_Preds = pd.concat([mdl_preds.assign(Target=target), Mdl_Preds], \
 						  axis=0, \
 						  ignore_index=False)
@@ -774,8 +771,7 @@ if CFG.ML == 'Y':
 							axis=0, \
 							ignore_index=True)
 	# TODO  6-5
-	sub_f1 = pd.DataFrame({'id': test['id'], 'target': Mdl_Preds})
-	sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
+	OOF_Preds.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
 
 # if CFG.ML == 'Y':
 # sub_f1=pd.DataFrame({'id':test['id'],'target':MDL_Preds })
