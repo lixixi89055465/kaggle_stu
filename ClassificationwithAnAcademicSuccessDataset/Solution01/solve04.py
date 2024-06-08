@@ -160,7 +160,6 @@ class OptunaEnsembler:
 
 	def __init__(self):
 		self.study = None
-		self.weights = None
 		self.random_state = CFG.state
 		self.n_trials = CFG.ntrials
 		self.direction = CFG.metric_obj
@@ -178,15 +177,6 @@ class OptunaEnsembler:
 		''''
         This method defines the objective function for the ensemble
 		'''
-		if isinstance(y_preds, pd.DataFrame) or isinstance(y_preds, np.ndarray):
-			weights = [trial.suggest_float(f'weight{n}', 0, 1)
-					   for n in range(y_preds.shape[-1])]
-			axis = 1
-		elif isinstance(y_preds, list):
-			weights = [trial.suggest_float(f'weight{n}', 0, 1) \
-					   for n in range(len(y_preds))]
-			axis = 0
-		# weighted_pred = np.average(np.array(y_preds), axis=axis, weights=weights)
 		weighted_pred = stats.mode(y_preds, axis=1)[0]
 		score = self.ScoreMetric(y_true.values.flatten(), weighted_pred.reshape(-1))
 		return score
@@ -207,12 +197,6 @@ class OptunaEnsembler:
 		)
 		obj = partial(self._objective, y_true=y_true, y_preds=y_preds)
 		self.study.optimize(obj, n_trials=self.n_trials)
-		if isinstance(y_preds, list):
-			self.weights = [self.study.best_params[f'weight{n}'] \
-							for n in range(len(y_preds))]
-		else:
-			self.weights = [self.study.best_params[f'weight{n}'] \
-							for n in range(y_preds.shape[-1])]
 
 	def predict(self, y_preds):
 		'''
@@ -220,15 +204,10 @@ class OptunaEnsembler:
 		:param y_preds:
 		:return:
 		'''
-		assert self.weights is not None, 'OptunaWeights error, must be fitted before predict';
-		if isinstance(y_preds, list):
-			weighted_pred = np.average(np.array(y_preds), axis=0, weights=self.weights)
-		elif len(y_preds.shape) == 1:
-			weighted_pred = y_preds
-		else:
-			# weighted_pred = np.average(np.array(y_preds).reshape(-1, 1), axis=1, weights=self.weights)
-			weighted_pred = stats.mode(y_preds, axis=1)[0]
-
+		# assert self.weights is not None, 'OptunaWeights error, must be fitted before predict';
+		if y_preds.ndim == 1:
+			return y_preds
+		weighted_pred = stats.mode(y_preds, axis=1)[0]
 		return weighted_pred
 
 	def fit_predict(self, y_true, y_pres):
@@ -318,18 +297,9 @@ class MdlDeveloper(CFG):
 			'etc': ensemble.ExtraTreesClassifier(n_jobs=-1),
 			'gbc': ensemble.GradientBoostingClassifier(),
 			'rfc': ensemble.RandomForestClassifier(n_jobs=-1),
-			## Gaussian Processes: http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-classification-gpc
-			### 'gpc': gaussian_process.GaussianProcessClassifier(n_jobs=3),
-			## GLM: http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
-			# 'lr': linear_model.LogisticRegressionCV(n_jobs=-1),
-			# # Navies Bayes: http://scikit-learn.org/stable/modules/naive_bayes.html
 			'bnb': naive_bayes.BernoulliNB(),
 			'gnb': naive_bayes.GaussianNB(),
-			# # Nearest Neighbor: http://scikit-learn.org/stable/modules/neighbors.html
 			'knn': neighbors.KNeighborsClassifier(n_jobs=-1),
-			# # SVM: http://scikit-learn.org/stable/modules/svm.html
-			### 'svc': svm.SVC(probability=True),
-			# # xgboost: http://xgboost.readthedocs.io/en/latest/model.html
 			'xgb': XGBClassifier()
 		}
 		return self
