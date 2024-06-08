@@ -4,7 +4,7 @@
 # @Site : https://www.kaggle.com/code/gauravduttakiit/pss4e6-flaml-roc-auc-ovo
 # @File : solve02.py
 # @Software: PyCharm 
-# @Comment : Spaceship_Titanic/Solution05/Best models Spaceship_Titanic.py
+# @Comment : Spaceship_Titanic/Solution05/Best models Spaceship_Titanic.py:93
 from sklearn.pipeline import Pipeline, make_pipeline
 from tqdm.notebook import tqdm
 import numpy as np
