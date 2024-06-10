@@ -113,45 +113,7 @@ qual_feats = ['PassengerId', 'Cabin', 'Name']
 # print('1' * 100)
 # for dataset in data_cleaner:
 # 	dataset['Solo'] = (dataset['Group_size'] == 1).astype(int)
-
-# for dataset in data_cleaner:
-# 	# Replace NaN's with outliers for now (so we can split feature)
-# 	dataset['Cabin'].fillna('Z/9999/Z', inplace=True)
-# 	# New features
-# 	dataset['Cabin_deck'] = dataset['Cabin'].apply(lambda x: x.split('/')[0])
-# 	dataset['Cabin_number'] = dataset['Cabin'].apply(lambda x: x.split('/')[1]).astype(int)
-# 	dataset['Cabin_side'] = dataset['Cabin'].apply(lambda x: x.split('/')[2])
 #
-# 	# Put Nan's back in (we will fill these later)
-# 	dataset.loc[dataset['Cabin_deck'] == 'Z', 'Cabin_deck'] = np.nan
-# 	dataset.loc[dataset['Cabin_number'] == 9999, 'Cabin_number'] = np.nan
-# 	dataset.loc[dataset['Cabin_side'] == 'Z', 'Cabin_side'] = np.nan
-
-# Drop Cabin (we don't need it anymore)
-# dataset.drop('Cabin', axis=1, inplace=True)
-# plot distribution of new features
-# fig = plt.figure(figsize=(10, 12))
-# plt.subplot(3, 1, 1)
-# sns.countplot(input=data1, x='Cabin_deck', hue='Transported', order=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'T'])
-# plt.title('Cabin-deck')
-#
-# plt.subplot(3, 1, 2)
-# sns.histplot(input=data1, x='Cabin_number', hue='Transported', binwidth=20)
-# plt.vlines(300, ymin=0, ymax=200, color='black')
-# plt.vlines(600, ymin=0, ymax=200, color='black')
-# plt.vlines(900, ymin=0, ymax=200, color='black')
-# plt.vlines(1200, ymin=0, ymax=200, color='black')
-# plt.vlines(1500, ymin=0, ymax=200, color='black')
-# plt.vlines(1800, ymin=0, ymax=200, color='black')
-# plt.title('Cabin number')
-# plt.xlim([0, 2000])
-#
-# plt.subplot(3, 1, 3)
-# sns.countplot(input=data1, x='Cabin_side', hue='Transported')
-# plt.title('cabin side')
-# fig.tight_layout()
-# plt.show()
-# print("5" * 100)
 ## TODO 离散分批特征
 # for dataset in data_cleaner:
 # 	# New feature - training set
@@ -172,122 +134,7 @@ qual_feats = ['PassengerId', 'Cabin', 'Name']
 # plt.title('Cabin region ')
 # plt.show()
 # data1.drop('Cabin_region_plot', axis=1, inplace=True)
-# TODO 未知的特征
-# for dataset in data_cleaner:
-# 	dataset['Name'].fillna('Unknown Unknown', inplace=True)
-# 	dataset['Surname'] = dataset['Name'].str.split().str[-1]
-# 	dataset['Family_size'] = dataset['Surname'].map(lambda x: dataset['Surname'].value_counts()[x])
-# 	testSurname = dataset['Surname'].value_counts()
-# 	# dataset['Surname'].map(lambda x: dataset['Surname'].value_counts()[x])
-# 	dataset['Surname'].map(lambda x: testSurname[x])
-# 	# dataset.loc[dataset['Surname'] == 'Unknow Unknow'] = np.nan
-# 	dataset.loc[dataset['Surname'] == 'Unknown', 'Surname'] = np.nan
-# 	dataset.loc[dataset['Family_size'] > 100, 'Family_size'] = np.nan
-# 	dataset.drop('Name', axis=1, inplace=True)
 
-# New  feature distribution
-#
-# plt.figure(figsize=(12, 4))
-# sns.countplot(input=data1, x='Family_size', hue='Transported')
-# plt.title('Family_size ')
-# plt.show()
-# Missing values¶
-
-# data1['Transported'].astype(int)
-# for dataset in data_cleaner:
-# 	# Columns with missing values
-# 	na_cols = dataset.columns[dataset.isna().any()].tolist()
-# 	mv = pd.DataFrame(dataset[na_cols].isna().sum(), columns=['Number_missing'])
-# 	mv['Percentage_missing'] = np.round(100 * mv['Number_missing'] / len(dataset), 2)
-# 	print(mv, '\n')
-# data1['na_count'] = data1.isna().sum(axis=1)
-
-# Countplot of number of missing values by passenger
-# plt.figure(figsize=(10, 4))
-# sns.countplot(input=data1, x='na_count', hue='Transported')
-# plt.title("number of missing entries by pasenger")
-# plt.show()
-# data1.drop('na_count', axis=1, inplace=True)
-
-# We managed to fill 131 values with 100% confidence but we are nott finished yet.
-
-
-# TODO 设置  na 值
-# for dataset in data_cleaner:
-# 	GHP_gb = dataset.groupby(['Group', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
-# 	# Missing values before
-# 	HP_bef = dataset['HomePlanet'].isna().sum()
-# 	GHP_index = dataset[dataset['HomePlanet'].isna()][
-# 		(dataset[dataset['HomePlanet'].isna()]['Group']).isin(GHP_gb.index)].index
-# 	dataset.loc[GHP_index, 'HomePlanet'] = dataset.iloc[GHP_index, :]['Group'].map(lambda x: GHP_gb.idxmax(axis=1)[x])
-# 	print('#Missing values before:', HP_bef)
-# 	print("#Missing values after:", dataset['HomePlanet'].isna().sum())
-
-print('5' * 100)
-## TODO fill nan value
-# for dataset in data_cleaner:
-# 	HP_bef = dataset['HomePlanet'].isna().sum()
-# 	dataset.loc[
-# 		(dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'].isin(['A', 'B', 'C', 'T'])), 'HomePlanet'] = 'Europa'
-# 	dataset.loc[(dataset['HomePlanet'].isna()) & (dataset['Cabin_deck'] == 'G'), 'HomePlanet'] = 'Earth'
-# print('#HomePlanet missing values before:', HP_bef)
-# print('#HomePlanet missing values after:', dataset['HomePlanet'].isna().sum())
-
-# print('6' * 100)
-# for data in data_cleaner:
-# 	SHP_gb = data.groupby(['Surname', 'HomePlanet'])['HomePlanet'].size().unstack().fillna(0)
-# 	HP_bef = data['HomePlanet'].isna().sum()
-# 	SHP_index = data[data['HomePlanet'].isna()][(data[data['HomePlanet'].isna()]['Surname']).isin(SHP_gb.index)].index
-# 	data.loc[SHP_index, 'HomePlanet'] = data.iloc[SHP_index, :]['Surname'].map(lambda x: SHP_gb.idxmax(axis=1)[x])
-
-# Print number of missing values left
-# print('#HomePlanet missing values before:', HP_bef)
-# print('#HomePlanet missing values after:', input['HomePlanet'].isna().sum())
-
-# print('7' * 100)
-# # TODO 设置 na 值
-# for data in data_cleaner:
-# 	HP_bef = data['HomePlanet'].isna().sum()
-# 	data.loc[(data['HomePlanet'].isna()) & ~(data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Earth'
-# 	data.loc[(data['HomePlanet'].isna()) & (data['Cabin_deck'] == 'D'), 'HomePlanet'] = 'Mars'
-# print('#HomePlanet missing values before:', HP_bef)
-# print('#HomePlanet missing values after:', input['HomePlanet'].isna().sum())
-# We're done with HomePlanet.
-# print('8' * 100)
-# for data in data_cleaner:
-# 	D_bef = data['Destination'].isna().sum()
-# 	data.loc[data['Destination'].isna(), 'Destination'] = 'TRAPPIST-1e'
-
-# print('9' * 100)
-# for data in data_cleaner:
-# 	GSN_gb = data[data['Group_size'] > 1].groupby(['Group', 'Surname'])['Surname'].size().unstack().fillna(0)
-# 	# GSN_gb.sum(axis=1)
-# 	SN_bef = data['Surname'].isna().sum()
-# 	GSN_index = data[data['Surname'].isna()][(data[data['Surname'].isna()]['Group']).isin(GSN_gb.index)].index
-# 	# Fill corresponding missing values
-# 	data.loc[GSN_index, 'Surname'] = data.iloc[GSN_index, :]['Group'].map(lambda x: GSN_gb.idxmax(axis=1)[x])
-# 	# Print number of missing values left
-# 	# print('#Surname missing values before:', SN_bef)
-# 	# print('#Surname missing values after:', input['Surname'].isna().sum())
-# 	data['Surname'].fillna('Unknown', inplace=True)
-# 	data['Family_size'] = data['Surname'].map(lambda x: data['Surname'].value_counts()[x])
-# 	data.loc[data['Surname'] == 'Unknown', 'Surname'] = np.nan
-# 	data.loc[data['Family_size'] > 100, 'Family_size'] = 0
-
-print('0' * 100)
-# for data in data_cleaner:
-# 	GCD_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0)
-# 	GCN_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_number'])['Cabin_number'].size().unstack().fillna(0)
-# 	GCS_gb = data[data['Group_size'] > 1].groupby(['Group', 'Cabin_side'])['Cabin_side'].size().unstack().fillna(0)
-# 	# Everyone in the same group is also on the same cabin side. For cabin deck and cabin number there is also a fairly good (but not perfect) correlation with group.
-# 	# input[input['Group_size'] > 1].groupby(['Group', 'Cabin_side'])['Group'].size().unstack().fillna(0)
-# 	# Missing values before
-# 	CS_bef = data['Cabin_side'].isna().sum()
-# 	GCS_index = data[data['Cabin_side'].isna()][(data[data['Cabin_side'].isna()]['Group']).isin(GCS_gb.index)].index
-# 	data.loc[GCS_index, 'Cabin_side'] = data.iloc[GCS_index, :]['Group'].map(lambda x: GCS_gb.idxmax(axis=1)[x])
-# Print number of missing values left
-# print('#Cabin_side missing values before:', CS_bef)
-# print('#Cabin_side missing values after:', input['Cabin_side'].isna().sum())
 print('1' * 100)  # TODO
 ##TODO 创造 新特征
 # for data in data_cleaner:
@@ -296,125 +143,7 @@ print('1' * 100)  # TODO
 # 	# Ratio of sides
 # 	# TODO 特征比例
 # 	SCS_gb['Ratio'] = SCS_gb['P'] / (SCS_gb['P'] + SCS_gb['S'])
-# Histograme of ratio
-# plt.figure(figsize=(10, 4))
-# sns.histplot(SCS_gb['Ratio'], kde=True, binwidth=0.05)
-# plt.title('Ratio of cabin side by surname')
-# plt.show()
-# Print proportion
-# print("Percentage of families all on the same cabin side:", 100 * np.round(SCS_gb['Ratio'] / len(SCS_gb), 3), '%')
-# print("2" * 100)
-# print(SCS_gb.head())
 
-# Missing values before
-# CS_bef = data['Cabin_deck'].isna().sum()
-# print("3" * 100)
-# print(CS_bef)
-# Drop ratio columns
-# SCS_gb.drop(['Ratio'], axis=1, inplace=True)
-# for data in data_cleaner:
-# 	SCS_index = data[data['Cabin_deck'].isna()][(data[data['Cabin_deck'].isna()]['Surname']).isin(SCS_gb.index)].index
-# 	data.loc[SCS_index, 'Cabin_deck'] = data.iloc[SCS_index, :]['Surname'].map(lambda x: SCS_gb.idxmax(axis=1)[x])
-# 	data.drop('Surname', axis=1, inplace=True)
-# 	print('#Cabin side missing before:', CS_bef)
-# 	print('#Cabin side missing after:', data['Cabin_side'].isna().sum())
-# TODO
-# print("3" * 100)
-# for data in data_cleaner:
-# 	# Value counts
-# 	print(data['Cabin_side'].value_counts())
-# 	# Missing values before
-# 	CS_bef = data['Cabin_side'].isna().sum()
-# 	data.loc[data['Cabin_side'].isna(), 'Cabin_deck'] = 'Z'
-# print('#Cabin side missing values before:', CS_bef)
-# print('#Cabin side missing value after:', input['Cabin_side'].isna().sum())
-
-# print("4" * 100)
-# for data in data_cleaner:
-# 	# print(input['Cabin_deck'].value_counts())
-# 	CD_bef = data['Cabin_deck'].isna().sum()
-# 	GCD_index = data[data['Cabin_deck'].isna()][(data[data['Cabin_deck'].isna()]['Group']).
-# 		isin(GCD_gb.index)].index
-# 	# Fill corresponding missing values
-# 	data.loc[GCD_index, 'Cabin_deck'] = data.iloc[GCD_index, :]['Group']. \
-# 		map(lambda x: GCD_gb.idxmax(axis=1)[x])
-# Print number of missing values left
-# print('#Cabin_deck missing values before:', CD_bef)
-# print('#Cabin_deck missing values after:', input['Cabin_deck'].isna().sum())
-
-print("7" * 100)
-# TODO
-# for data in data_cleaner:
-# 	# Missing values before
-# 	CD_bef = data['Cabin_deck'].isna().sum()
-#
-# 	# Passengers with missing Cabin deck and in a group with known majority Cabin deck
-# 	GCD_index = data[data['Cabin_deck'].isna()][(data[data['Cabin_deck'].isna()]['Group']).isin(GCD_gb.index)].index
-#
-# 	# Fill corresponding missing values
-# 	data.loc[GCD_index, 'Cabin_deck'] = data.iloc[GCD_index, :]['Group'].map(lambda x: GCD_gb.idxmax(axis=1)[x])
-#
-# 	# Print number of missing values left
-# 	print('#Cabin_deck missing values before:', CD_bef)
-# 	print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
-
-# for data in data_cleaner:
-# 	# Joint distribution
-# 	data.groupby(['HomePlanet', 'Destination', 'Solo', 'Cabin_deck'])['Cabin_deck'].size().unstack().fillna(0)
-# 	'''
-# 	Passengers from Mars are most likely in deck F.
-# 	Passengers from Europa are (more or less) most likely in deck C if travelling solo and deck B otherwise.
-# 	Passengers from Earth are (more or less) most likely in deck G.
-# 	We will fill in missing values according to where the mode appears in these subgroups.
-# 	'''
-# 	# Missing values before
-# 	CD_bef = data['Cabin_deck'].isna().sum()
-#
-# 	# Fill missing values using the mode
-# 	na_rows_CD = data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'].index
-# 	print(len(na_rows_CD))
-# 	data.loc[data['Cabin_deck'].isna(), 'Cabin_deck'] = data.groupby(
-# 		['HomePlanet', 'Destination', 'Solo'])['Cabin_deck'].transform(
-# 		lambda x: x.fillna(pd.Series.mode(x)[0]))[na_rows_CD]
-#
-# 	# Print number of missing values left
-# 	print('#Cabin_deck missing values before:', CD_bef)
-# 	print('#Cabin_deck missing values after:', data['Cabin_deck'].isna().sum())
-# print("8" * 100)
-# for input in data_cleaner:
-#     plt.figure(figsize=(10, 4))
-#     sns.scatterplot(x=input['Cabin_number'], y=input['Group'],
-#                     c=LabelEncoder().fit_transform(input.loc[~input['Cabin_number'].isna(), 'Cabin_deck']), cmap='tab10')
-#     plt.title('Cabin_number vs group colored by group')
-# plt.show()
-# print('9' * 100)
-
-from sklearn.linear_model import LinearRegression
-
-# for data in data_cleaner:
-# 	# Missing values before
-# 	CN_bef = data['Cabin_number'].isna().sum()
-# 	print('#Cabin_number missing values before:', CN_bef)
-# 	# Extrapolate linear relationship on a deck by deck basis
-# 	for deck in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
-# 		# Features and labels
-# 		X_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
-# 		y_CN = data.loc[~(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number']
-# 		X_test_CN = data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Group']
-#
-# 		if not X_test_CN.empty:
-# 			# Linear regression
-# 			# model_CN = sklearn.linear_model.LinearRegression()
-# 			model_CN = LinearRegression()
-# 			model_CN.fit(X_CN.values.reshape(-1, 1), y_CN)
-# 			preds_CN = model_CN.predict(X_test_CN.values.reshape(-1, 1))
-# 			# Fill missing values with predictions
-# 			data.loc[(data['Cabin_number'].isna()) & (data['Cabin_deck'] == deck), 'Cabin_number'] = preds_CN.astype(
-# 				int)
-
-# Print number of missing values left
-# print('#Cabin_number missing values before:', CN_bef)
-# print('#Cabin_number missing values after:', data['Cabin_number'].isna().sum())
 
 # TODO One-hot encode cabin regions
 # data['Cabin_region1'] = (data['Cabin_number'] < 300).astype(int)
@@ -424,34 +153,6 @@ from sklearn.linear_model import LinearRegression
 # data['Cabin_region5'] = ((data['Cabin_number'] >= 1200) & (data['Cabin_number'] < 1500)).astype(int)
 # data['Cabin_region6'] = ((data['Cabin_number'] >= 1500) & (data['Cabin_number'] < 1800)).astype(int)
 # data['Cabin_region7'] = (data['Cabin_number'] >= 1800).astype(int)
-print('0' * 100)
-# for data in data_cleaner:
-# 	# Missing values before
-# 	V_bef = data['VIP'].isna().sum()
-# 	# # Fill missing values with mode
-# 	data.loc[data['VIP'].isna(), 'VIP'] = False
-# print('#VIP missing values before:', V_bef)
-# print('#VIP missing values after:', input['VIP'].isna().sum())
-# print('1' * 100)
-# for data in data_cleaner:
-# 	data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].median().unstack().fillna(0)
-# 	# Missing values before
-# 	A_bef = data[exp_feats].isna().sum().sum()
-# 	# # Fill missing values using the median
-# 	# na_rows_A = input.loc[input['Age'].isna(), 'Age'].index
-# 	# input.loc[input['Age'].isna(), 'Age'] = \
-# 	#     input.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(
-# 	#         lambda x: x.fillna(x.median()))[na_rows_A]
-# 	na_rows_A = data.loc[data['Age'].isna(), 'Age'].index
-# 	# TODO
-# 	data.loc[data['Age'].isna(), 'Age'] = \
-# 		data.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(
-# 			lambda x: x.fillna(x.median()))[
-# 			na_rows_A]
-# # Print number of missing values left
-# print('#Age missing values before:', A_bef)
-# input.groupby(['HomePlanet', 'No_spending', 'Solo', 'Cabin_deck'])['Age'].transform(lambda x: x.fillna(x.median()))[
-#     na_rows_A]
 
 print('2' * 100)
 ##TODO  特征分段
@@ -462,37 +163,6 @@ print('2' * 100)
 # 	data.loc[(data['Age'] > 25) & (data['Age'] <= 30), 'Age_group'] = 'Age_26-30'
 # 	data.loc[(data['Age'] > 30) & (data['Age'] <= 50), 'Age_group'] = 'Age_31-50'
 # 	data.loc[data['Age'] > 50, 'Agegroup'] = 'Age_51+'
-
-# for data in data_cleaner:
-# 	# Join distribution
-# 	data.groupby(['No_spending', 'CryoSleep'])['CryoSleep'].size().unstack().fillna(0)
-# 	CSL_bef = data['CryoSleep'].isna().sum()
-# 	# # Fill missing values using the mode
-# 	na_rows_CSL = data.loc[data['CryoSleep'].isna(), 'CryoSleep'].index
-# 	data.loc[data['CryoSleep'].isna(), 'CryoSleep'] = \
-# 		data.groupby(['No_spending'])['CryoSleep'].transform(lambda x: x.fillna(pd.Series.mode(x)[0]))[na_rows_CSL]
-# print("#CryoSleep misisng values before:", CSL_bef)
-# print('#CryoSleep missing values after:', input['CryoSleep'].isna().sum())
-
-# TODO
-# for data in data_cleaner:
-# 	# Missing value before
-# 	E_bef = data[exp_feats].isna().sum().sum()
-# 	for col in exp_feats:
-# 		data.loc[(data[col].isna()) & (data['CryoSleep'] == True), col] = 0
-# print("#Expenditure missing values before", E_bef)
-# print("#Expenditure missing values after", input[exp_feats].isna().sum().sum())
-print('-' * 100)
-
-# for data in data_cleaner:
-# 	data.groupby(['HomePlanet', 'Solo', 'Age_group'])['Expenditure'].mean().unstack().fillna(0)
-# 	E_bef = data[exp_feats].isna().sum().sum()
-# 	for col in exp_feats:
-# 		na_rows = data.loc[data[col].isna(), col].index
-# 		data.loc[data[col].isna(), col] = \
-# 			data.groupby(['HomePlanet', 'Solo', 'Age_group'])[col].transform(lambda x: x.fillna(x.mean()))[na_rows]
-# 		print('#Expenditure missing values before:', E_bef)
-# 		print('#Expendigure missing values after:', data[exp_feats].isna().sum().sum())
 
 ##TODO log 特征
 # for data in data_cleaner:
@@ -519,16 +189,6 @@ and y (dependent/target/outcome/response/etc.) variables for input modeling.
 * [Pandas Categorical dtype](https://pandas.pydata.org/pandas-docs/stable/categorical.html)
 * [pandas.get_dummies](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.get_dummies.html)
 '''
-###TODO  特征转换
-# label = LabelEncoder()
-# for data in data_cleaner:
-# 	data['HomePlanet_Code'] = label.fit_transform(data['HomePlanet'])
-# 	data['CryoSleep_Code'] = label.fit_transform(data['CryoSleep'])
-# 	data['Destination_Code'] = label.fit_transform(data['Destination'])
-# 	data['VIP_Code'] = label.fit_transform(data['VIP'])
-# 	data['Age_group_Code'] = label.fit_transform(data['Age_group'])
-# 	data['Cabin_deck_Code'] = label.fit_transform(data['Cabin_deck'])
-# 	data['Cabin_side_Code'] = label.fit_transform(data['Cabin_side'])
 
 # Target = ['Transported']
 # data1_x = ['HomePlanet', 'CryoSleep',
@@ -562,86 +222,14 @@ data1_x_calc = ['Maritalstatus', 'Applicationmode', 'Applicationorder', 'Course'
 				'Unemploymentrate', 'Inflationrate', 'GDP']
 Target = 'Target'
 
-# data1_xy = Target + data1_x
-# print('Original X Y:', data1_xy, '\n')
-# defina x variables for original w/bin features to remove continuous variables
-# data1_x_bin = ['Age', 'No_spending', 'Group_size', 'Solo', 'Cabin_region1',
-# 			   'Cabin_region2', 'Cabin_region3',
-# 			   'Cabin_region4', 'Cabin_region5',
-# 			   'Cabin_region6', 'Cabin_region7',
-# 			   'Family_size', 'HomePlanet_Code',
-# 			   'CryoSleep_Code', 'Destination_Code',
-# 			   'VIP_Code', 'Age_group_Code',
-# 			   'Cabin_deck_Code', 'Cabin_side_Code']
-# data1_xy_bin = Target + data1_x_bin
-# print('Bin X Y: ', data1_xy_bin, '\n')
-# # define x and y variables for dummy features original
-# data1_dummy = pd.get_dummies(data1[data1_x])
-# data1_x_dummy = data1_dummy.columns.to_list()
-# data1_xy_dummy = Target + data1_x_dummy
-# print("Dummy X Y:", data1_xy_dummy, '\n')
-# print(data1_dummy.head())
-#
-# # 3.24 Da-Double Check Cleaned Data
-# print('Train columns with null values: \n', data1.isnull().sum())
-# print("-" * 10)
-# print(data1.info())
-# print("-" * 10)
-#
-# print('Test/Validation columns with null values: \n', data_val.isnull().sum())
-# print("-" * 10)
-# print(data_val.info())
-# print("-" * 10)
 from sklearn import model_selection
 
 print(data_raw.describe(include='all'))
 train_x, test1_x, train1_y, test1_y = model_selection.train_test_split(train[data1_x_calc], train[Target],
 																	   random_state=0)
 
-# train_x_bin, test1_x_bin, train1_y_bin, test1_y_bin = model_selection.train_test_split(data1[data1_x_bin],
-# 																					   data1[Target], random_state=0)
-
-# train1_x_dummy, test1_x_dummy, train1_y_dummy, test1_y_dummy = model_selection.train_test_split(
-# 	data1_dummy[data1_x_dummy], data1[Target], random_state=0)
-
-# print("Data1 Shape: {}".format(data1.shape))
-# print("Train1 Shape: {}".format(train1_x.shape))
-# print("Test1 Shape: {}".format(test1_x.shape))
-# print(train1_x_dummy.head())
-
-# for x in data1_x:
-# 	if data1[x].dtype != 'float64':
-# 		print('Transported Correlation by :', x)
-# 		print(data1[[x, Target[0]]].groupby(x, as_index=False).mean())
-# 		print('-' * 10, '\n')
-
-
-# correlation heatmap of dataset
-# def correlation_heatmap(df):
-# 	_, ax = plt.subplots(figsize=(14, 12))
-# 	colormap = sns.diverging_palette(220, 10, as_cmap=True)
-# 	_ = sns.heatmap(
-# 		df.corr(),
-# 		cmap=colormap,
-# 		square=True,
-# 		ax=ax,
-# 		annot=True,
-# 		linewidths=0.1, vmax=1.0, linecolor='white',
-# 		annot_kws={'fontsize': 5}
-# 	)
-
-
-# 	plt.title('Pearson correlation of features', y=1.05, size=15)
-
-
-# correlation_heatmap(data1)
 
 print('6' * 100)
-# pair plots of entire dataset
-# pp = sns.pairplot(data1, hue='Transported', palette='deep', size=1.2, diag_kind='kde', diag_kws=dict(shade=True),
-# 				  plot_kws=dict(s=10))
-# pp.set(xticklabels=[])
-# plt.show()
 
 # Machine Learning Algorithm (MLA) Selection and Initialization
 from sklearn import ensemble, gaussian_process, \
@@ -649,44 +237,44 @@ from sklearn import ensemble, gaussian_process, \
 	neighbors, svm, tree, discriminant_analysis
 from xgboost import XGBClassifier
 
-MLA = [
-	# Ensemble Methods
-	ensemble.AdaBoostClassifier(),
-	ensemble.BaggingClassifier(),
-	ensemble.ExtraTreesClassifier(),
-	# # TODO
-	ensemble.GradientBoostingClassifier(),
-	ensemble.RandomForestClassifier(),
-	#
-	# # Gaussian Processes
-	# gaussian_process.GaussianProcessClassifier(),
-	# # GLM
-	# linear_model.LogisticRegressionCV(),
-	# linear_model.PassiveAggressiveClassifier(),
-	# linear_model.RidgeClassifierCV(),
-	# linear_model.SGDClassifier(),
-	# linear_model.Perceptron(),
-	#
-	# # Navies Bayer
-	# naive_bayes.BernoulliNB(),
-	# naive_bayes.GaussianNB(),
-	# # Nearest Neighbor
-	# neighbors.KNeighborsClassifier(),
-	#
-	# # SVM
-	# svm.SVC(probability=True),
-	# svm.NuSVC(probability=True),
-	# svm.LinearSVC(),
-	# # Trees
-	# tree.DecisionTreeClassifier(),
-	# tree.ExtraTreeClassifier(),
-	# # Discriminat Analysisi
-	# discriminant_analysis.LinearDiscriminantAnalysis(),
-	# discriminant_analysis.QuadraticDiscriminantAnalysis(),
-	# #xgboost: http://xgboost.readthedocs.io/en/latest/model.html
-	# # TODO
-	# XGBClassifier()
-]
+# MLA = [
+# 	# Ensemble Methods
+# 	ensemble.AdaBoostClassifier(),
+# 	ensemble.BaggingClassifier(),
+# 	ensemble.ExtraTreesClassifier(),
+# 	# # TODO
+# 	ensemble.GradientBoostingClassifier(),
+# 	ensemble.RandomForestClassifier(),
+# 	#
+# 	# # Gaussian Processes
+# 	# gaussian_process.GaussianProcessClassifier(),
+# 	# # GLM
+# 	linear_model.LogisticRegressionCV(),
+# 	linear_model.PassiveAggressiveClassifier(),
+# 	linear_model.RidgeClassifierCV(),
+# 	linear_model.SGDClassifier(),
+# 	linear_model.Perceptron(),
+#
+# 	# Navies Bayer
+# 	naive_bayes.BernoulliNB(),
+# 	naive_bayes.GaussianNB(),
+# 	# Nearest Neighbor
+# 	neighbors.KNeighborsClassifier(),
+# 	#
+# 	# SVM
+# 	svm.SVC(probability=True),
+# 	svm.NuSVC(probability=True),
+# 	svm.LinearSVC(),
+# 	# Trees
+# 	tree.DecisionTreeClassifier(),
+# 	tree.ExtraTreeClassifier(),
+# 	# Discriminat Analysisi
+# 	discriminant_analysis.LinearDiscriminantAnalysis(),
+# 	discriminant_analysis.QuadraticDiscriminantAnalysis(),
+# 	#xgboost: http://xgboost.readthedocs.io/en/latest/model.html
+# 	# TODO
+# 	XGBClassifier()
+# ]
 # split dataset in cross-validation with this splitter class:
 # http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.ShuffleSplit.html#sklearn.model_selection.ShuffleSplit
 # note: this is an alternative to train_test_split
@@ -702,80 +290,33 @@ labelEncoder = LabelEncoder()
 train[Target] = labelEncoder.fit_transform(train[Target])
 
 # index through MLA and save performance to table
-row_index = 0
-for alg in MLA:
-	MLA_name = alg.__class__.__name__
-	MLA_compare.loc[row_index, 'MLA Name'] = MLA_name
-	MLA_compare.loc[row_index, 'MLA Parameters'] = str(alg.get_params())
-	# score model with cross validation: http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_validate.html#sklearn.model_selection.cross_validate
-	cv_results = model_selection.cross_validate(
-		alg,  #
-		train[data1_x_calc],  #
-		train[Target],  #
-		cv=cv_split,  #
-		return_train_score=True
-	)
-	MLA_compare.loc[row_index, 'MLA Time'] = cv_results['fit_time'].mean()
-	MLA_compare.loc[row_index, 'MLA Train Accuracy Mean'] = cv_results['train_score'].mean()
-	MLA_compare.loc[row_index, 'MLA Test Accuracy Mean'] = cv_results['test_score'].mean()
-	# if this is a non-bias random sample, then +/-3 standard deviations (std) from the mean, should statistically capture 99.7% of the subsets
-	MLA_compare.loc[row_index, 'MLA Test accuracy 3*STD'] = cv_results['test_score'].std() * 3
-
-	# Save MLA predicttune_modelions - see section 6 for usage
-	alg.fit(train[data1_x_calc], train[Target])
-	MLA_predict[MLA_name] = alg.predict(train[data1_x_calc])
-	row_index += 1
+# row_index = 0
+# for alg in MLA:
+# 	MLA_name = alg.__class__.__name__
+# 	MLA_compare.loc[row_index, 'MLA Name'] = MLA_name
+# 	MLA_compare.loc[row_index, 'MLA Parameters'] = str(alg.get_params())
+# 	# score model with cross validation: http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_validate.html#sklearn.model_selection.cross_validate
+# 	cv_results = model_selection.cross_validate(
+# 		alg,  #
+# 		train[data1_x_calc],  #
+# 		train[Target],  #
+# 		cv=cv_split,  #
+# 		return_train_score=True
+# 	)
+# 	MLA_compare.loc[row_index, 'MLA Time'] = cv_results['fit_time'].mean()
+# 	MLA_compare.loc[row_index, 'MLA Train Accuracy Mean'] = cv_results['train_score'].mean()
+# 	MLA_compare.loc[row_index, 'MLA Test Accuracy Mean'] = cv_results['test_score'].mean()
+# 	# if this is a non-bias random sample, then +/-3 standard deviations (std) from the mean, should statistically capture 99.7% of the subsets
+# 	MLA_compare.loc[row_index, 'MLA Test accuracy 3*STD'] = cv_results['test_score'].std() * 3
+#
+# 	# Save MLA predicttune_modelions - see section 6 for usage
+# 	alg.fit(train[data1_x_calc], train[Target])
+# 	MLA_predict[MLA_name] = alg.predict(train[data1_x_calc])
+# 	row_index += 1
 
 # print and sort table: https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.sort_values.html
 MLA_compare.sort_values(by=['MLA Test Accuracy Mean'], ascending=False, inplace=True)
 
-
-# MLA_compare
-# barplot using https://seaborn.pydata.org/generated/seaborn.barplot.html
-# sns.barplot(x='MLA test Accuracy Mean', y='MLA name ', input=MLA_compare, color='m')
-# # prettify using pyplot: https://matplotlib.org/api/pyplot_api.html
-# plt.title('Machine Learning Algorithm Accuracy Score \n')
-# plt.xlabel('Accuracy Score ( % )')
-# plt.ylabel('Algorithm')
-
-# for index, row in train.iterrows():
-# if random.random() > .5:
-# 	train.at[index, 'Random_Predict'] = 1
-# else:
-# 	train.at[index, 'Random_Predict'] = 0
-
-# score random guess of survival. Use shortcut 1 = Right Guess and 0 = Wrong Guess
-# the mean of the column will then equal the accuracy
-# train['Random_Score'] = 0
-# train.loc[(train['Transported'] == train['Random_Predict']), 'Random_Score'] = 1
-# print('Coin Flip Model Accuracy :{:.2f}%'.format(train['Random_Score'].mean() * 100))
-
-# print('Coin Flip Model Accuracy w/Scikit:{:.2f}%'.format(metrics.accuracy_score(data1[Target],  #
-# 																				data1['Random_Predict']) * 100))
-
-# print(data1.info())
-#
-# pivot_age = data1.groupby(['Age_group'])['Transported'].mean()
-# print('Survival Decision Tree age Node: \n', pivot_age)
-#
-# pivot_vip = data1.groupby(['VIP_Code'])['Transported'].mean()
-# print('\n survival Decision Tree Vip node:\n', pivot_vip)
-#
-# pivot_HomePlanet = data1.groupby(['HomePlanet_Code'])['Transported'].mean()
-# print('\n survival Decision Tree HomePlanet node:\n', pivot_vip)
-#
-# pivot_CryoSleep = data1.groupby(['CryoSleep_Code'])['Transported'].mean()
-# print('\n Survival Decision Tree CryoSleep Node:\n', pivot_CryoSleep)
-#
-# pivot_Cabin_deck_Code = data1.groupby(['Cabin_deck_Code'])['Transported'].mean()
-# print('\n Survival Decision Tree CryoSleep Node:\n', pivot_CryoSleep)
-#
-# pivot_Cabin_side_Code = data1.groupby(['Cabin_side_Code'])['Transported'].mean()
-# print('\n Survival Decision Tree Cabin_side Code:\n', pivot_CryoSleep)
-
-
-# pivot_male = data1[data1.Sex=='male'].groupby(['Sex','Title'])['Transported'].mean()
-# print('\n\nSurvival Decision Tree w/Male Node: \n',pivot_male)
 
 # handmade input model using brain power (and Microsoft Excel Pivot Tables for quick calculations
 def mytree(df):
@@ -827,70 +368,6 @@ def mytree(df):
 # Plot Accuracy Summary
 # Credit: http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
 import itertools
-
-
-def plot_confusion_matrix(cm, classes,
-						  normalize=False,
-						  title='Confusion matrix',
-						  cmap=plt.cm.Blues):
-	"""
-	This function prints and plots the confusion matrix.
-	Normalization can be applied by setting `normalize=True`.
-	"""
-	if normalize:
-		cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-		print("Normalized confusion matrix")
-	else:
-		print('Confusion matrix, without normalization')
-
-	print(cm)
-
-	plt.imshow(cm, interpolation='nearest', cmap=cmap)
-	plt.title(title)
-	plt.colorbar()
-	tick_marks = np.arange(len(classes))
-	plt.xticks(tick_marks, classes, rotation=45)
-	plt.yticks(tick_marks, classes)
-
-	fmt = '.2f' if normalize else 'd'
-	thresh = cm.max() / 2.
-	for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-		plt.text(j, i, format(cm[i, j], fmt),
-				 horizontalalignment="center",
-				 color="white" if cm[i, j] > thresh else "black")
-
-	plt.tight_layout()
-	plt.ylabel('True label')
-	plt.xlabel('Predicted label')
-
-
-# # Compute confusion matrix
-# cnf_matrix = metrics.confusion_matrix(data1['Transported'], Tree_Predict)
-# np.set_printoptions(precision=2)
-#
-# class_names = ['NotTransported', 'Transported']
-# # Plot non-normalized confusion matrix
-# plt.figure()
-# plot_confusion_matrix(cnf_matrix, classes=class_names,
-# 					  title='Confusion matrix, without normalization')
-#
-# # Plot normalized confusion matrix
-# plt.figure()
-# plot_confusion_matrix(cnf_matrix, classes=class_names, normalize=True,
-# 					  title='Normalized confusion matrix')
-
-# base model
-# dtree = tree.DecisionTreeClassifier(random_state=0)
-# base_results = model_selection.cross_validate(dtree, data1[data1_x_bin], data1[Target], cv=cv_split,
-# 											  return_train_score=True)
-# dtree.fit(data1[data1_x_bin], data1[Target])
-#
-# print('BEFORE DT Parameters: ', dtree.get_params())
-# print("BEFORE DT Training w/bin score mean: {:.2f}".format(base_results['train_score'].mean() * 100))
-# print("BEFORE DT Test w/bin score mean: {:.2f}".format(base_results['test_score'].mean() * 100))
-# print("BEFORE DT Test w/bin score 3*std: +/- {:.2f}".format(base_results['test_score'].std() * 100 * 3))
-# # print("BEFORE DT Test w/bin set score min: {:.2f}". format(base_results['test_score'].min()*100))
-# print('-' * 10)
 
 # tune hyper-parameters: http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier
 param_grid = {'criterion': ['gini', 'entropy'],
@@ -1013,24 +490,24 @@ from sklearn.svm import SVC
 vote_est = [
 	# Ensemble Methods: http://scikit-learn.org/stable/modules/ensemble.html
 	('ada', ensemble.AdaBoostClassifier()),
-	# ('bc', ensemble.BaggingClassifier()),
-	# ('etc', ensemble.ExtraTreesClassifier()),
-	# ('gbc', ensemble.GradientBoostingClassifier()),
-	# ('rfc', ensemble.RandomForestClassifier()),
-	# # Gaussian Processes: http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-classification-gpc
-	# ('gpc', gaussian_process.GaussianProcessClassifier()),
-	# # GLM: http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
-	# ('lr', linear_model.LogisticRegressionCV()),
-	# # Navies Bayes: http://scikit-learn.org/stable/modules/naive_bayes.html
-	# ('bnb', naive_bayes.BernoulliNB()),
-	# ('gnb', naive_bayes.GaussianNB()),
-	# # Nearest Neighbor: http://scikit-learn.org/stable/modules/neighbors.html
-	# ('knn', neighbors.KNeighborsClassifier()),
-	# # SVM: http://scikit-learn.org/stable/modules/svm.html
-	# # ('svc', SVC(probability==True)),
-	# ('svc', svm.SVC(probability=True)),
-	# # xgboost: http://xgboost.readthedocs.io/en/latest/model.html
-	# ('xgb', XGBClassifier())
+	('bc', ensemble.BaggingClassifier()),
+	('etc', ensemble.ExtraTreesClassifier()),
+	('gbc', ensemble.GradientBoostingClassifier()),
+	('rfc', ensemble.RandomForestClassifier()),
+	# Gaussian Processes: http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-classification-gpc
+	('gpc', gaussian_process.GaussianProcessClassifier()),
+	# GLM: http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+	('lr', linear_model.LogisticRegressionCV()),
+	# Navies Bayes: http://scikit-learn.org/stable/modules/naive_bayes.html
+	('bnb', naive_bayes.BernoulliNB()),
+	('gnb', naive_bayes.GaussianNB()),
+	# Nearest Neighbor: http://scikit-learn.org/stable/modules/neighbors.html
+	('knn', neighbors.KNeighborsClassifier()),
+	# SVM: http://scikit-learn.org/stable/modules/svm.html
+	# ('svc', SVC(probability==True)),
+	('svc', svm.SVC(probability=True)),
+	# xgboost: http://xgboost.readthedocs.io/en/latest/model.html
+	('xgb', XGBClassifier())
 ]
 # Hard Vote or majority rules
 vote_hard = ensemble.VotingClassifier(estimators=vote_est, voting='hard')
@@ -1406,7 +883,7 @@ data_val[Target] = labelEncoder.inverse_transform(data_val[Target])
 
 # submit file
 submit = data_val[['id', Target]]
-submit.to_csv("submission08.csv", index=False)
+submit.to_csv("submission06.csv", index=False)
 
 print('Validation Data Distribution: \n', data_val[Target].value_counts(normalize=True))
 submit.sample(10)
