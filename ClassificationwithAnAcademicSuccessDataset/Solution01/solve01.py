@@ -2,7 +2,7 @@
 # @Time    : 2024/6/2 下午3:51
 # @Author  : nanji
 # @Site    : https://www.kaggle.com/code/gauravduttakiit/pss4e6-flaml-roc-auc-ovo
-# @File    : Solve01.py
+# @File    : solve01.py
 # @Software: PyCharm 
 # @Comment :
 

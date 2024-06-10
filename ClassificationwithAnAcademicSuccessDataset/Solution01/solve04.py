@@ -292,15 +292,15 @@ class MdlDeveloper(CFG):
 			'SGKF': SGKF(n_splits=self.n_splits, shuffle=True, random_state=self.state)
 		}
 		self.Mdl_Master = {
-			'ada': ensemble.AdaBoostClassifier(),
-			'bc': ensemble.BaggingClassifier(n_jobs=-1),
-			'etc': ensemble.ExtraTreesClassifier(n_jobs=-1),
-			'gbc': ensemble.GradientBoostingClassifier(),
-			'rfc': ensemble.RandomForestClassifier(n_jobs=-1),
-			'bnb': naive_bayes.BernoulliNB(),
-			'gnb': naive_bayes.GaussianNB(),
+			# 'ada': ensemble.AdaBoostClassifier(),
+			# 'bc': ensemble.BaggingClassifier(n_jobs=-1),
+			# 'etc': ensemble.ExtraTreesClassifier(n_jobs=-1),
+			# 'gbc': ensemble.GradientBoostingClassifier(),
+			# 'rfc': ensemble.RandomForestClassifier(n_jobs=-1),
+			# 'bnb': naive_bayes.BernoulliNB(),
+			# 'gnb': naive_bayes.GaussianNB(),
 			'knn': neighbors.KNeighborsClassifier(n_jobs=-1),
-			'xgb': XGBClassifier()
+			# 'xgb': XGBClassifier()
 		}
 		return self
 
