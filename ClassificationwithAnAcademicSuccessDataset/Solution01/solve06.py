@@ -89,7 +89,7 @@ exp_feats = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
 cat_feats = ['HomePlanet', 'CryoSleep', 'Destination', 'VIP']
 # Qualitative features
 qual_feats = ['PassengerId', 'Cabin', 'Name']
-
+#
 # for dataset in data_cleaner:
 # 	dataset['Age_group'] = np.nan
 # 	dataset.loc[dataset['Age'] <= 12, 'Age_group'] = 'Age_0-12'
@@ -171,40 +171,102 @@ print('2' * 100)
 # 	# input.isna().sum()
 # 	for col in ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Expenditure']:
 # 		data[col] = np.log(1 + data[col])
+from sklearn.model_selection import RandomizedSearchCV, GridSearchCV, RepeatedStratifiedKFold
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import StratifiedKFold, cross_val_predict
+from xgboost import XGBClassifier
 
-## 3.23 Convert Formats
-'''
-## 3.23 Convert Formats
 
-We will convert categorical input to dummy variables for mathematical analysis.
- There are multiple ways to encode categorical variables;we will use the sklearn and pandas functions.
+##Feature importance
+def objective(trial):
+	max_depth = trial.suggest_int('max_depth', 3, 10)
+	n_estimators = trial.suggest_int('n_estimators', 100, 2000)
+	gamma = trial.suggest_float('gamma', 0, 1)
+	reg_alpha = trial.suggest_float('reg_alpha', 0, 2)
+	reg_lambda = trial.suggest_float('reg_lambda', 0, 2)
+	min_child_weight = trial.suggest_int('min_child_weight', 0, 10)
+	subsample = trial.suggest_float('subsample', 0, 1)
+	colsample_bytree = trial.suggest_float('colsample_bytree', 0, 1)
+	learning_rate = trial.suggest_float('learning_rate', 0.01, 1)
 
-In this step, we will also define our x (independent/features/explanatory/predictor/etc.) 
-and y (dependent/target/outcome/response/etc.) variables for input modeling.
+	print('Training the model with', train.shape[1], 'features')
 
-** Developer Documentation: **
-* [Categorical Encoding](http://pbpython.com/categorical-encoding.html)
-* [Sklearn LabelEncoder](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html)
-* [Sklearn OneHotEncoder](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html)
-* [Pandas Categorical dtype](https://pandas.pydata.org/pandas-docs/stable/categorical.html)
-* [pandas.get_dummies](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.get_dummies.html)
-'''
+	params = {'n_estimators': n_estimators,
+			  'learning_rate': learning_rate,
+			  'gamma': gamma,
+			  'reg_alpha': reg_alpha,
+			  'reg_lambda': reg_lambda,
+			  'max_depth': max_depth,
+			  'min_child_weight': min_child_weight,
+			  'subsample': subsample,
+			  'colsample_bytree': colsample_bytree,
+			  'eval_metric': 'logloss'}  # Using logloss for binary classification
 
-# Target = ['Transported']
-# data1_x = ['HomePlanet', 'CryoSleep',
-# 		   'Destination', 'Age', 'VIP',
-# 		   'RoomService', 'FoodCourt',
-# 		   'ShoppingMall', 'Spa',
-# 		   'VRDeck']  # Original input
-# data1_x_calc = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck', 'Expenditure', 'No_spending',
-# 				'Group', 'Group_size', 'Solo', 'Cabin_number', 'Cabin_region1', 'Cabin_region2', 'Cabin_region3',
-# 				'Cabin_region4', 'Cabin_region5', 'Cabin_region6', 'Cabin_region7', 'Family_size', 'HomePlanet_Code',
-# 				'CryoSleep_Code', 'Destination_Code', 'VIP_Code', 'Age_group_Code', 'Cabin_deck_Code',
-# 				'Cabin_side_Code']  # coded for algorithm calculation
+	clf = XGBClassifier(**params,
+						booster='gbtree',
+						objective='binary:logistic',  # Binary classification objective
+						verbosity=0)
+
+	cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+	cv_results = cross_val_score(clf, train, data_val, cv=cv, scoring='roc_auc')  # Using roc_auc scoring
+
+	validation_score = np.mean(cv_results)
+	return validation_score
+
+
+def reduce_mem_usage(df):
+	""" iterate through all the columns of a dataframe and modify the data type
+	    to reduce memory usage.
+	"""
+	start_mem = df.memory_usage().sum() / 1024 ** 2
+	print('Memory usage of dataframe is {:.2f} MB'.format(start_mem))
+	for col in df.columns:
+		col_type = df[col].dtype
+		if col_type != object:
+			c_min = df[col].min()
+			c_max = df[col].max()
+			if str(col_type)[:3] == 'int':
+				if c_min > np.iinfo(np.int8).min and c_max < np.iinfo(np.int8).max:
+					df[col] = df[col].astype(np.int8)
+				elif c_min > np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
+					df[col] = df[col].astype(np.int16)
+				elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
+					df[col] = df[col].astype(np.int32)
+				elif c_min > np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
+					df[col] = df[col].astype(np.int64)
+			else:
+				if c_min > np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
+					df[col] = df[col].astype(np.float16)
+				elif c_min > np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
+					df[col] = df[col].astype(np.float32)
+				else:
+					df[col] = df[col].astype(np.float64)
+		else:
+			df[col] = df[col].astype('object')
+		# df_v = df[col].value_counts()
+	end_mem = df.memory_usage().sum() / 1024 ** 2
+	print('Memory usage after optimization is: {:.2f} MB'.format(end_mem))
+	print('Decreased by {:.1f}%'.format(100 * (start_mem - end_mem) / start_mem))
+	return df
+
+
 import re
 
 train = data_raw.rename(columns=lambda x: re.sub('[^A-Za-z0-9_]+', '', x))
 data_val = data_val.rename(columns=lambda x: re.sub('[^A-Za-z0-9_]+', '', x))
+
+xgb_best_params_for_y1 = {'max_depth': 5, \
+						  'n_estimators': 1627, \
+						  'gamma': 0.8952807768735265,
+						  'reg_alpha': 1.6314226873472901, \
+						  'reg_lambda': 1.7229132141868826, \
+						  'min_child_weight': 9,
+						  'subsample': 0.9885054042421748, \
+						  'colsample_bytree': 0.22439719563481197, \
+						  'learning_rate': 0.10650804734533341}
+
+train = reduce_mem_usage(train)
+data_val = reduce_mem_usage(data_val)
 
 data1_x_calc = ['Maritalstatus', 'Applicationmode', 'Applicationorder', 'Course',
 				'Daytimeeveningattendance', 'Previousqualification',
@@ -220,14 +282,18 @@ data1_x_calc = ['Maritalstatus', 'Applicationmode', 'Applicationorder', 'Course'
 				'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
 				'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',
 				'Unemploymentrate', 'Inflationrate', 'GDP']
+
 Target = 'Target'
+labelEncoder = LabelEncoder()
+train[Target] = labelEncoder.fit_transform(train[Target])
+xgb_model_for_y1 = XGBClassifier(**xgb_best_params_for_y1)
+result = xgb_model_for_y1.fit(train[data1_x_calc], train[Target])
 
 from sklearn import model_selection
 
 print(data_raw.describe(include='all'))
 train_x, test1_x, train1_y, test1_y = model_selection.train_test_split(train[data1_x_calc], train[Target],
 																	   random_state=0)
-
 
 print('6' * 100)
 
@@ -286,8 +352,6 @@ MLA_compare = pd.DataFrame(columns=MLA_columns)
 
 # create table to compare MLA predictions
 MLA_predict = train[Target]
-labelEncoder = LabelEncoder()
-train[Target] = labelEncoder.fit_transform(train[Target])
 
 # index through MLA and save performance to table
 # row_index = 0
@@ -316,44 +380,6 @@ train[Target] = labelEncoder.fit_transform(train[Target])
 
 # print and sort table: https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.sort_values.html
 MLA_compare.sort_values(by=['MLA Test Accuracy Mean'], ascending=False, inplace=True)
-
-
-# handmade input model using brain power (and Microsoft Excel Pivot Tables for quick calculations
-def mytree(df):
-	# initialize table to store predictions
-	Model = pd.DataFrame(data={'Predict': []})
-	for index, row in df.iterrows():
-		# Question 1 :Age group (55=69%)
-		if (df.loc[index, 'Age_group'] == 'Age_0-12') or \
-				(df.loc[index, 'Age_group'] == 'Age_13-17'):
-			Model.loc[index, 'Predict'] = 1
-		# Question 2:HomePlanet_code (66-67%)
-		if (df.loc[index, 'HomePlanet_Code'] == 0):
-			Model.loc[index, 'Predict'] = 0
-		if (df.loc[index, 'HomePlanet_Code'] == 1):
-			Model.loc[index, 'Predict'] = 1
-		# Question 3:vip_code (71%)
-		if (df.loc[index, 'VIP_Code'] == 1):
-			Model.loc[index, 'Predict'] = 0
-		# Question 4: CryoSleep_Code (68-81%)
-		if (df.loc[index, 'CryoSleep_Code'] == 0):
-			Model.loc[index, 'Predict'] = 0
-		if (df.loc[index, 'CryoSleep_Code'] == 1):
-			Model.loc[index, 'Predict'] = 1
-		# Question 5: Cabin_deck_Code_Code (73-80%)
-		if (df.loc[index, 'Cabin_deck_Code'] == 7):
-			Model.loc[index, 'Predict'] = 0
-		if (df.loc[index, 'Cabin_deck_Code'] == 1):
-			Model.loc[index, 'Predict'] = 1
-		if (df.loc[index, 'Cabin_deck_Code'] == 2):
-			Model.loc[index, 'Predict'] = 1
-		if (df.loc[index, 'Cabin_deck_Code'] == 4):
-			Model.loc[index, 'Predict'] = 0
-		# Question 6: Cabin_side_Code (72%)
-		if (df.loc[index, 'Cabin_side_Code'] == 2):
-			Model.loc[index, 'Predict'] = 0
-	return Model
-
 
 # model input
 # Tree_Predict = mytree(data1)
@@ -489,25 +515,25 @@ from sklearn.svm import SVC
 
 vote_est = [
 	# Ensemble Methods: http://scikit-learn.org/stable/modules/ensemble.html
-	('ada', ensemble.AdaBoostClassifier()),
+	# ('ada', ensemble.AdaBoostClassifier()),# Score: 0.73907
 	('bc', ensemble.BaggingClassifier()),
-	('etc', ensemble.ExtraTreesClassifier()),
-	('gbc', ensemble.GradientBoostingClassifier()),
-	('rfc', ensemble.RandomForestClassifier()),
-	# Gaussian Processes: http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-classification-gpc
-	('gpc', gaussian_process.GaussianProcessClassifier()),
-	# GLM: http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
-	('lr', linear_model.LogisticRegressionCV()),
-	# Navies Bayes: http://scikit-learn.org/stable/modules/naive_bayes.html
-	('bnb', naive_bayes.BernoulliNB()),
-	('gnb', naive_bayes.GaussianNB()),
-	# Nearest Neighbor: http://scikit-learn.org/stable/modules/neighbors.html
-	('knn', neighbors.KNeighborsClassifier()),
-	# SVM: http://scikit-learn.org/stable/modules/svm.html
-	# ('svc', SVC(probability==True)),
-	('svc', svm.SVC(probability=True)),
-	# xgboost: http://xgboost.readthedocs.io/en/latest/model.html
-	('xgb', XGBClassifier())
+	# ('etc', ensemble.ExtraTreesClassifier()),
+	# ('gbc', ensemble.GradientBoostingClassifier()),
+	# ('rfc', ensemble.RandomForestClassifier()),
+	# # Gaussian Processes: http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-classification-gpc
+	# ('gpc', gaussian_process.GaussianProcessClassifier()),
+	# # GLM: http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+	# ('lr', linear_model.LogisticRegressionCV()),
+	# # Navies Bayes: http://scikit-learn.org/stable/modules/naive_bayes.html
+	# ('bnb', naive_bayes.BernoulliNB()),
+	# ('gnb', naive_bayes.GaussianNB()),
+	# # Nearest Neighbor: http://scikit-learn.org/stable/modules/neighbors.html
+	# ('knn', neighbors.KNeighborsClassifier()),
+	# # SVM: http://scikit-learn.org/stable/modules/svm.html
+	# # ('svc', SVC(probability==True)),
+	# ('svc', svm.SVC(probability=True)),
+	# # xgboost: http://xgboost.readthedocs.io/en/latest/model.html
+	# ('xgb', XGBClassifier())
 ]
 # Hard Vote or majority rules
 vote_hard = ensemble.VotingClassifier(estimators=vote_est, voting='hard')
@@ -522,10 +548,12 @@ print('-' * 10)
 
 # Soft Vote or weighted probabilities
 
-# vote_soft = ensemble.VotingClassifier(estimators=vote_est, voting='soft')
-# vote_soft_cv = model_selection.cross_validate(vote_soft, train[data1_x_calc], train[Target], \
-# 											  cv=cv_split, return_train_score=True)
-# vote_soft.fit(train[data1_x_calc], train[Target])
+vote_soft = ensemble.VotingClassifier(estimators=vote_est, voting='soft')
+vote_soft_cv = model_selection.cross_validate(vote_soft, \
+											  train[data1_x_calc], \
+											  train[Target], \
+											  cv=cv_split, return_train_score=True)
+vote_soft.fit(train[data1_x_calc], train[Target])
 
 # print("Soft Voting Training w/bin score mean: {:.2f}".format(vote_soft_cv['train_score'].mean() * 100))
 # print("Soft Voting Test w/bin score mean: {:.2f}".format(vote_soft_cv['test_score'].mean() * 100))
@@ -903,4 +931,4 @@ submit.sample(10)
 # Total optimization time was 156.67 minutes.
 # TODO
 
-print(f'{datetime.now()}!!!!!')
+print(f'{datetime.now()} end !!!!!')

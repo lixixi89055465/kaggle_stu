@@ -104,7 +104,7 @@ class CFG:
 	Some parameters may be unused here as this is a general configuration class
 	""";
 	# Data preparation
-	version_nb = 10
+	version_nb = "bc"
 	test_req = 'Y'
 	test_sample_frac = 0.025
 	gpu_switch = 'OFF'
@@ -313,24 +313,24 @@ class MdlDeveloper(CFG):
 			'SGKF': SGKF(n_splits=self.n_splits, shuffle=True, random_state=self.state)
 		}
 		self.Mdl_Master = {
-			'ada': ensemble.AdaBoostClassifier(),
-			'bc': ensemble.BaggingClassifier(n_jobs=-1),
+			# 'ada': ensemble.AdaBoostClassifier(),# Score: 0.82052
+			# 'bc': ensemble.BaggingClassifier(n_jobs=-1),#
 			'etc': ensemble.ExtraTreesClassifier(n_jobs=-1),
-			'gbc': ensemble.GradientBoostingClassifier(),
-			'rfc': ensemble.RandomForestClassifier(n_jobs=-1),
+			# 'gbc': ensemble.GradientBoostingClassifier(),
+			# 'rfc': ensemble.RandomForestClassifier(n_jobs=-1),
 			## Gaussian Processes: http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-classification-gpc
 			### 'gpc': gaussian_process.GaussianProcessClassifier(n_jobs=3),
 			## GLM: http://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
 			# 'lr': linear_model.LogisticRegressionCV(n_jobs=-1),
 			# # Navies Bayes: http://scikit-learn.org/stable/modules/naive_bayes.html
-			'bnb': naive_bayes.BernoulliNB(),
-			'gnb': naive_bayes.GaussianNB(),
+			# 'bnb': naive_bayes.BernoulliNB(),
+			# 'gnb': naive_bayes.GaussianNB(),
 			# # Nearest Neighbor: http://scikit-learn.org/stable/modules/neighbors.html
-			'knn': neighbors.KNeighborsClassifier(n_jobs=-1),
+			# 'knn': neighbors.KNeighborsClassifier(n_jobs=-1),
 			# # SVM: http://scikit-learn.org/stable/modules/svm.html
 			### 'svc': svm.SVC(probability=True),
 			# # xgboost: http://xgboost.readthedocs.io/en/latest/model.html
-			'xgb': XGBClassifier()
+			# 'xgb': XGBClassifier()
 		}
 		return self
 
@@ -538,38 +538,11 @@ if CFG.ML == 'Y':
 	TrainScores = pd.concat([trainscores.assign(Target=target), TrainScores], \
 							axis=0, \
 							ignore_index=True)
+
+	name = ''
+	for item in md.Mdl_Master.items():
+		name = name + "_" + item.key()
 	# TODO  6-5
-	OOF_Preds.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
+	OOF_Preds.to_csv(f'Submission_V_{name}.csv', index=False)
 
-# if CFG.ML == 'Y':
-# sub_f1=pd.DataFrame({'id':test['id'],'target':MDL_Preds })
-# for col in CFG.targets:
-# sub_f1 = 1 - Mdl_Preds.loc[Mdl_Preds.Target == 'Target', 'Ensemble']
-# sub1 = pd.read_csv(f'../input/playgrounds4e03ancillary/89652_submission.csv')[CFG.targets]
-# pp.sub_f1[CFG.targets] = pp.sub_f1[CFG.targets].values * 0.1 + sub1 * 0.9
-#
-# pp.sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
-# sub_f1.to_csv(f'Submission_V{CFG.version_nb}.csv', index=False)
-# OOF_Preds.to_csv(f'OOF_Preds_V{CFG.version_nb}.csv', index=False)
-# Mdl_Preds.to_csv(f'Mdl_Preds_V{CFG.version_nb}.csv', index=False)
-
-# from flaml import AutoML
-#
-# automl = AutoML()
-# y = train.pop('Target')
-# X = train
-# print(f'{datetime.now()} automl start !')
-# automl.fit(X, y, task='classification', metric='roc_auc_ovo', time_budget=3600 * 3)
-# print(f'{datetime.now()} automl end !')
-#
-# y_pred = automl.predict(test)
-# print('y_pred[:5]:')
-# print(y_pred[:5])
-# df = pd.DataFrame(y_pred, columns=['Target'])
-# print('df.head():')
-# print(df.head())
-#
-# sol = pd.read_csv('../input/playground-series-s4e6/sample_submission.csv')
-# print('sol.head():')
-# print(sol.head())
-# sol.to_csv('./roc_auc_ovo.csv', index=False)
+print(f'{datetime.now()} end !!!!!')
