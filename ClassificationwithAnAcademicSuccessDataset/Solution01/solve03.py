@@ -314,8 +314,8 @@ class MdlDeveloper(CFG):
 		}
 		self.Mdl_Master = {
 			# 'ada': ensemble.AdaBoostClassifier(),# Score: 0.82052
-			# 'bc': ensemble.BaggingClassifier(n_jobs=-1),#
-			'etc': ensemble.ExtraTreesClassifier(n_jobs=-1),
+			'bc': ensemble.BaggingClassifier(n_jobs=-1),#
+			# 'etc': ensemble.ExtraTreesClassifier(n_jobs=-1),
 			# 'gbc': ensemble.GradientBoostingClassifier(),
 			# 'rfc': ensemble.RandomForestClassifier(n_jobs=-1),
 			## Gaussian Processes: http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-classification-gpc

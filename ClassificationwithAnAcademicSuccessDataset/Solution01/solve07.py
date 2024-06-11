@@ -243,7 +243,7 @@ def reduce_mem_usage(df):
 					df[col] = df[col].astype(np.float64)
 		else:
 			df[col] = df[col].astype('object')
-		# df_v = df[col].value_counts()
+	# df_v = df[col].value_counts()
 	end_mem = df.memory_usage().sum() / 1024 ** 2
 	print('Memory usage after optimization is: {:.2f} MB'.format(end_mem))
 	print('Decreased by {:.1f}%'.format(100 * (start_mem - end_mem) / start_mem))
@@ -282,6 +282,15 @@ data1_x_calc = ['Maritalstatus', 'Applicationmode', 'Applicationorder', 'Course'
 				'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
 				'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',
 				'Unemploymentrate', 'Inflationrate', 'GDP']
+cur_col = ['Curricularunits1stsemcredited',
+		   'Curricularunits1stsemenrolled', 'Curricularunits1stsemevaluations',
+		   'Curricularunits1stsemapproved', 'Curricularunits1stsemgrade',
+		   'Curricularunits1stsemwithoutevaluations',
+		   'Curricularunits2ndsemcredited', 'Curricularunits2ndsemenrolled',
+		   'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
+		   'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',
+		   ]
+train['curr_sum'] = train[cur_col].sum(axis=1)
 
 Target = 'Target'
 labelEncoder = LabelEncoder()
@@ -910,8 +919,12 @@ data_val[Target] = grid_soft.predict(data_val[data1_x_calc])  # 0.74982 V5
 data_val[Target] = labelEncoder.inverse_transform(data_val[Target])
 
 # submit file
+tmpname=''
+for name in vote_est:
+	tmpname='_'+name[0]
+
 submit = data_val[['id', Target]]
-submit.to_csv("submission06.csv", index=False)
+submit.to_csv(f"submission07_{tmpname}.csv", index=False)
 
 print('Validation Data Distribution: \n', data_val[Target].value_counts(normalize=True))
 submit.sample(10)
