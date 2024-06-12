@@ -265,8 +265,7 @@ xgb_best_params_for_y1 = {'max_depth': 5, \
 						  'colsample_bytree': 0.22439719563481197, \
 						  'learning_rate': 0.10650804734533341}
 
-train = reduce_mem_usage(train)
-data_val = reduce_mem_usage(data_val)
+
 
 data1_x_calc = ['Maritalstatus', 'Applicationmode', 'Applicationorder', 'Course',
 				'Daytimeeveningattendance', 'Previousqualification',
@@ -282,6 +281,8 @@ data1_x_calc = ['Maritalstatus', 'Applicationmode', 'Applicationorder', 'Course'
 				'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
 				'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',
 				'Unemploymentrate', 'Inflationrate', 'GDP']
+cur_sum = 'curr_sum'
+
 cur_col = ['Curricularunits1stsemcredited',
 		   'Curricularunits1stsemenrolled', 'Curricularunits1stsemevaluations',
 		   'Curricularunits1stsemapproved', 'Curricularunits1stsemgrade',
@@ -290,7 +291,12 @@ cur_col = ['Curricularunits1stsemcredited',
 		   'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
 		   'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',
 		   ]
-train['curr_sum'] = train[cur_col].sum(axis=1)
+train[cur_sum] = train[cur_col].sum(axis=1)
+data_val[cur_sum] = data_val[cur_col].sum(axis=1)
+data1_x_calc += [cur_sum]
+
+train = reduce_mem_usage(train)
+data_val = reduce_mem_usage(data_val)
 
 Target = 'Target'
 labelEncoder = LabelEncoder()
@@ -525,8 +531,8 @@ from sklearn.svm import SVC
 vote_est = [
 	# Ensemble Methods: http://scikit-learn.org/stable/modules/ensemble.html
 	# ('ada', ensemble.AdaBoostClassifier()),# Score: 0.73907
-	('bc', ensemble.BaggingClassifier()),
-	# ('etc', ensemble.ExtraTreesClassifier()),
+	('bc', ensemble.BaggingClassifier(n_jobs=-1)),
+	# ('etc', ensemble.ExtraTreesClassifier(n_jobs=-1)),
 	# ('gbc', ensemble.GradientBoostingClassifier()),
 	# ('rfc', ensemble.RandomForestClassifier()),
 	# # Gaussian Processes: http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-classification-gpc
@@ -919,12 +925,13 @@ data_val[Target] = grid_soft.predict(data_val[data1_x_calc])  # 0.74982 V5
 data_val[Target] = labelEncoder.inverse_transform(data_val[Target])
 
 # submit file
-tmpname=''
+tmpname = ''
 for name in vote_est:
-	tmpname='_'+name[0]
+	tmpname = '_' + name[0]
 
 submit = data_val[['id', Target]]
-submit.to_csv(f"submission07_{tmpname}.csv", index=False)
+submitName = f"submission07_sum_{tmpname}.csv"
+submit.to_csv(submitName, index=False)
 
 print('Validation Data Distribution: \n', data_val[Target].value_counts(normalize=True))
 submit.sample(10)
@@ -944,4 +951,4 @@ submit.sample(10)
 # Total optimization time was 156.67 minutes.
 # TODO
 
-print(f'{datetime.now()} end !!!!!')
+print(f'{datetime.now()}  {submitName} end !!!!!')

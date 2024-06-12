@@ -516,8 +516,8 @@ from sklearn.svm import SVC
 vote_est = [
 	# Ensemble Methods: http://scikit-learn.org/stable/modules/ensemble.html
 	# ('ada', ensemble.AdaBoostClassifier()),# Score: 0.73907
-	('bc', ensemble.BaggingClassifier()),
-	# ('etc', ensemble.ExtraTreesClassifier()),
+	('bc', ensemble.BaggingClassifier(n_jobs=-1)),
+	# ('etc', ensemble.ExtraTreesClassifier(n_jobs=-1)),
 	# ('gbc', ensemble.GradientBoostingClassifier()),
 	# ('rfc', ensemble.RandomForestClassifier()),
 	# # Gaussian Processes: http://scikit-learn.org/stable/modules/gaussian_process.html#gaussian-process-classification-gpc
@@ -583,17 +583,17 @@ vote_param = [{
 	# 'ada__algorithm': ['SAMME', 'SAMME.R'],
 	# 'ada__random_state': grid_seed,
 	#
-	# # http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingClassifier.html#sklearn.ensemble.BaggingClassifier
+	# # # http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingClassifier.html#sklearn.ensemble.BaggingClassifier
 	'bc__n_estimators': grid_n_estimator,
 	'bc__max_samples': grid_ratio,
 	'bc__oob_score': grid_bool,
 	'bc__random_state': grid_seed,
 	#
-	# # http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html#sklearn.ensemble.ExtraTreesClassifier
-	# 'etc__n_estimators': grid_n_estimator,
-	# 'etc__criterion': grid_criterion,
-	# 'etc__max_depth': grid_max_depth,
-	# 'etc__random_state': grid_seed,
+	# http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html#sklearn.ensemble.ExtraTreesClassifier
+	'etc__n_estimators': grid_n_estimator,
+	'etc__criterion': grid_criterion,
+	'etc__max_depth': grid_max_depth,
+	'etc__random_state': grid_seed,
 	#
 	# # http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html#sklearn.ensemble.GradientBoostingClassifier
 	# 'gbc__loss': ['deviance', 'exponential'],
@@ -697,20 +697,20 @@ grid_param = [
 	# 	'random_state': grid_seed
 	# }],
 	#
-	[{
-		# BaggingClassifier - http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingClassifier.html#sklearn.ensemble.BaggingClassifier
-		'n_estimators': grid_n_estimator,  # default=10
-		'max_samples': grid_ratio,  # default=1.0
-		'random_state': grid_seed
-	}],
-	#
 	# [{
-	# 	# ExtraTreesClassifier - http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html#sklearn.ensemble.ExtraTreesClassifier
+	# 	# BaggingClassifier - http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingClassifier.html#sklearn.ensemble.BaggingClassifier
 	# 	'n_estimators': grid_n_estimator,  # default=10
-	# 	'criterion': grid_criterion,  # default=”gini”
-	# 	'max_depth': grid_max_depth,  # default=None
+	# 	'max_samples': grid_ratio,  # default=1.0
 	# 	'random_state': grid_seed
 	# }],
+	#
+	[{
+		# ExtraTreesClassifier - http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html#sklearn.ensemble.ExtraTreesClassifier
+		'n_estimators': grid_n_estimator,  # default=10
+		'criterion': grid_criterion,  # default=”gini”
+		'max_depth': grid_max_depth,  # default=None
+		'random_state': grid_seed
+	}],
 	#
 	# [{
 	# 	# GradientBoostingClassifier - http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html#sklearn.ensemble.GradientBoostingClassifier
@@ -909,9 +909,16 @@ print("-" * 10)
 data_val[Target] = grid_soft.predict(data_val[data1_x_calc])  # 0.74982 V5
 data_val[Target] = labelEncoder.inverse_transform(data_val[Target])
 
+
+# submit file
+tmpname = ''
+for name in vote_est:
+	tmpname = '_' + name[0]
+submitName = f"submission06_sum_{tmpname}.csv"
+
 # submit file
 submit = data_val[['id', Target]]
-submit.to_csv("submission06.csv", index=False)
+submit.to_csv(submitName, index=False)
 
 print('Validation Data Distribution: \n', data_val[Target].value_counts(normalize=True))
 submit.sample(10)
@@ -931,4 +938,4 @@ submit.sample(10)
 # Total optimization time was 156.67 minutes.
 # TODO
 
-print(f'{datetime.now()} end !!!!!')
+print(f'{datetime.now()}  {submitName} end !!!!!')
