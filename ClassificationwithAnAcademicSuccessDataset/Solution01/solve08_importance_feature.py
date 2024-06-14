@@ -267,33 +267,54 @@ xgb_best_params_for_y1 = {'max_depth': 5, \
 
 train = reduce_mem_usage(train)
 data_val = reduce_mem_usage(data_val)
+print('0' * 100)
 
-data1_x_calc = ['Maritalstatus', 'Applicationmode', 'Applicationorder', 'Course',
+
+def getMean(df, col):
+	train[f'{col}_mean'] = (train[col] - train[col].min()) / train[col].min()
+
+
+print('3' * 100)
+getMean(train, 'Admissiongrade')
+
+data1_x_calc = ['Maritalstatus', 'Applicationmode', 'Applicationorder',
+				'Course',#('Course', 0.0009095661265027921)
 				'Daytimeeveningattendance', 'Previousqualification',
-				'Previousqualificationgrade', 'Nacionality', 'Mothersqualification',
-				'Fathersqualification', 'Mothersoccupation', 'Fathersoccupation',
-				'Admissiongrade', 'Displaced', 'Educationalspecialneeds', 'Debtor',
-				'Tuitionfeesuptodate', 'Gender', 'Scholarshipholder', 'Ageatenrollment',
-				'International', 'Curricularunits1stsemcredited',
+				'Previousqualificationgrade',#('Previousqualificationgrade', 0.0002090956612650352)
+				'Nacionality',# ('Nacionality', 0.0003659174072138116)
+				'Mothersqualification',
+				'Fathersqualification',
+				'Mothersoccupation', 'Fathersoccupation',
+				'Admissiongrade',
+				'Displaced',#('Displaced', 0.0002090956612650352)
+				# 'Educationalspecialneeds', #('Educationalspecialneeds', 0.000261369576581294)
+				'Debtor',
+				'Tuitionfeesuptodate',
+				'Gender',
+				'Scholarshipholder',
+				'Ageatenrollment',#('Ageatenrollment', 0.00019864087820178344)
+				# 'International',#('International', 0.00019864087820178344)
+				'Curricularunits1stsemcredited',
 				'Curricularunits1stsemenrolled', 'Curricularunits1stsemevaluations',
-				'Curricularunits1stsemapproved', 'Curricularunits1stsemgrade',
-				'Curricularunits1stsemwithoutevaluations',
+				'Curricularunits1stsemapproved',
+				'Curricularunits1stsemgrade',# ('Curricularunits1stsemgrade', 0.0009618400418190509)
+				'Curricularunits1stsemwithoutevaluations',#('Curricularunits1stsemwithoutevaluations', 0.0008259278619967781)
 				'Curricularunits2ndsemcredited', 'Curricularunits2ndsemenrolled',
 				'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
-				'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',
-				'Unemploymentrate', 'Inflationrate', 'GDP']
-cur_sum = 'curr_sum'
+				'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',# ('Curricularunits2ndsemgrade', 0.0009200209095660439)
+				'Unemploymentrate',
+				'Inflationrate', 'GDP']
+# cur_sum = 'curr_sum'
 
-cur_col = ['Curricularunits1stsemcredited',
-		   'Curricularunits1stsemenrolled', 'Curricularunits1stsemevaluations',
-		   'Curricularunits1stsemapproved', 'Curricularunits1stsemgrade',
-		   'Curricularunits1stsemwithoutevaluations',
-		   'Curricularunits2ndsemcredited', 'Curricularunits2ndsemenrolled',
-		   'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
-		   'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',
-		   ]
-train[cur_sum] = train[cur_col].sum(axis=1)
-data1_x_calc += [cur_sum]
+# cur_col = ['Curricularunits1stsemcredited',
+# 		   'Curricularunits1stsemenrolled', 'Curricularunits1stsemevaluations',
+# 		   'Curricularunits1stsemapproved', 'Curricularunits1stsemgrade',
+# 		   'Curricularunits1stsemwithoutevaluations',
+# 		   'Curricularunits2ndsemcredited', 'Curricularunits2ndsemenrolled',
+# 		   'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
+# 		   'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations' ]
+# train[cur_sum] = train[cur_col].sum(axis=1)
+# data1_x_calc += [cur_sum]
 Target = 'Target'
 labelEncoder = LabelEncoder()
 train[Target] = labelEncoder.fit_transform(train[Target])
@@ -304,14 +325,20 @@ from sklearn.model_selection import train_test_split
 
 train_X, val_X, train_y, val_y = train_test_split(train[data1_x_calc], train[Target], random_state=1)
 
-my_model = RandomForestClassifier(n_estimators=30, random_state=1,n_jobs=-1).fit(train[data1_x_calc], train[Target])
+my_model = RandomForestClassifier(n_estimators=30, random_state=1, n_jobs=-1).fit(train[data1_x_calc], train[Target])
 perms = PermutationImportance(my_model, random_state=1).fit(val_X, val_y)
-r1=eli5.show_weights(perms, feature_names=val_X.columns.tolist())
-print('3'*100)
+r1 = eli5.show_weights(perms, feature_names=val_X.columns.tolist())
+print('3' * 100)
 print(r1)
 
-print('4'*100)
-r2=eli5.show_weights(my_model)
+print('4' * 100)
+r2 = eli5.show_weights(my_model)
 
-print(perms.feature_importances_)
-print(perms.feature_importances_std_)
+feature_importances = perms.feature_importances_
+m = {}
+print('5' * 100)
+for f, w in zip(data1_x_calc, feature_importances):
+	m[f] = w
+r = sorted(m.items(), key=lambda k: -k[1])
+for i in r:
+	print(i)

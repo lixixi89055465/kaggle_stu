@@ -45,9 +45,11 @@ from sklearn.compose import ColumnTransformer
 
 import random
 import time
-
+import os
 import warnings
+from datetime import datetime
 
+print(f'{__file__}:{datetime.now} start ')
 warnings.filterwarnings('ignore')
 print('-' * 25)
 from subprocess import check_output
@@ -267,37 +269,46 @@ xgb_best_params_for_y1 = {'max_depth': 5, \
 
 
 
-data1_x_calc = ['Maritalstatus', 'Applicationmode', 'Applicationorder', 'Course',
+
+data1_x_calc = ['Maritalstatus', 'Applicationmode', 'Applicationorder',
+				'Course',#('Course', 0.0009095661265027921)
 				'Daytimeeveningattendance', 'Previousqualification',
-				'Previousqualificationgrade', 'Nacionality',
+				'Previousqualificationgrade',#('Previousqualificationgrade', 0.0002090956612650352)
+				# 'Nacionality',# ('Nacionality', 0.0003659174072138116)
 				'Mothersqualification',
 				'Fathersqualification',
 				'Mothersoccupation', 'Fathersoccupation',
-				'Admissiongrade', 'Displaced', 'Educationalspecialneeds', 'Debtor',
+				'Admissiongrade',
+				'Displaced',#('Displaced', 0.0002090956612650352)
+				# 'Educationalspecialneeds', # #('Educationalspecialneeds', 0.000261369576581294)
+				'Debtor',
 				'Tuitionfeesuptodate',
 				'Gender',
 				'Scholarshipholder',
-				# 'Ageatenrollment',
-				'International', 'Curricularunits1stsemcredited',
+				'Ageatenrollment',#('Ageatenrollment', 0.00019864087820178344)
+				# 'International',#('International', 0.00019864087820178344)
+				'Curricularunits1stsemcredited',
 				'Curricularunits1stsemenrolled', 'Curricularunits1stsemevaluations',
-				'Curricularunits1stsemapproved', 'Curricularunits1stsemgrade',
-				'Curricularunits1stsemwithoutevaluations',
+				'Curricularunits1stsemapproved',
+				'Curricularunits1stsemgrade',# ('Curricularunits1stsemgrade', 0.0009618400418190509)
+				'Curricularunits1stsemwithoutevaluations',#('Curricularunits1stsemwithoutevaluations', 0.0008259278619967781)
 				'Curricularunits2ndsemcredited', 'Curricularunits2ndsemenrolled',
 				'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
-				'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',
-				'Unemploymentrate', 'Inflationrate', 'GDP']
-cur_sum = 'curr_sum'
-cur_col = ['Curricularunits1stsemcredited',
-		   'Curricularunits1stsemenrolled', 'Curricularunits1stsemevaluations',
-		   'Curricularunits1stsemapproved', 'Curricularunits1stsemgrade',
-		   'Curricularunits1stsemwithoutevaluations',
-		   'Curricularunits2ndsemcredited', 'Curricularunits2ndsemenrolled',
-		   'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
-		   'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',
-		   ]
-train[cur_sum] = train[cur_col].sum(axis=1)
-data_val[cur_sum] = data_val[cur_col].sum(axis=1)
-data1_x_calc += [cur_sum]
+				'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',# ('Curricularunits2ndsemgrade', 0.0009200209095660439)
+				'Unemploymentrate',
+				'Inflationrate', 'GDP']
+# cur_sum = 'curr_sum'
+# cur_col = ['Curricularunits1stsemcredited',
+# 		   'Curricularunits1stsemenrolled', 'Curricularunits1stsemevaluations',
+# 		   'Curricularunits1stsemapproved', 'Curricularunits1stsemgrade',
+# 		   'Curricularunits1stsemwithoutevaluations',
+# 		   'Curricularunits2ndsemcredited', 'Curricularunits2ndsemenrolled',
+# 		   'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
+# 		   'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',
+# 		   ]
+# train[cur_sum] = train[cur_col].sum(axis=1)
+# data_val[cur_sum] = data_val[cur_col].sum(axis=1)
+# data1_x_calc += [cur_sum]
 
 train = reduce_mem_usage(train)
 data_val = reduce_mem_usage(data_val)
@@ -934,7 +945,7 @@ for name in vote_est:
 	tmpname = '_' + name[0]
 
 submit = data_val[['id', Target]]
-submitName = f"submission07_sum_{tmpname}.csv"
+submitName = f"submission07_sum_{__file__}_{datetime.now().strftime('%Y%m%d-%H-%M-%S')}.csv"
 submit.to_csv(submitName, index=False)
 
 print('Validation Data Distribution: \n', data_val[Target].value_counts(normalize=True))
@@ -955,4 +966,5 @@ submit.sample(10)
 # Total optimization time was 156.67 minutes.
 # TODO
 
+print(f'{__file__}:{datetime.now} start ')
 print(f'{datetime.now()}  {submitName} end !!!!!')
