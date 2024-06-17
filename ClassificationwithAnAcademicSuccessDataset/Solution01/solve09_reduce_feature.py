@@ -274,7 +274,7 @@ data1_x_calc = ['Maritalstatus', 'Applicationmode', 'Applicationorder',
 				'Course',#('Course', 0.0009095661265027921)
 				'Daytimeeveningattendance', 'Previousqualification',
 				'Previousqualificationgrade',#('Previousqualificationgrade', 0.0002090956612650352)
-				# 'Nacionality',# ('Nacionality', 0.0003659174072138116)
+				'Nacionality',# ('Nacionality', 0.0003659174072138116)
 				'Mothersqualification',
 				'Fathersqualification',
 				'Mothersoccupation', 'Fathersoccupation',

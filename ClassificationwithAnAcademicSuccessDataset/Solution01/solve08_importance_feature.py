@@ -278,30 +278,32 @@ print('3' * 100)
 getMean(train, 'Admissiongrade')
 
 data1_x_calc = ['Maritalstatus', 'Applicationmode', 'Applicationorder',
-				'Course',#('Course', 0.0009095661265027921)
+				'Course',  # ('Course', 0.0009095661265027921)
 				'Daytimeeveningattendance', 'Previousqualification',
-				'Previousqualificationgrade',#('Previousqualificationgrade', 0.0002090956612650352)
-				'Nacionality',# ('Nacionality', 0.0003659174072138116)
+				'Previousqualificationgrade',  # ('Previousqualificationgrade', 0.0002090956612650352)
+				# 'Nacionality',# ('Nacionality', 0.0003659174072138116)
 				'Mothersqualification',
 				'Fathersqualification',
 				'Mothersoccupation', 'Fathersoccupation',
 				'Admissiongrade',
-				'Displaced',#('Displaced', 0.0002090956612650352)
+				'Displaced',  # ('Displaced', 0.0002090956612650352)
 				# 'Educationalspecialneeds', #('Educationalspecialneeds', 0.000261369576581294)
 				'Debtor',
 				'Tuitionfeesuptodate',
 				'Gender',
 				'Scholarshipholder',
-				'Ageatenrollment',#('Ageatenrollment', 0.00019864087820178344)
+				'Ageatenrollment',  # ('Ageatenrollment', 0.00019864087820178344)
 				# 'International',#('International', 0.00019864087820178344)
 				'Curricularunits1stsemcredited',
 				'Curricularunits1stsemenrolled', 'Curricularunits1stsemevaluations',
 				'Curricularunits1stsemapproved',
-				'Curricularunits1stsemgrade',# ('Curricularunits1stsemgrade', 0.0009618400418190509)
-				'Curricularunits1stsemwithoutevaluations',#('Curricularunits1stsemwithoutevaluations', 0.0008259278619967781)
+				'Curricularunits1stsemgrade',  # ('Curricularunits1stsemgrade', 0.0009618400418190509)
+				'Curricularunits1stsemwithoutevaluations',
+				# ('Curricularunits1stsemwithoutevaluations', 0.0008259278619967781)
 				'Curricularunits2ndsemcredited', 'Curricularunits2ndsemenrolled',
 				'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
-				'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',# ('Curricularunits2ndsemgrade', 0.0009200209095660439)
+				'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',
+				# ('Curricularunits2ndsemgrade', 0.0009200209095660439)
 				'Unemploymentrate',
 				'Inflationrate', 'GDP']
 # cur_sum = 'curr_sum'
@@ -342,3 +344,29 @@ for f, w in zip(data1_x_calc, feature_importances):
 r = sorted(m.items(), key=lambda k: -k[1])
 for i in r:
 	print(i)
+
+print(train['Curricularunits2ndsemgrade'].dtype == 'float16')
+print(train['Curricularunits2ndsemgrade'].dtype)
+# print('train.value_counts():')
+# print(train.value_counts())
+cols = list()
+for col in data1_x_calc:
+	if train[col].dtype in [np.int8, np.int16, np.int32, np.int64]:
+		cols.append(col)
+		print(f'{col} value count is : \t {train[col].value_counts()}')
+
+import matplotlib.pyplot as plt
+
+fig = plt.figure(figsize=(12, 4))
+plt.subplot(1, 2, 1)
+sns.histplot(data=train, x='Curricularunits2ndsemwithoutevaluations', hue=Target,
+			 # bins=200
+			 )
+plt.title('Total expenditure (truncated)')
+plt.ylim([0, 200])
+plt.xlim([0, 20000])
+
+plt.subplot(1, 2, 2)
+sns.countplot(data=train, x='Curricularunits2ndsemwithoutevaluations', hue=Target)
+plt.title('No spending indicator')
+fig.tight_layout()
