@@ -1,5 +1,13 @@
 '''
-Hello and Welcome to Kaggle, the online Data Science Community to learn, share, and compete. Most beginners get lost in the field, because they fall into the black box approach, using libraries and algorithms they don't understand. This tutorial will give you a 1-2-year head start over your peers, by providing a framework that teaches you how-to think like a input scientist vs what to think/code. Not only will you be able to submit your first competition, but you’ll be able to solve any problem thrown your way. I provide clear explanations, clean code, and plenty of links to resources. Please Note: This Kernel is still being improved. So check the Change Logs below for updates. Also, please be sure to upvote, fork, and comment and I'll continue to develop. Thanks, and may you have "statistically significant" luck!
+Hello and Welcome to Kaggle, the online Data Science Community to learn, share, and compete.
+ Most beginners get lost in the field, because they fall into the black box approach,
+  using libraries and algorithms they don't understand.
+   This tutorial will give you a 1-2-year head start over your peers, by providing a framework that teaches you how-to think like a input scientist vs what to think/code.
+    Not only will you be able to submit your first competition, but you’ll be able to solve any problem thrown your way.
+     I provide clear explanations, clean code, and plenty of links to resources.
+      Please Note: This Kernel is still being improved. So check the Change Logs below for updates.
+      Also, please be sure to upvote, fork, and comment and I'll continue to develop.
+      Thanks, and may you have "statistically significant" luck!
 '''
 import sys
 import matplotlib as mpl
@@ -62,8 +70,8 @@ data_raw = pd.read_csv('../input/playground-series-s4e6/train.csv')
 data_val = pd.read_csv('../input/playground-series-s4e6/test.csv')
 # #to play with our input we'll create a copy
 # #remember python assignment or equal passes by reference vs values, so we use the copy function: https://stackoverflow.com/questions/46327494/python-pandas-dataframe-copydeep-false-vs-copydeep-true-vs
-# data1 = data_raw.copy(deep=True)
-# data_cleaner = [data1, data_val]
+data1 = data_raw.copy(deep=True)
+data_cleaner = [data1, data_val]
 print("2" * 100)
 print(data_raw.info())
 print(data_raw.head())
@@ -297,18 +305,18 @@ data1_x_calc = ['Maritalstatus', 'Applicationmode', 'Applicationorder',
 				'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',# ('Curricularunits2ndsemgrade', 0.0009200209095660439)
 				'Unemploymentrate',
 				'Inflationrate', 'GDP']
-# cur_sum = 'curr_sum'
-# cur_col = ['Curricularunits1stsemcredited',
-# 		   'Curricularunits1stsemenrolled', 'Curricularunits1stsemevaluations',
-# 		   'Curricularunits1stsemapproved', 'Curricularunits1stsemgrade',
-# 		   'Curricularunits1stsemwithoutevaluations',
-# 		   'Curricularunits2ndsemcredited', 'Curricularunits2ndsemenrolled',
-# 		   'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
-# 		   'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',
-# 		   ]
-# train[cur_sum] = train[cur_col].sum(axis=1)
-# data_val[cur_sum] = data_val[cur_col].sum(axis=1)
-# data1_x_calc += [cur_sum]
+cur_sum = 'curr_sum'
+cur_col = ['Curricularunits1stsemcredited',
+		   'Curricularunits1stsemenrolled', 'Curricularunits1stsemevaluations',
+		   'Curricularunits1stsemapproved', 'Curricularunits1stsemgrade',
+		   'Curricularunits1stsemwithoutevaluations',
+		   'Curricularunits2ndsemcredited', 'Curricularunits2ndsemenrolled',
+		   'Curricularunits2ndsemevaluations', 'Curricularunits2ndsemapproved',
+		   'Curricularunits2ndsemgrade', 'Curricularunits2ndsemwithoutevaluations',
+		   ]
+train[cur_sum] = train[cur_col].sum(axis=1)
+data_val[cur_sum] = data_val[cur_col].sum(axis=1)
+data1_x_calc += [cur_sum]
 
 train = reduce_mem_usage(train)
 data_val = reduce_mem_usage(data_val)
