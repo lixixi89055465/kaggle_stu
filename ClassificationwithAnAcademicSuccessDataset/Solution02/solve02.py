@@ -4,7 +4,7 @@
 # @Site    : https://www.kaggle.com/code/abdmental01/lgbm-optimization-optuna
 # @File    : solve02.py
 # @Software: PyCharm 
-# @Comment :
+# @Comment : 10.11
 
 import pandas as pd
 import matplotlib.pyplot as plt

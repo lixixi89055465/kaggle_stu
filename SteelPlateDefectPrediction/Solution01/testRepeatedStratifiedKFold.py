@@ -4,7 +4,7 @@
 # @Site : https://scikit-learn.org.cn/view/643.html
 # @File : testRepeatedStratifiedKFold.py
 # @Software: PyCharm 
-# @Comment : 
+# @Comment : 10.11
 import numpy as np
 from sklearn.model_selection import RepeatedStratifiedKFold
 
