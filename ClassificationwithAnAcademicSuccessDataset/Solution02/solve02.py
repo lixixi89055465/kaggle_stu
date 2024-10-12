@@ -17,15 +17,12 @@ import optuna
 import warnings
 
 warnings.filterwarnings('ignore')
-from sklearn.model_selection import RepeatedStratifiedKFold, cross_val_score, train_test_split
-
 # Model and utiliz
 from sklearn.model_selection import RepeatedStratifiedKFold, \
 	cross_val_score, \
 	train_test_split
 import lightgbm as lgb
 from lightgbm import LGBMClassifier
-from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import *
 from sklearn.metrics import *
 
