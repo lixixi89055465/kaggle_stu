@@ -5,6 +5,7 @@
 # @File : solve01.py
 # @Software: PyCharm 
 # @Comment : H2O👩🏿‍🎓 Automl🎓 Academic📈Performance
+import h2o
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, PolynomialFeatures, StandardScaler
 # import h2o
@@ -15,7 +16,7 @@ from scipy import stats
 import matplotlib.pyplot as plt
 import numpy as np
 
-# h2o.init()
+h2o.init()
 
 # Load test Data
 df_train = pd.read_csv('../input/playground-series-s4e6/train.csv')
@@ -285,4 +286,22 @@ def find_duplicate_columns(df):
 
 duplicate_columns_train = find_duplicate_columns(df_train)
 columns_to_drop_train = list(set([col for pair in duplicate_columns_train for col in pair[1:]]))
+df_train = df_train.drop(columns=columns_to_drop_train)
 
+duplicate_columns_test = find_duplicate_columns(df_test)
+columns_to_drop_test = list(set([col for pair in duplicate_columns_test for col in pair[1:]]))
+df_test = df_test.drop(columns=columns_to_drop_test)
+print('3' * 100)
+print(df_train.shape)
+print(df_test.shape)
+
+from h2o.automl import H2OAutoML
+
+train_data = h2o.H2OFrame(df_train)
+aml = H2OAutoML(max_runtime_secs=8000, seed=42)
+aml.train(y='Target', training_frame=train_data)
+# What leadboard has to say
+leaderboard = aml.leaderboard
+print(leaderboard)
+best_model = aml.leader
+print(best_model)
