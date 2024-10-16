@@ -305,3 +305,38 @@ leaderboard = aml.leaderboard
 print(leaderboard)
 best_model = aml.leader
 print(best_model)
+
+df_test = h2o.H2OFrame(df_test)
+
+
+predictions = best_model.predict(df_test)
+predictions_df = predictions.as_data_frame()
+
+df_sub['Target'] =(predictions_df['predict'].values)
+df_sub['Target'].value_counts()
+first = pd.read_csv('/kaggle/input/vampirehunter/strangerthigsoys.csv')
+#second = pd.read_csv('/kaggle/input/insigthfullwaster/notthebestway.csv')
+third = pd.read_csv('/kaggle/input/fibrespacestelar/bestguardspace.csv')
+fourth = pd.read_csv('/kaggle/input/fibrespacestelar/Bestguard.csv')
+first_target = first['Target']
+#second_target = second['Target']
+third_target = third['Target']
+sub_target = df_sub['Target']
+fourth_target = fourth['Target']
+
+
+combined_targets = pd.DataFrame({
+    'first': first_target,
+    #'second': second_target,
+    'third': third_target,
+    'sub': sub_target,
+    'fourth':fourth_target
+})
+
+
+ensemble_preds = combined_targets.mode(axis=1)[0]
+
+df_sub['Target'] = ensemble_preds
+df_sub.head()
+df_sub.to_csv('submission.csv', index=False)
+
