@@ -25,3 +25,5 @@ import warnings
 from sklearn.pipeline import make_pipeline
 from sklearn.decomposition import PCA
 from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import StratifiedKFold
+from sklearn.feature_extraction.text import TfidfVectorizer
