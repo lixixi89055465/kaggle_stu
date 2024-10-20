@@ -2,7 +2,7 @@
 # @Time : 2024/10/16 22:25
 # @Author : nanji
 # @Site : https://www.kaggle.com/code/endofnight17j03/academicsuccess-voting-xgboost
-# @File : Solve.py
+# @File : Solve01.py
 # @Software: PyCharm 
 # @Comment :
 import statsmodels.api as sm
@@ -27,3 +27,7 @@ from sklearn.decomposition import PCA
 from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import StratifiedKFold
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import TruncatedSVD
+from sklearn.exceptions import DataConversionWarning
+from catboost import CatBoostClassifier, Pool
+
