@@ -125,10 +125,175 @@ params_with_snappshot.update({
 model = CatBoostClassifier(**params_with_snappshot).fit(train_pool, eval_set=validation_pool,
                                                         save_snapshot=True)
 params_with_snappshot.update({
-    'iteration': 10,
+    'iterations': 10,
     'learning_rate': 0.1
 })
-model = CatBoostClassifier(
-    **params_with_snappshot
-).fit(train_pool, eval_set=validation_pool, save_snapshot=True)
+model = (CatBoostClassifier(**params_with_snappshot).
+         fit(train_pool, eval_set=validation_pool, save_snapshot=True))
 
+
+class LoglossObjective(object):
+    def calc_ders_range(self, approxes, targets, weights):
+        assert len(approxes) == len(targets)
+        if weights is not None:
+            assert len(weights) == len(approxes)
+        result = []
+        for index in range(len(targets)):
+            e = np.exp(approxes[index])
+            p = e / (1 + e)
+            der1 = (1 - p) if targets[index] > 0.0 else -p
+            der2 = -p * (1 - p)
+            if weights is not None:
+                assert len(weights) == len(approxes)
+            result.append((der1, der2))
+        return result
+
+
+model = CatBoostClassifier(
+    iterations=10,
+    random_seed=42,
+    loss_function=LoglossObjective(),
+    eval_metric=metrics.Logloss()
+)
+# Fit model
+model.fit(train_pool)
+preds_raw = model.predict(X_test, prediction_type='RawFormulaVal')
+
+
+class LoglossMetric(object):
+    def get_final_error(self, error, weight):
+        return error / (weight + 1e-38)
+
+    def is_max_optimal(self):
+        return False
+
+    def evaluate(self, approxes, target, weight):
+        assert len(approxes) == 1
+        assert len(target) == len(approxes[0])
+        approx = approxes[0]
+        error_sum = 0.0
+        weight_sum = 0.0
+        for i in range(len(approx)):
+            w = 1.0 if weight is None else weight[i]
+            weight_sum += w
+            error_sum += -w * (target[i] * approx[i] - np.log(1 + np.exp(approx[i])))
+        return error_sum, weight_sum
+
+
+class LoglossMetric(object):
+    def get_final_error(self, error, weight):
+        return error / (weight + 1e-38)
+
+    def is_max_optimal(self):
+        return False
+
+    def evaluate(self, approxes, target, weight):
+        assert len(approxes) == 1
+        assert len(target) == len(approxes[0])
+        approx = approxes[0]
+        error_sum = 0.0
+        weight_sum = 0.0
+        for i in range(len(approx)):
+            w = 1.0 if weight is None else weight[i]
+            weight_sum += w
+            error_sum += -w * (target[i] * approx[i] - np.log(1 + np.exp(approx[i])))
+        return error_sum, weight_sum
+
+
+model = CatBoostClassifier(
+    iterations=10,
+    random_seed=42,
+    loss_function=metrics.Logloss(),
+    eval_metric=LoglossMetric()
+)
+# fit model
+model.fit(train_pool)
+# Only prediction_type = 'RawFormulaVal' is allowed with custom 'loss_function'
+preds_raw = model.predict(X_test, prediction_type='RawFormulaVal')
+
+model = CatBoostClassifier(iterations=10, random_seed=42, logging_level='Silent').fit(train_pool)
+ntree_start, ntree_end, eval_period = 3, 9, 2
+predictions_iterator = model.staged_predict(validation_pool, 'Probability', ntree_start, ntree_end, eval_period)
+for preds, tree_count in zip(predictions_iterator, range(ntree_start, ntree_end, eval_period)):
+    print('First class probabilities using the first {} trees:{}'.format(tree_count, preds[:5, 1]))
+
+model = CatBoostClassifier(iterations=50, random_seed=42, logging_level='Silent').fit(train_pool)
+feature_importances = model.get_feature_importance(train_pool)
+feature_names = X_train.columns
+for score, name in sorted(zip(feature_importances, feature_names), reverse=True):
+    print('{}: {}'.format(name, score))
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+data = {'feature_names': feature_names, 'feature_importance': feature_importances}
+fi_df = pd.DataFrame(data)
+fi_df.sort_values(by=['feature_importance'], ascending=False, inplace=True)
+
+plt.figure(figsize=(10, 8))
+sns.barplot(x=fi_df['feature_importance'], y=fi_df['feature_names'])
+# Add chart labels
+
+plt.title('FEATURE IMPORTANCE')
+plt.xlabel('FEATUre importance')
+plt.ylabel('feature names')
+
+model = CatBoostClassifier(iterations=50, random_seed=42, logging_level='Silent').fit(train_pool)
+eval_metrics = model.eval_metrics(validation_pool, [metrics.AUC()], plot=True)
+
+print(eval_metrics['AUC'][:6])
+
+model1 = CatBoostClassifier(iterations=100, depth=1, train_dir='model_depth_1/', logging_level='Silent')
+model1.fit(train_pool, eval_set=validation_pool)
+model2 = CatBoostClassifier(iterations=100, depth=5, train_dir='model_depth_5/', logging_level='Silent')
+model2.fit(train_pool, eval_set=validation_pool)
+
+from catboost import MetricVisualizer
+
+widget = MetricVisualizer(['model_depth_1', 'model_depth_5/'])
+widget.start()
+
+### 3.11
+model = CatBoostClassifier(iterations=10, random_seed=42, logging_level='Silent').fit(train_pool)
+model.save_model('catboost_model.dump')
+model = CatBoostClassifier()
+model.load_model('catboost_model.dump')
+
+import hyperopt
+
+
+def hyperopt_objective(params):
+    model = CatBoostClassifier(
+        l2_leaf_reg=int(params['l2_leaf_reg']),
+        learning_rate=params['learning_rate'],
+        iterations=500,
+        eval_metric=metrics.Accuracy(),
+        random_seed=42,
+        verbose=False,
+        loss_function=metrics.Logloss()
+    )
+    cv_data = cv(
+        Pool(X, y, cat_features=categorical_features_indices),
+        model.get_params(),
+        logging_level='Silent'
+    )
+    best_accuracy = np.max(cv_data['test-Accuracy-mean'])
+    return 1 - best_accuracy  # as hyperopt minimises
+
+
+
+from numpy.random import RandomState
+params_space={
+    'l2_leaf_reg':hyperopt.hp.qloguniform('l2_leaf_reg',0,2,1),
+    'learning_rate':hyperopt.hp.uniform('learning_rate',1e-3,5e-1)
+}
+trials=hyperopt.Trials()
+best=hyperopt.fmin(
+    hyperopt_objective,
+    space=params_space,
+    algo=hyperopt.tpe.suggest,
+    max_evals=50,
+    trials=trials,
+    #rstate=RandomState(123)
+)
