@@ -282,18 +282,18 @@ def hyperopt_objective(params):
     return 1 - best_accuracy  # as hyperopt minimises
 
 
-
 from numpy.random import RandomState
-params_space={
-    'l2_leaf_reg':hyperopt.hp.qloguniform('l2_leaf_reg',0,2,1),
-    'learning_rate':hyperopt.hp.uniform('learning_rate',1e-3,5e-1)
+
+params_space = {
+    'l2_leaf_reg': hyperopt.hp.qloguniform('l2_leaf_reg', 0, 2, 1),
+    'learning_rate': hyperopt.hp.uniform('learning_rate', 1e-3, 5e-1)
 }
-trials=hyperopt.Trials()
-best=hyperopt.fmin(
+trials = hyperopt.Trials()
+best = hyperopt.fmin(
     hyperopt_objective,
     space=params_space,
     algo=hyperopt.tpe.suggest,
     max_evals=50,
     trials=trials,
-    #rstate=RandomState(123)
+    # rstate=RandomState(123)
 )
