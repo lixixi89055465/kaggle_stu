@@ -30,4 +30,19 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
 from sklearn.exceptions import DataConversionWarning
 from catboost import CatBoostClassifier, Pool
+from catboost.utils import eval_metric
 
+warnings.filterwarnings('ignore', category=DataConversionWarning)
+warnings.filterwarnings('ignore')
+from IPython.display import display,HTML
+from sklearn.metrics import auc
+from sklearn.metrics import precision_recall_curve
+from sklearn.model_selection import cross_val_score
+from catboost import CatBoostClassifier
+from sklearn.model_selection import GridSearchCV,RandomizedSearchCV
+from sklearn.tree import DecisionTreeClassifier
+from scipy.stats import ttest_ind,chi2_contingency
+from sklearn.naive_bayes import GaussianNB
+from sklearn.utils import class_weight
+import pandas as pd
+from sklearn.preprocessing import PowerTransformer
